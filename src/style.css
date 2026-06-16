@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ================================================
+   EVERVILL — Notion-inspired Design System
+   ================================================ */
+@theme {
+  /* ── Primary (Evervill Green) ── */
+  --color-accent:           #429F80;
+  --color-accent-hover:     #347A63;
+  --color-accent-light:     #E8F5F0;
+  --color-accent-dark-muted:#0D2B22;
+
+  /* ── Canvas (Warm Paper) ── */
+  --color-canvas:           #ffffff;
+  --color-canvas-soft:      #f6f5f4;
+
+  /* ── Ink (Text) ── */
+  --color-ink:              #1a1a19;
+  --color-ink-secondary:    #31302e;
+  --color-ink-muted:        #615d59;
+  --color-ink-faint:        #a39e98;
+
+  /* ── Hairline ── */
+  --color-hairline:         #e6e6e6;
+
+  /* ── Dark Mode Surfaces (Warm) ── */
+  --color-dark-base:        #1a1917;
+  --color-dark-surface:     #201f1d;
+  --color-dark-elevated:    #272624;
+  --color-dark-border:      #3a3936;
+
+  /* ── Dark Mode Text ── */
+  --color-dark-text:        #e8e6e1;
+  --color-dark-muted:       #9b9892;
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
+    @apply transition-colors duration-200;
+    font-feature-settings: 'lnum' 1, 'locl' 1;
+  }
+  body {
+    @apply bg-canvas-soft dark:bg-dark-base text-ink dark:text-dark-text transition-colors duration-200;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+}

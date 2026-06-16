@@ -1,0 +1,90 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import type { Listing } from '@/types'
+import { listingsApi } from '@/api'
+import { formatListingPrice, formatArea, formatFloor, STATUS_LABEL, STATUS_COLOR } from '@/utils/format'
+import AppHeader from '@/components/layout/AppHeader.vue'
+
+const listings = ref<Listing[]>([])
+const loading = ref(false)
+const error = ref(false)
+
+async function fetchMyListings() {
+  loading.value = true
+  error.value = false
+  try {
+    const res = await listingsApi.getMy()
+    listings.value = res.data.data?.content ?? []
+  } catch {
+    error.value = true
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchMyListings)
+</script>
+
+<template>
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base">
+    <AppHeader />
+    <main class="pt-14 max-w-3xl mx-auto w-full px-4 py-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">내 매물</h1>
+        <RouterLink
+          to="/listings/new"
+          class="text-sm font-medium px-4 py-1.5 bg-accent hover:bg-accent-hover text-white rounded-full transition-colors"
+        >+ 매물 등록</RouterLink>
+      </div>
+
+      <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-3 text-ink-faint dark:text-dark-muted">
+        <div class="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <p class="text-sm">불러오는 중...</p>
+      </div>
+
+      <div v-else-if="error" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
+        <p class="text-sm font-medium text-ink dark:text-dark-text">불러오기 실패</p>
+        <button class="text-sm text-accent hover:underline cursor-pointer" @click="fetchMyListings">다시 시도</button>
+      </div>
+
+      <div v-else-if="listings.length === 0" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
+        <p class="text-sm">등록한 매물이 없습니다</p>
+        <RouterLink to="/listings/new" class="text-sm text-accent hover:underline">첫 매물 등록하기</RouterLink>
+      </div>
+
+      <div v-else class="space-y-2">
+        <RouterLink
+          v-for="listing in listings"
+          :key="listing.id"
+          :to="`/listings/${listing.id}`"
+          class="block bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-4 flex gap-4 hover:shadow-sm hover:border-accent/30 transition-all"
+        >
+          <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated">
+            <img
+              v-if="listing.images?.length"
+              :src="listing.images[0].imageUrl"
+              :alt="listing.title"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center text-xl text-ink-faint dark:text-dark-muted">🏠</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <h3 class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</h3>
+              <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full" :class="STATUS_COLOR[listing.status]">
+                {{ STATUS_LABEL[listing.status] }}
+              </span>
+            </div>
+            <p class="text-sm font-semibold text-accent mb-1">{{ formatListingPrice(listing) }}</p>
+            <p class="text-xs text-ink-faint dark:text-dark-muted mb-1 truncate">{{ listing.address }}</p>
+            <div class="flex gap-3 text-xs text-ink-faint dark:text-dark-muted">
+              <span v-if="listing.area">{{ formatArea(listing.area) }}</span>
+              <span v-if="listing.floor">{{ formatFloor(listing.floor) }}</span>
+              <span>{{ new Date(listing.createdAt).toLocaleDateString('ko-KR') }} 등록</span>
+            </div>
+          </div>
+        </RouterLink>
+      </div>
+    </main>
+  </div>
+</template>
