@@ -25,12 +25,6 @@ export interface TokenResponse {
   expiresIn: number
 }
 
-export interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
-}
-
 /** @deprecated 이전 타입 - TokenResponse 사용 */
 export interface AuthResponse {
   token: string

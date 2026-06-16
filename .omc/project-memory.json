@@ -1,0 +1,141 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1781077900957,
+  "projectRoot": "C:\\Codes\\final_home_minhyuncho_jinhyeongchoe\\frontend",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "vue",
+        "version": "3.5.34",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "8.0.12",
+        "category": "build"
+      }
+    ],
+    "packageManager": "yarn",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "cd \"C:\\Codes\\final_home_minhyuncho_jinhyeongchoe\\frontend\" && npm run build 2>&1 | grep -E \"(OAuth2|ListingEdit|ListingCreate|router)\" | head -20",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "yarn dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "vue-tsc -b && vite build",
+      "preview": "vite preview"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "master",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 2,
+      "lastAccessed": 1781077900928,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1781077900928,
+      "keyFiles": [
+        "App.vue",
+        "main.ts",
+        "style.css"
+      ]
+    },
+    "src\\api": {
+      "path": "src\\api",
+      "purpose": "API routes",
+      "fileCount": 7,
+      "lastAccessed": 1781077900937,
+      "keyFiles": [
+        "ai.ts",
+        "auth.ts",
+        "chat.ts"
+      ]
+    },
+    "src\\assets": {
+      "path": "src\\assets",
+      "purpose": "Static assets",
+      "fileCount": 3,
+      "lastAccessed": 1781077900937,
+      "keyFiles": [
+        "evervill_logo.png",
+        "hero.png",
+        "kakao_login_large_wide.png"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1781077900938,
+      "keyFiles": []
+    },
+    "src\\types": {
+      "path": "src\\types",
+      "purpose": "Type definitions",
+      "fileCount": 7,
+      "lastAccessed": 1781077900938,
+      "keyFiles": [
+        "ai.ts",
+        "auth.ts",
+        "chat.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src\\views\\OAuth2CallbackView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1781532533181,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
