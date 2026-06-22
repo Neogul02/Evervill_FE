@@ -13,6 +13,10 @@
       "destination": "http://168.107.54.139:8080/auth/:path*"
     },
     {
+      "source": "/oauth2/callback",
+      "destination": "/index.html"
+    },
+    {
       "source": "/oauth2/:path*",
       "destination": "http://168.107.54.139:8080/oauth2/:path*"
     },

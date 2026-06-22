@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores'
 import type { Listing } from '@/types'
 import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL, STATUS_COLOR } from '@/utils/format'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import NaverMap from '@/components/map/NaverMap.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -184,6 +185,9 @@ onMounted(fetchListing)
           <h2 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-2 uppercase tracking-wide">위치</h2>
           <p class="text-sm text-ink dark:text-dark-text">{{ listing.address }}</p>
           <p v-if="listing.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ listing.addressDetail }}</p>
+          <div class="mt-3 h-56 rounded-lg overflow-hidden border border-hairline dark:border-dark-border">
+            <NaverMap :latitude="listing.latitude" :longitude="listing.longitude" :address="listing.address" />
+          </div>
         </div>
 
         <!-- 설명 -->
