@@ -102,7 +102,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="relative w-full h-full bg-canvas-soft">
+  <div class="relative w-full bg-canvas-soft">
     <div ref="mapEl" class="w-full h-full" />
     <div
       v-if="geocoding"
