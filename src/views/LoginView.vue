@@ -5,7 +5,6 @@ import { authApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { parseJwt } from '@/utils/jwt'
 import kakaoLoginImg from '@/assets/kakao_login_large_wide.png'
-import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -87,9 +86,13 @@ async function onLogin() {
             {{ error }}
           </p>
 
-          <BaseButton type="submit" :disabled="loading" class="w-full mt-2">
+          <button
+            type="submit"
+            :disabled="loading"
+            class="w-full py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-semibold disabled:opacity-50 transition-colors cursor-pointer active:scale-[0.98] shadow-sm mt-2"
+          >
             {{ loading ? '로그인 중...' : '로그인' }}
-          </BaseButton>
+          </button>
         </form>
 
         <div class="mt-5 pt-5 border-t border-hairline dark:border-dark-border">
