@@ -54,6 +54,15 @@ function goToPage(page: number) {
   fetchListings(page)
 }
 
+const jumpPage = ref('')
+
+function submitJumpPage() {
+  const target = Number(jumpPage.value)
+  if (!target || target < 1 || target > totalPages.value) return
+  goToPage(target - 1)
+  jumpPage.value = ''
+}
+
 watch(filter, () => fetchListings(0), { deep: true })
 
 watch(() => route.query.address, (addr) => {
@@ -143,6 +152,18 @@ const pageNumbers = computed(() => {
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </button>
+
+      <form v-if="totalPages > 7" class="flex items-center gap-1 ml-2" @submit.prevent="submitJumpPage">
+        <input
+          v-model="jumpPage"
+          type="number"
+          min="1"
+          :max="totalPages"
+          placeholder="페이지"
+          class="w-14 px-1.5 py-0.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+        />
+        <button type="submit" class="text-xs text-accent hover:underline cursor-pointer shrink-0">이동</button>
+      </form>
     </div>
   </div>
 </template>

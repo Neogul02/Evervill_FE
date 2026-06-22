@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores'
 import { useRouter } from 'vue-router'
 import type { MarketProperty } from '@/types'
 import { formatManWon, formatArea, formatFloor } from '@/utils/format'
+import NaverMap from '@/components/map/NaverMap.vue'
 
 const props = defineProps<{ propertyId: number | null }>()
 
@@ -144,6 +145,17 @@ watch(() => props.propertyId, (id) => {
               <p class="font-semibold text-ink dark:text-dark-text">{{ property.districtCode }}</p>
             </div>
           </div>
+        </div>
+
+        <!-- 위치 (법정동 기준 근사치) -->
+        <div class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-5">
+          <h3 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-3 uppercase tracking-wide">위치</h3>
+          <NaverMap
+            :key="property.id"
+            :address="property.districtName"
+            class="w-full h-48 rounded-lg overflow-hidden"
+          />
+          <p class="text-xs text-ink-faint dark:text-dark-muted mt-2">* 법정동 기준 근사 위치입니다 (정확한 지번 정보 없음)</p>
         </div>
 
         <!-- 출처 안내 -->
