@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import type { ListingFilter, DealType } from '@/types'
 
 const emit = defineEmits<{
   update: [filter: ListingFilter]
 }>()
 
+const route = useRoute()
 const dealType = ref<DealType | undefined>(undefined)
-const minPrice = ref<number | undefined>(undefined)
-const maxPrice = ref<number | undefined>(undefined)
+const keyword = ref((route.query.address as string) ?? '')
 
 const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
   { value: undefined, label: '거래전체' },
@@ -17,22 +18,34 @@ const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
   { value: 'SALE', label: '매매' },
 ]
 
-const PRICE_PRESETS = [
-  { label: '1억', value: 10000 },
-  { label: '5억', value: 50000 },
-  { label: '10억', value: 100000 },
+const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
+  { label: '전체', min: undefined, max: undefined },
+  { label: '1억 이하', min: undefined, max: 10000 },
+  { label: '1~3억', min: 10000, max: 30000 },
+  { label: '3~5억', min: 30000, max: 50000 },
+  { label: '5~10억', min: 50000, max: 100000 },
+  { label: '10억 이상', min: 100000, max: undefined },
 ]
 
-function applyPricePreset(value: number) {
-  maxPrice.value = maxPrice.value === value ? undefined : value
-}
+const priceRange = ref(PRICE_RANGES[0])
+let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
-watch([dealType, minPrice, maxPrice], () => {
+function emitUpdate() {
   emit('update', {
     dealType: dealType.value,
-    minPrice: minPrice.value,
-    maxPrice: maxPrice.value,
+    minPrice: priceRange.value.min,
+    maxPrice: priceRange.value.max,
+    address: keyword.value.trim() || undefined,
   })
+}
+
+watch([dealType, priceRange], emitUpdate)
+watch(keyword, () => {
+  clearTimeout(keywordTimer)
+  keywordTimer = setTimeout(emitUpdate, 400)
+})
+watch(() => route.query.address, (addr) => {
+  keyword.value = (addr as string) ?? ''
 })
 </script>
 
@@ -56,32 +69,21 @@ watch([dealType, minPrice, maxPrice], () => {
 
     <div class="flex gap-1.5 flex-wrap">
       <button
-        v-for="preset in PRICE_PRESETS"
-        :key="preset.label"
+        v-for="range in PRICE_RANGES"
+        :key="range.label"
         class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer active:scale-95"
-        :class="maxPrice === preset.value
+        :class="priceRange.label === range.label
           ? 'bg-accent text-white border-accent'
           : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'"
-        @click="applyPricePreset(preset.value)"
-      >{{ preset.label }} 이하</button>
+        @click="priceRange = range"
+      >{{ range.label }}</button>
     </div>
 
-    <div class="flex items-center gap-2">
-      <input
-        v-model.number="minPrice"
-        type="number"
-        min="0"
-        placeholder="최소 (만원)"
-        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
-      />
-      <span class="text-xs text-ink-faint dark:text-dark-muted">~</span>
-      <input
-        v-model.number="maxPrice"
-        type="number"
-        min="0"
-        placeholder="최대 (만원)"
-        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
-      />
-    </div>
+    <input
+      v-model="keyword"
+      type="text"
+      placeholder="제목, 주소 키워드 검색"
+      class="w-full px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent"
+    />
   </div>
 </template>
