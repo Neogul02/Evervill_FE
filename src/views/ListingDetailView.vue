@@ -185,9 +185,13 @@ onMounted(fetchListing)
           <h2 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-2 uppercase tracking-wide">위치</h2>
           <p class="text-sm text-ink dark:text-dark-text">{{ listing.address }}</p>
           <p v-if="listing.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ listing.addressDetail }}</p>
-          <div class="mt-3 h-56 rounded-lg overflow-hidden border border-hairline dark:border-dark-border">
-            <NaverMap :latitude="listing.latitude" :longitude="listing.longitude" :address="listing.address" />
-          </div>
+          <NaverMap
+            :key="listing.id"
+            :latitude="listing.latitude"
+            :longitude="listing.longitude"
+            :address="listing.address"
+            class="mt-3 w-full h-56 rounded-lg overflow-hidden border border-hairline dark:border-dark-border"
+          />
         </div>
 
         <!-- 설명 -->
