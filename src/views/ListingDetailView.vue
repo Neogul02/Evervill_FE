@@ -4,9 +4,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { listingsApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import type { Listing } from '@/types'
-import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL, STATUS_COLOR } from '@/utils/format'
+import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
+import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import NaverMap from '@/components/map/NaverMap.vue'
+import Badge from '@/components/ui/Badge.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -142,12 +144,8 @@ onMounted(fetchListing)
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                  {{ DEAL_TYPE_LABEL[listing.dealType] }}
-                </span>
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium" :class="STATUS_COLOR[listing.status]">
-                  {{ STATUS_LABEL[listing.status] }}
-                </span>
+                <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{ DEAL_TYPE_LABEL[listing.dealType] }}</Badge>
+                <Badge :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
               </div>
               <h1 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight truncate">{{ listing.title }}</h1>
               <p class="text-2xl font-bold text-accent mt-1">{{ formatListingPrice(listing) }}</p>

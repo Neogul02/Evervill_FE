@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Listing } from '@/types'
-import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL } from '@/utils/format'
+import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
 import Badge from '@/components/ui/Badge.vue'
 import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
 
@@ -42,9 +42,7 @@ const emit = defineEmits<{
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 mb-1">
           <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{ DEAL_TYPE_LABEL[listing.dealType] }}</Badge>
-          <Badge :tone="STATUS_TONE[listing.status]">
-            {{ listing.status === 'ACTIVE' ? '거래가능' : listing.status === 'RESERVED' ? '예약중' : '거래완료' }}
-          </Badge>
+          <Badge :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
         </div>
 
         <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</p>

@@ -51,6 +51,9 @@ const nearbyMarket = ref<MarketProperty[]>([])
 const loading = ref(false)
 const bookmarked = ref(false)
 const currentImageIndex = ref(0)
+const showReportModal = ref(false)
+const reportReason = ref('')
+const reportLoading = ref(false)
 
 watch(
   () => props.listingId,
@@ -85,6 +88,19 @@ async function toggleBookmark() {
     }
     bookmarked.value = !bookmarked.value
   } catch {}
+}
+
+async function submitReport() {
+  if (!detail.value || !reportReason.value.trim()) return
+  reportLoading.value = true
+  try {
+    await listingsApi.report(detail.value.id, reportReason.value)
+    showReportModal.value = false
+    reportReason.value = ''
+    alert('신고가 접수됐습니다.')
+  } finally {
+    reportLoading.value = false
+  }
 }
 </script>
 
@@ -210,16 +226,22 @@ async function toggleBookmark() {
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">판매자</h3>
         <div class="flex items-center justify-between">
           <span class="text-sm text-ink-muted dark:text-dark-muted">{{ detail.sellerNickname }}</span>
-          <RouterLink
-            v-if="authStore.isAuthenticated"
-            :to="`/chat?listingId=${detail.id}`"
-            class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 text-sm px-4 py-1.5 bg-accent hover:bg-accent-hover text-white border-accent rounded-full shadow-sm"
-          >채팅하기</RouterLink>
-          <BaseButton
-            v-else
-            variant="secondary"
-            @click="router.push({ path: '/login', query: { redirect: `/chat?listingId=${detail.id}` } })"
-          >로그인 후 채팅</BaseButton>
+          <div class="flex items-center gap-2">
+            <RouterLink
+              v-if="authStore.isAuthenticated"
+              :to="`/chat?listingId=${detail.id}`"
+              class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 text-sm px-4 py-1.5 bg-accent hover:bg-accent-hover text-white border-accent rounded-full shadow-sm"
+            >채팅하기</RouterLink>
+            <BaseButton
+              v-else
+              variant="secondary"
+              @click="router.push({ path: '/login', query: { redirect: `/chat?listingId=${detail.id}` } })"
+            >로그인 후 채팅</BaseButton>
+            <button
+              @click="showReportModal = true"
+              class="py-1.5 px-4 border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted rounded-full text-sm hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors cursor-pointer"
+            >신고</button>
+          </div>
         </div>
       </div>
 
@@ -256,5 +278,35 @@ async function toggleBookmark() {
       </div>
 
     </template>
+
+    <!-- 신고 모달 -->
+    <Teleport to="body">
+      <div
+        v-if="showReportModal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+        @click.self="showReportModal = false"
+      >
+        <div class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 w-full max-w-sm">
+          <h3 class="text-base font-semibold text-ink dark:text-dark-text mb-4 tracking-tight">매물 신고</h3>
+          <textarea
+            v-model="reportReason"
+            placeholder="신고 사유를 입력해주세요"
+            rows="4"
+            class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent resize-none"
+          />
+          <div class="flex gap-3 mt-4">
+            <button
+              @click="showReportModal = false"
+              class="flex-1 py-2 border border-hairline dark:border-dark-border rounded-full text-sm text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated cursor-pointer"
+            >취소</button>
+            <button
+              @click="submitReport"
+              :disabled="reportLoading || !reportReason.trim()"
+              class="flex-1 py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-semibold disabled:opacity-50 cursor-pointer"
+            >신고하기</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>

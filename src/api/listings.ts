@@ -44,5 +44,5 @@ export const listingsApi = {
     client.get<ApiResponse<Listing[]>>('/api/listings/bookmarks', { headers: userIdHeader() }),
 
   report: (id: number, reason: string) =>
-    client.post<ApiResponse<void>>(`/api/listings/${id}/report`, { reason }),
+    client.post<ApiResponse<void>>(`/api/listings/${id}/report`, { reason }, { headers: userIdHeader() }),
 }

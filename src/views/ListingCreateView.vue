@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { listingsApi } from '@/api'
 import type { DealType } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 
@@ -225,13 +226,9 @@ async function onSubmit() {
           {{ error }}
         </p>
 
-        <button
-          type="submit"
-          :disabled="loading"
-          class="w-full py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-medium disabled:opacity-50 transition-all cursor-pointer active:scale-[0.98] shadow-sm"
-        >
+        <BaseButton type="submit" :disabled="loading" class="w-full">
           {{ loading ? '등록 중...' : '매물 등록하기' }}
-        </button>
+        </BaseButton>
       </form>
     </main>
   </div>

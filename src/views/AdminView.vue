@@ -5,6 +5,9 @@ import { useAuthStore } from '@/stores'
 import { adminApi } from '@/api/admin'
 import type { AdminNoticeResponse, AdminNoticeRequest, AdminReportResponse } from '@/api/admin'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import Badge from '@/components/ui/Badge.vue'
+import type { BadgeTone } from '@/constants/dealTypeColors'
 
 type Tab = 'notices' | 'reports' | 'batch'
 
@@ -134,10 +137,14 @@ function statusLabel(status: string) {
   return map[status] ?? status
 }
 
-function statusColor(status: string) {
-  if (status === 'PENDING') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-  if (status === 'PROCESSED') return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-  return 'bg-canvas-soft text-ink-faint dark:bg-dark-elevated dark:text-dark-muted'
+function statusTone(status: string): BadgeTone {
+  if (status === 'PENDING') return 'amber'
+  if (status === 'PROCESSED') return 'green'
+  return 'neutral'
+}
+
+function noticeTypeTone(type: string): BadgeTone {
+  return type === 'NOTICE' ? 'sky' : 'violet'
 }
 
 async function switchTab(tab: Tab) {
@@ -177,12 +184,7 @@ onMounted(async () => {
       <!-- 공지 관리 탭 -->
       <template v-if="activeTab === 'notices'">
         <div class="flex justify-end mb-4">
-          <button
-            @click="openCreateForm"
-            class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-full transition-all cursor-pointer active:scale-[0.98]"
-          >
-            + 공지 등록
-          </button>
+          <BaseButton size="sm" @click="openCreateForm">+ 공지 등록</BaseButton>
         </div>
 
         <!-- 공지 폼 -->
@@ -215,12 +217,8 @@ onMounted(async () => {
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent resize-none"
           />
           <div class="flex justify-end gap-2">
-            <button @click="closeForm" class="px-4 py-1.5 text-sm text-ink-muted dark:text-dark-muted hover:text-ink cursor-pointer">취소</button>
-            <button
-              @click="submitNotice"
-              :disabled="noticeSubmitting"
-              class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-full disabled:opacity-50 cursor-pointer"
-            >{{ noticeSubmitting ? '저장 중...' : '저장' }}</button>
+            <BaseButton variant="secondary" size="sm" @click="closeForm">취소</BaseButton>
+            <BaseButton size="sm" :disabled="noticeSubmitting" @click="submitNotice">{{ noticeSubmitting ? '저장 중...' : '저장' }}</BaseButton>
           </div>
         </div>
 
@@ -236,10 +234,8 @@ onMounted(async () => {
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                  :class="notice.noticeType === 'NOTICE' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'"
-                >{{ notice.noticeType === 'NOTICE' ? '공지' : '이벤트' }}</span>
-                <span v-if="!notice.active" class="text-xs px-2 py-0.5 rounded-full bg-canvas-soft text-ink-faint dark:bg-dark-elevated dark:text-dark-muted">비활성</span>
+                <Badge :tone="noticeTypeTone(notice.noticeType)">{{ notice.noticeType === 'NOTICE' ? '공지' : '이벤트' }}</Badge>
+                <Badge v-if="!notice.active" tone="neutral">비활성</Badge>
               </div>
               <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ notice.title }}</p>
               <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ formatDate(notice.createdAt) }}</p>
@@ -280,19 +276,11 @@ onMounted(async () => {
                 <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">신고 사유: {{ report.reason }}</p>
                 <p class="text-xs text-ink-faint dark:text-dark-muted">{{ formatDate(report.createdAt) }}</p>
               </div>
-              <span class="shrink-0 text-xs px-2 py-0.5 rounded-full font-medium" :class="statusColor(report.status)">
-                {{ statusLabel(report.status) }}
-              </span>
+              <Badge class="shrink-0" :tone="statusTone(report.status)">{{ statusLabel(report.status) }}</Badge>
             </div>
             <div v-if="report.status === 'PENDING'" class="flex gap-2 justify-end">
-              <button
-                @click="updateReportStatus(report.id, 'PROCESSED')"
-                class="text-xs px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full cursor-pointer transition-colors"
-              >처리</button>
-              <button
-                @click="updateReportStatus(report.id, 'DISMISSED')"
-                class="text-xs px-3 py-1 border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:border-ink-muted rounded-full cursor-pointer transition-colors"
-              >기각</button>
+              <BaseButton size="sm" @click="updateReportStatus(report.id, 'PROCESSED')">처리</BaseButton>
+              <BaseButton variant="secondary" size="sm" @click="updateReportStatus(report.id, 'DISMISSED')">기각</BaseButton>
             </div>
           </div>
           <div v-if="reports.length === 0" class="text-center text-sm text-ink-faint dark:text-dark-muted py-12">신고가 없습니다</div>
@@ -312,11 +300,7 @@ onMounted(async () => {
               maxlength="6"
               class="flex-1 px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
             />
-            <button
-              @click="triggerBatch"
-              :disabled="batchLoading"
-              class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-full disabled:opacity-50 transition-all cursor-pointer active:scale-[0.98]"
-            >{{ batchLoading ? '실행 중...' : '실행' }}</button>
+            <BaseButton :disabled="batchLoading" @click="triggerBatch">{{ batchLoading ? '실행 중...' : '실행' }}</BaseButton>
           </div>
           <p v-if="batchMessage" class="mt-3 text-sm px-3 py-2 rounded"
             :class="batchMessage.includes('완료') ? 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400' : 'bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400'"

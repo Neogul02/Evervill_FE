@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { noticesApi } from '@/api/notices'
 import type { NoticeResponse } from '@/types/notice'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const notices = ref<NoticeResponse[]>([])
 const loading = ref(true)
@@ -47,7 +48,7 @@ onMounted(fetchNotices)
 
       <div v-else-if="error" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
         <p class="text-sm font-medium text-ink dark:text-dark-text">불러오기 실패</p>
-        <button class="text-sm text-accent hover:underline cursor-pointer" @click="fetchNotices">다시 시도</button>
+        <BaseButton variant="secondary" size="sm" @click="fetchNotices">다시 시도</BaseButton>
       </div>
 
       <div v-else-if="notices.length === 0" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
@@ -65,7 +66,7 @@ onMounted(fetchNotices)
               <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ formatDate(notice.createdAt) }}</p>
             </div>
             <svg
-              class="w-4 h-4 text-ink-faint dark:text-dark-muted shrink-0 transition-transform duration-200"
+              class="w-4 h-4 text-ink-faint dark:text-dark-muted shrink-0 transition-transform duration-150"
               :class="openIds.has(notice.id) ? 'rotate-180' : ''"
               fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
             >

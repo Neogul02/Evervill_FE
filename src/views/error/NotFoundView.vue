@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 </script>
@@ -29,18 +30,8 @@ const router = useRouter()
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3">
-      <button
-        class="px-4 py-2 text-sm bg-accent hover:bg-accent-hover text-white font-medium rounded-full transition-colors cursor-pointer active:scale-95 shadow-sm"
-        @click="router.push('/')"
-      >
-        홈으로 돌아가기
-      </button>
-      <button
-        class="px-4 py-2 text-sm border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated font-medium rounded-full transition-colors cursor-pointer active:scale-95"
-        @click="router.back()"
-      >
-        이전 페이지
-      </button>
+      <BaseButton @click="router.push('/')">홈으로 돌아가기</BaseButton>
+      <BaseButton variant="secondary" @click="router.back()">이전 페이지</BaseButton>
     </div>
 
   </div>

@@ -6,6 +6,7 @@ import { listingsApi } from '@/api'
 import FilterBar from './FilterBar.vue'
 import ListingCard from './ListingCard.vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import IconButton from '@/components/ui/IconButton.vue'
 
 const emit = defineEmits<{
   select: [listing: Listing]
@@ -122,13 +123,13 @@ const pageNumbers = computed(() => {
       v-if="totalPages > 1"
       class="shrink-0 flex items-center justify-center gap-1 px-4 py-2.5 border-t border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface"
     >
-      <button
-        class="p-1 rounded-full text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
-        :disabled="!hasPrev"
+      <IconButton
+        aria-label="이전 페이지"
+        :class="{ 'opacity-30 pointer-events-none': !hasPrev }"
         @click="goToPage(currentPage - 1)"
       >
         <ChevronLeft class="w-3.5 h-3.5" />
-      </button>
+      </IconButton>
 
       <template v-for="(p, i) in pageNumbers" :key="i">
         <span v-if="p === '...'" class="w-6 text-center text-xs text-ink-faint dark:text-dark-muted">…</span>
@@ -142,13 +143,13 @@ const pageNumbers = computed(() => {
         >{{ (p as number) + 1 }}</button>
       </template>
 
-      <button
-        class="p-1 rounded-full text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
-        :disabled="!hasNextPage"
+      <IconButton
+        aria-label="다음 페이지"
+        :class="{ 'opacity-30 pointer-events-none': !hasNextPage }"
         @click="goToPage(currentPage + 1)"
       >
         <ChevronRight class="w-3.5 h-3.5" />
-      </button>
+      </IconButton>
 
       <form v-if="totalPages > 7" class="flex items-center gap-1 ml-2" @submit.prevent="submitJumpPage">
         <input

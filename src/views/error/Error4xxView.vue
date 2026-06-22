@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -44,7 +45,7 @@ const config = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-canvas-soft dark:bg-dark-base flex flex-col items-center justify-center px-4 transition-colors duration-200">
+  <div class="min-h-screen bg-canvas-soft dark:bg-dark-base flex flex-col items-center justify-center px-4 transition-colors duration-150">
 
     <!-- 배경 숫자 -->
     <div class="relative select-none">
@@ -91,26 +92,9 @@ const config = computed(() => {
     </div>
 
     <div class="flex flex-col sm:flex-row gap-2">
-      <button
-        v-if="code === 401"
-        class="px-4 py-2 text-sm bg-accent hover:bg-accent-hover text-white font-medium rounded-full transition-all duration-150 cursor-pointer active:scale-95 shadow-sm"
-        @click="router.push('/login')"
-      >
-        로그인하기
-      </button>
-      <button
-        v-else
-        class="px-4 py-2 text-sm bg-accent hover:bg-accent-hover text-white font-medium rounded-full transition-all duration-150 cursor-pointer active:scale-95 shadow-sm"
-        @click="router.push('/')"
-      >
-        홈으로 돌아가기
-      </button>
-      <button
-        class="px-4 py-2 text-sm border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated font-medium rounded-full transition-all duration-150 cursor-pointer active:scale-95"
-        @click="router.back()"
-      >
-        이전 페이지
-      </button>
+      <BaseButton v-if="code === 401" @click="router.push('/login')">로그인하기</BaseButton>
+      <BaseButton v-else @click="router.push('/')">홈으로 돌아가기</BaseButton>
+      <BaseButton variant="secondary" @click="router.back()">이전 페이지</BaseButton>
     </div>
 
   </div>

@@ -4,7 +4,10 @@ import type { Listing, MarketProperty } from '@/types'
 import { listingsApi } from '@/api'
 import { marketApi } from '@/api/market'
 import { formatListingPrice, formatArea, formatFloor } from '@/utils/format'
+import { DEAL_TYPE_TONE } from '@/constants/dealTypeColors'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import Badge from '@/components/ui/Badge.vue'
 
 type Tab = 'listing' | 'market'
 
@@ -109,8 +112,8 @@ onMounted(fetchListingBookmarks)
 
       <div v-else-if="error" class="flex flex-col items-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
         <p class="text-sm">불러오기 실패</p>
-        <button class="text-sm text-accent hover:underline cursor-pointer"
-          @click="activeTab === 'listing' ? fetchListingBookmarks() : fetchMarketBookmarks()">다시 시도</button>
+        <BaseButton variant="secondary" size="sm"
+          @click="activeTab === 'listing' ? fetchListingBookmarks() : fetchMarketBookmarks()">다시 시도</BaseButton>
       </div>
 
       <!-- 매물 탭 -->
@@ -166,7 +169,7 @@ onMounted(fetchListingBookmarks)
                 @click="removeMarketBookmark(property)">삭제</button>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">{{ formatMarketDealType(property.dealType) }}</span>
+              <Badge :tone="DEAL_TYPE_TONE[property.dealType]">{{ formatMarketDealType(property.dealType) }}</Badge>
               <span class="text-sm font-semibold text-accent">{{ formatMarketPrice(property.dealAmount) }}</span>
               <span v-if="property.area" class="text-xs text-ink-faint dark:text-dark-muted">{{ formatArea(property.area) }}</span>
               <span class="text-xs text-ink-faint dark:text-dark-muted ml-auto">

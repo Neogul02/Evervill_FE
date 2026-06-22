@@ -5,6 +5,7 @@ import { listingsApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import type { DealType, Listing } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -294,13 +295,9 @@ onMounted(fetchListing)
           {{ error }}
         </p>
 
-        <button
-          type="submit"
-          :disabled="saving"
-          class="w-full py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-medium disabled:opacity-50 transition-all cursor-pointer active:scale-[0.98] shadow-sm"
-        >
+        <BaseButton type="submit" :disabled="saving" class="w-full">
           {{ saving ? '저장 중...' : '수정 완료' }}
-        </button>
+        </BaseButton>
       </form>
     </main>
   </div>
