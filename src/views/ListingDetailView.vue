@@ -105,7 +105,7 @@ onMounted(fetchListing)
       <div v-else-if="listing" class="py-6">
 
         <!-- 이미지 갤러리 -->
-        <div class="relative rounded-xl overflow-hidden bg-canvas-soft dark:bg-dark-elevated mb-5 aspect-video">
+        <div class="relative rounded-xl overflow-hidden bg-canvas-soft dark:bg-dark-elevated mb-5 aspect-video max-h-72">
           <template v-if="listing.images.length > 0">
             <img
               :src="listing.images[currentImageIndex].imageUrl"

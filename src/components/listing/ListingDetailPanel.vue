@@ -103,7 +103,7 @@ async function toggleBookmark() {
     <template v-else-if="detail">
 
       <!-- 이미지 -->
-      <div class="relative aspect-video bg-canvas-soft dark:bg-dark-elevated">
+      <div class="relative h-48 bg-canvas-soft dark:bg-dark-elevated">
         <template v-if="detail.images?.length">
           <img
             :src="detail.images[currentImageIndex].imageUrl"
