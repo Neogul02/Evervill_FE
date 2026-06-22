@@ -1,13 +1,17 @@
 import client from './client'
 import type { Listing, CreateListingRequest, UpdateListingRequest, ListingFilter, ListingPageResponse } from '@/types'
 import type { ApiResponse } from '@/types'
+import { useAuthStore } from '@/stores'
 
 export const listingsApi = {
   getList: (params?: ListingFilter) =>
     client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings', { params }),
 
   getMy: (params?: ListingFilter) =>
-    client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings/my', { params }),
+    client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings/my', {
+      params,
+      headers: { 'X-User-Id': useAuthStore().user?.id },
+    }),
 
   getById: (id: number) =>
     client.get<ApiResponse<Listing>>(`/api/listings/${id}`),
