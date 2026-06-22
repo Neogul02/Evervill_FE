@@ -1,7 +1,0 @@
-{
-  "tool_name": "PowerShell",
-  "tool_input_preview": "{\"command\":\"cd C:\\\\Codes\\\\final_home_minhyuncho_jinhyeongchoe\\\\frontend; npm run build 2>&1 | Select-Object -Last 30\",\"timeout\":60000,\"description\":\"Vite build check\"}",
-  "error": "Exit code 2\n> frontend@0.0.0 build\r\n> vue-tsc -b && vite build\r\n\r\nsrc/components/listing/FilterBar.vue(14,5): error TS2322: Type '\"MONTHLY\"' is not assignable to type 'DealType | undefined'.\r\nsrc/components/listing/ListingCard.vue(28,23): error TS2339: Property 'thumbnailUrl' does not exist on type 'Listing'.\r\nsrc/components/listing/ListingCard.vue(31,28): error TS2339: Property 'thumbnailUrl' does not exist on type 'Listing'.\r\nsrc/components/listing/ListingCard.vue(45,91): error TS2367: This co...",
-  "timestamp": "2026-06-16T06:33:30.396Z",
-  "retry_count": 1
-}

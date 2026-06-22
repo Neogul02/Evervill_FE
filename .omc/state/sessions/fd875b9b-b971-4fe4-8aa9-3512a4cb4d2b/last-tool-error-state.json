@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd frontend && for b in fix/fe-api-response-bugs feature/fe-listing-edit feature/fe-bookmarks-market feature/fe-admin feature/fe-notices feature/fe-bugfix; do echo \\\"== $b ==\\\"; git log de...",
+  "error": "Exit code 1\n/usr/bin/bash: line 1: cd: frontend: No such file or directory",
+  "timestamp": "2026-06-22T00:52:25.030Z",
+  "retry_count": 1
+}

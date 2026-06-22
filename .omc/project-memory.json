@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1781077900957,
-  "projectRoot": "C:\\Codes\\final_home_minhyuncho_jinhyeongchoe\\frontend",
+  "lastScanned": 1782089413493,
+  "projectRoot": "C:\\Codes\\Evervill_FE",
   "techStack": {
     "languages": [
       {
@@ -37,7 +37,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd \"C:\\Codes\\final_home_minhyuncho_jinhyeongchoe\\frontend\" && npm run build 2>&1 | grep -E \"(OAuth2|ListingEdit|ListingCreate|router)\" | head -20",
+    "buildCommand": "yarn build",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": "yarn dev",
@@ -61,7 +61,7 @@
       "src"
     ],
     "gitBranches": {
-      "defaultBranch": "master",
+      "defaultBranch": "main",
       "branchingStrategy": null
     }
   },
@@ -71,7 +71,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 2,
-      "lastAccessed": 1781077900928,
+      "lastAccessed": 1782089413404,
       "keyFiles": [
         "favicon.svg",
         "icons.svg"
@@ -81,7 +81,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 3,
-      "lastAccessed": 1781077900928,
+      "lastAccessed": 1782089413421,
       "keyFiles": [
         "App.vue",
         "main.ts",
@@ -91,37 +91,37 @@
     "src\\api": {
       "path": "src\\api",
       "purpose": "API routes",
-      "fileCount": 7,
-      "lastAccessed": 1781077900937,
+      "fileCount": 9,
+      "lastAccessed": 1782089413423,
       "keyFiles": [
+        "admin.ts",
         "ai.ts",
-        "auth.ts",
-        "chat.ts"
+        "auth.ts"
       ]
     },
     "src\\assets": {
       "path": "src\\assets",
       "purpose": "Static assets",
-      "fileCount": 3,
-      "lastAccessed": 1781077900937,
+      "fileCount": 4,
+      "lastAccessed": 1782089413424,
       "keyFiles": [
         "evervill_logo.png",
-        "hero.png",
-        "kakao_login_large_wide.png"
+        "evervill_logo_white.png",
+        "hero.png"
       ]
     },
     "src\\components": {
       "path": "src\\components",
       "purpose": "UI components",
       "fileCount": 0,
-      "lastAccessed": 1781077900938,
+      "lastAccessed": 1782089413425,
       "keyFiles": []
     },
     "src\\types": {
       "path": "src\\types",
       "purpose": "Type definitions",
-      "fileCount": 7,
-      "lastAccessed": 1781077900938,
+      "fileCount": 9,
+      "lastAccessed": 1782089413426,
       "keyFiles": [
         "ai.ts",
         "auth.ts",

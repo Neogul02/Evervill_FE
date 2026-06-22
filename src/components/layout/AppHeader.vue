@@ -4,7 +4,8 @@ import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import logoImg from '@/assets/evervill_logo.png'
-import logoWhiteImg from '@/assets/evervill_logo_white.png'
+// TODO: 다크모드용 화이트 로고 에셋(evervill_logo_white.png)이 아직 없어 기본 로고로 대체
+const logoWhiteImg = logoImg
 
 const authStore = useAuthStore()
 const router = useRouter()
