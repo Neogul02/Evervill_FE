@@ -2,9 +2,10 @@ import client from './client'
 import type { ApiResponse } from '@/types'
 import { useAuthStore } from '@/stores'
 
+// API 게이트웨이가 JWT에서 X-User-Role을 자동으로 채워주므로
+// 프론트에서는 X-User-Id만 보내면 된다 (백엔드 확인).
 function adminHeaders() {
-  const user = useAuthStore().user
-  return { 'X-User-Role': user?.role, 'X-User-Id': user?.id }
+  return { 'X-User-Id': useAuthStore().user?.id }
 }
 
 export interface AdminNoticeRequest {
