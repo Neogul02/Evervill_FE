@@ -1,5 +1,10 @@
 import client from './client'
 import type { ApiResponse } from '@/types'
+import { useAuthStore } from '@/stores'
+
+function adminHeaders() {
+  return { 'X-User-Role': useAuthStore().user?.role }
+}
 
 export interface AdminNoticeRequest {
   title: string
@@ -30,25 +35,28 @@ export interface AdminReportResponse {
 export const adminApi = {
   // 공지
   getNotices: () =>
-    client.get<ApiResponse<AdminNoticeResponse[]>>('/api/admin/notices'),
+    client.get<ApiResponse<AdminNoticeResponse[]>>('/api/admin/notices', { headers: adminHeaders() }),
   createNotice: (data: AdminNoticeRequest) =>
-    client.post<ApiResponse<AdminNoticeResponse>>('/api/admin/notices', data),
+    client.post<ApiResponse<AdminNoticeResponse>>('/api/admin/notices', data, { headers: adminHeaders() }),
   updateNotice: (id: number, data: Partial<AdminNoticeRequest & { isActive: boolean }>) =>
-    client.put<ApiResponse<AdminNoticeResponse>>(`/api/admin/notices/${id}`, data),
+    client.put<ApiResponse<AdminNoticeResponse>>(`/api/admin/notices/${id}`, data, { headers: adminHeaders() }),
   deleteNotice: (id: number) =>
-    client.delete<ApiResponse<void>>(`/api/admin/notices/${id}`),
+    client.delete<ApiResponse<void>>(`/api/admin/notices/${id}`, { headers: adminHeaders() }),
 
   // 신고
   getReports: (status?: string) =>
-    client.get<ApiResponse<AdminReportResponse[]>>('/api/admin/reports', { params: status ? { status } : undefined }),
+    client.get<ApiResponse<AdminReportResponse[]>>('/api/admin/reports', {
+      params: status ? { status } : undefined,
+      headers: adminHeaders(),
+    }),
   updateReportStatus: (id: number, status: 'PROCESSED' | 'DISMISSED') =>
-    client.put<ApiResponse<void>>(`/api/admin/reports/${id}/status`, { status }),
+    client.put<ApiResponse<void>>(`/api/admin/reports/${id}/status`, { status }, { headers: adminHeaders() }),
 
   // 배치
   triggerMarketBatch: (yearMonth: string) =>
-    client.post<ApiResponse<void>>(`/api/admin/batch/market`, null, { params: { yearMonth } }),
+    client.post<ApiResponse<void>>(`/api/admin/batch/market`, null, { params: { yearMonth }, headers: adminHeaders() }),
 
   // 매물 강제삭제
   deleteListing: (id: number) =>
-    client.delete<ApiResponse<void>>(`/api/admin/listings/${id}`),
+    client.delete<ApiResponse<void>>(`/api/admin/listings/${id}`, { headers: adminHeaders() }),
 }
