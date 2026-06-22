@@ -8,7 +8,18 @@ const emit = defineEmits<{
 
 const dealType = ref<MarketDealType | undefined>(undefined)
 const propertyType = ref<MarketPropertyType | undefined>(undefined)
+const minPrice = ref<number | undefined>(undefined)
 const maxPrice = ref<number>(0)
+
+const PRICE_PRESETS = [
+  { label: '1억', value: 10000 },
+  { label: '5억', value: 50000 },
+  { label: '10억', value: 100000 },
+]
+
+function applyPricePreset(value: number) {
+  maxPrice.value = maxPrice.value === value ? 0 : value
+}
 
 const DEAL_TYPES: { value: MarketDealType | undefined; label: string }[] = [
   { value: undefined, label: '전체' },
@@ -23,10 +34,11 @@ const PROPERTY_TYPES: { value: MarketPropertyType | undefined; label: string }[]
   { value: 'OFFICETEL', label: '오피스텔' },
 ]
 
-watch([dealType, propertyType, maxPrice], () => {
+watch([dealType, propertyType, minPrice, maxPrice], () => {
   emit('update', {
     dealType: dealType.value,
     propertyType: propertyType.value,
+    minPrice: minPrice.value,
     maxPrice: maxPrice.value || undefined,
   })
 })
@@ -58,17 +70,36 @@ watch([dealType, propertyType, maxPrice], () => {
         @click="propertyType = item.value"
       >{{ item.label }}</button>
     </div>
-    <!-- 최대 가격 -->
-    <div class="flex items-center gap-3">
-      <span class="text-xs text-ink-muted dark:text-dark-muted shrink-0">최대가격</span>
+    <!-- 가격 프리셋 -->
+    <div class="flex gap-1.5 flex-wrap">
+      <button
+        v-for="preset in PRICE_PRESETS"
+        :key="preset.label"
+        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer active:scale-95"
+        :class="maxPrice === preset.value
+          ? 'bg-accent text-white border-accent'
+          : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'"
+        @click="applyPricePreset(preset.value)"
+      >{{ preset.label }} 이하</button>
+    </div>
+
+    <!-- 가격 범위 -->
+    <div class="flex items-center gap-2">
+      <input
+        v-model.number="minPrice"
+        type="number"
+        min="0"
+        placeholder="최소 (만원)"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+      />
+      <span class="text-xs text-ink-faint dark:text-dark-muted">~</span>
       <input
         v-model.number="maxPrice"
-        type="range" min="0" max="200000" step="5000"
-        class="flex-1 h-1.5 accent-accent cursor-pointer"
+        type="number"
+        min="0"
+        placeholder="최대 (만원)"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
       />
-      <span class="text-xs font-medium text-ink-secondary dark:text-dark-text w-14 text-right tabular-nums">
-        {{ maxPrice ? `${(maxPrice / 10000).toFixed(0)}억` : '제한없음' }}
-      </span>
     </div>
   </div>
 </template>
