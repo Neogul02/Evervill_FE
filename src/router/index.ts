@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores'
+import { useNavProgress } from '@/composables/useNavProgress'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -108,7 +109,9 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
+  if (to.name !== from.name) useNavProgress().start()
+
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -120,6 +123,14 @@ router.beforeEach((to) => {
   if (to.meta.guestOnly && authStore.isAuthenticated) {
     return { name: 'home' }
   }
+})
+
+router.afterEach(() => {
+  useNavProgress().finish()
+})
+
+router.onError(() => {
+  useNavProgress().finish()
 })
 
 export default router
