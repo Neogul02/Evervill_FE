@@ -7,9 +7,12 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+const PUBLIC_PATHS = ['/auth/login', '/auth/signup']
+
 client.interceptors.request.use((config) => {
+  const isPublic = PUBLIC_PATHS.some((path) => config.url?.startsWith(path))
   const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  if (token && !isPublic) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
