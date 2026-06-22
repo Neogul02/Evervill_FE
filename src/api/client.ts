@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '@/router'
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_GATEWAY_URL || '/',
+  baseURL: '/',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
