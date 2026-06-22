@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import { useBreakpoint } from '@/composables/useBreakpoint'
+import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import IconButton from '@/components/ui/IconButton.vue'
 import { Sun, Moon, Menu, X } from 'lucide-vue-next'
 import logoImg from '@/assets/evervill_logo.png'
@@ -17,6 +18,13 @@ const searchQuery = ref((route.query.address as string) ?? '')
 const { isDark, toggle } = useTheme()
 const { isDesktop } = useBreakpoint()
 const mobileMenuOpen = ref(false)
+const { unreadCount, startPolling, stopPolling } = useUnreadChatCount()
+
+watch(
+  () => authStore.isAuthenticated,
+  (authenticated) => (authenticated ? startPolling() : stopPolling()),
+  { immediate: true },
+)
 
 function logout() {
   authStore.logout()
@@ -98,8 +106,11 @@ function onSearch() {
 
             <RouterLink
               to="/chat"
-              class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
-              >채팅</RouterLink
+              class="relative text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              >채팅<span
+                v-if="unreadCount > 0"
+                class="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] rounded-full min-w-[14px] h-3.5 px-0.5 flex items-center justify-center font-medium leading-none"
+              >{{ unreadCount > 9 ? '9+' : unreadCount }}</span></RouterLink
             >
 
             <RouterLink
@@ -184,9 +195,12 @@ function onSearch() {
 
           <RouterLink
             to="/chat"
-            class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            class="flex items-center gap-1.5 text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
             @click="mobileMenuOpen = false"
-            >채팅</RouterLink
+            >채팅<span
+              v-if="unreadCount > 0"
+              class="bg-accent text-white text-[10px] rounded-full min-w-[14px] h-3.5 px-0.5 flex items-center justify-center font-medium leading-none"
+            >{{ unreadCount > 9 ? '9+' : unreadCount }}</span></RouterLink
           >
 
           <RouterLink
