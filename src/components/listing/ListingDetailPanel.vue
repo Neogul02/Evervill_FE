@@ -45,6 +45,7 @@ async function runAiAnalysis() {
 const nearbyMarket = ref<MarketProperty[]>([])
 const loading = ref(false)
 const bookmarked = ref(false)
+const currentImageIndex = ref(0)
 
 watch(
   () => props.listingId,
@@ -53,6 +54,7 @@ watch(
     loading.value = true
     aiResult.value = null
     aiError.value = ''
+    currentImageIndex.value = 0
     try {
       const res = await listingsApi.getById(id)
       detail.value = res.data.data
@@ -99,6 +101,29 @@ async function toggleBookmark() {
     </div>
 
     <template v-else-if="detail">
+
+      <!-- 이미지 -->
+      <div class="relative aspect-video bg-canvas-soft dark:bg-dark-elevated">
+        <template v-if="detail.images?.length">
+          <img
+            :src="detail.images[currentImageIndex].imageUrl"
+            :alt="detail.title"
+            class="w-full h-full object-cover"
+          />
+          <div v-if="detail.images.length > 1" class="absolute bottom-3 right-3 flex gap-1">
+            <button
+              v-for="(_, i) in detail.images"
+              :key="i"
+              @click="currentImageIndex = i"
+              class="w-2 h-2 rounded-full transition-colors cursor-pointer"
+              :class="i === currentImageIndex ? 'bg-white' : 'bg-white/40'"
+            />
+          </div>
+        </template>
+        <div v-else class="w-full h-full flex items-center justify-center text-ink-faint dark:text-dark-muted text-sm">
+          이미지 없음
+        </div>
+      </div>
 
       <!-- 헤더 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface">
