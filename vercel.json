@@ -13,6 +13,10 @@
       "destination": "http://168.107.54.139:8080/auth/:path*"
     },
     {
+      "source": "/oauth2/callback",
+      "destination": "/index.html"
+    },
+    {
       "source": "/oauth2/:path*",
       "destination": "http://168.107.54.139:8080/oauth2/:path*"
     },
@@ -21,21 +25,8 @@
       "destination": "http://168.107.54.139:8080/login/oauth2/:path*"
     },
     {
-      "source": "/auth/:path*",
-      "destination": "http://168.107.54.139:8080/auth/:path*"
-    },
-    {
-      "source": "/oauth2/:path*",
-      "destination": "http://168.107.54.139:8080/oauth2/:path*"
-    },
-    {
-      "source": "/login/:path*",
-      "destination": "http://168.107.54.139:8080/login/:path*"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "http://168.107.54.139:8080/api/:path*"
-    },
-    { "source": "/(.*)", "destination": "/index.html" }
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
