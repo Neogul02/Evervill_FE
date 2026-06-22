@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Listing } from '@/types'
 import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL } from '@/utils/format'
+import Badge from '@/components/ui/Badge.vue'
+import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
 
 const props = defineProps<{
   listing: Listing
@@ -39,26 +41,10 @@ const emit = defineEmits<{
 
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 mb-1">
-          <span
-            class="text-xs px-2 py-0.5 rounded-full font-semibold"
-            :class="{
-              'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400': listing.dealType === 'MONTHLY_RENT',
-              'bg-accent-light dark:bg-accent-dark-muted text-accent': listing.dealType === 'JEONSE',
-              'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400': listing.dealType === 'SALE',
-            }"
-          >
-            {{ DEAL_TYPE_LABEL[listing.dealType] }}
-          </span>
-          <span
-            class="text-xs px-2 py-0.5 rounded-full font-medium"
-            :class="{
-              'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400': listing.status === 'ACTIVE',
-              'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-400': listing.status === 'RESERVED',
-              'bg-canvas-soft dark:bg-dark-elevated text-ink-muted dark:text-dark-muted': listing.status === 'CLOSED',
-            }"
-          >
+          <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{ DEAL_TYPE_LABEL[listing.dealType] }}</Badge>
+          <Badge :tone="STATUS_TONE[listing.status]">
             {{ listing.status === 'ACTIVE' ? '거래가능' : listing.status === 'RESERVED' ? '예약중' : '거래완료' }}
-          </span>
+          </Badge>
         </div>
 
         <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</p>

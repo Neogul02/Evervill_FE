@@ -48,15 +48,10 @@ function createMap(lat: number, lng: number) {
 async function initMap() {
   if (!mapEl.value || !window.naver) return
 
-  if (props.latitude && props.longitude) {
-    createMap(props.latitude, props.longitude)
-    placeMarker(props.latitude, props.longitude, false)
-    return
-  }
-
   // 좌표가 없으면 주소 기반 지오코딩으로 대체
-  createMap(37.5665, 126.978)
-  if (props.address) {
+  createMap(37.5665, 126.978) // 서울시청 좌표
+
+  if (props.address) { // 주소가 있으면 지오코딩 시도
     geocoding.value = true
     const result = await geocodeAddress(props.address)
     geocoding.value = false
@@ -66,24 +61,35 @@ async function initMap() {
       geocodeFailed.value = true
     }
   }
-}
 
-watch([() => props.latitude, () => props.longitude, () => props.address], async ([lat, lng, address]) => {
-  if (!map || !window.naver) return
-  if (lat && lng) {
-    placeMarker(lat, lng)
-    geocodeFailed.value = false
+  if (props.latitude && props.longitude && !geocodeFailed.value) {
+    createMap(props.latitude, props.longitude)
+    placeMarker(props.latitude, props.longitude, false)
     return
   }
-  if (address) {
-    geocoding.value = true
-    geocodeFailed.value = false
-    const result = await geocodeAddress(address)
-    geocoding.value = false
-    if (result) placeMarker(result.lat, result.lng)
-    else geocodeFailed.value = true
-  }
-})
+
+  
+}
+
+watch(
+  [() => props.latitude, () => props.longitude, () => props.address],
+  async ([lat, lng, address]) => {
+    if (!map || !window.naver) return
+    if (lat && lng) {
+      placeMarker(lat, lng)
+      geocodeFailed.value = false
+      return
+    }
+    if (address) {
+      geocoding.value = true
+      geocodeFailed.value = false
+      const result = await geocodeAddress(address)
+      geocoding.value = false
+      if (result) placeMarker(result.lat, result.lng)
+      else geocodeFailed.value = true
+    }
+  },
+)
 
 onMounted(() => {
   if (window.naver?.maps) {
@@ -111,7 +117,9 @@ onMounted(() => {
       위치 검색 중...
     </div>
     <div
-      v-else-if="!hasCoords && (geocodeFailed || (!address && !latitude && !longitude))"
+      v-else-if="
+        !hasCoords && (geocodeFailed || (!address && !latitude && !longitude))
+      "
       class="absolute inset-0 flex items-center justify-center text-ink-faint text-sm pointer-events-none"
     >
       위치 정보 없음

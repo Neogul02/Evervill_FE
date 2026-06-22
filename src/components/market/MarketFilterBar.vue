@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { MarketFilter, MarketDealType, MarketPropertyType } from '@/types'
+import FilterChip from '@/components/ui/FilterChip.vue'
 
 const emit = defineEmits<{
   update: [filter: MarketFilter]
@@ -56,39 +57,30 @@ watch(keyword, () => {
   <div class="px-4 py-3 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface space-y-3">
     <!-- 거래 유형 -->
     <div class="flex gap-1.5 flex-wrap">
-      <button
+      <FilterChip
         v-for="item in DEAL_TYPES"
         :key="item.label"
-        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer"
-        :class="dealType === item.value
-          ? 'bg-accent text-white border-accent'
-          : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'"
+        :active="dealType === item.value"
         @click="dealType = item.value"
-      >{{ item.label }}</button>
+      >{{ item.label }}</FilterChip>
     </div>
     <!-- 건물 유형 -->
     <div class="flex gap-1.5 flex-wrap">
-      <button
+      <FilterChip
         v-for="item in PROPERTY_TYPES"
         :key="item.label"
-        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer"
-        :class="propertyType === item.value
-          ? 'bg-ink text-canvas border-ink dark:bg-dark-text dark:text-dark-base dark:border-dark-text'
-          : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-ink-muted hover:text-ink'"
+        :active="propertyType === item.value"
         @click="propertyType = item.value"
-      >{{ item.label }}</button>
+      >{{ item.label }}</FilterChip>
     </div>
     <!-- 가격 범위 -->
     <div class="flex gap-1.5 flex-wrap">
-      <button
+      <FilterChip
         v-for="range in PRICE_RANGES"
         :key="range.label"
-        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer active:scale-95"
-        :class="priceRange.label === range.label
-          ? 'bg-accent text-white border-accent'
-          : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'"
+        :active="priceRange.label === range.label"
         @click="priceRange = range"
-      >{{ range.label }}</button>
+      >{{ range.label }}</FilterChip>
     </div>
 
     <input

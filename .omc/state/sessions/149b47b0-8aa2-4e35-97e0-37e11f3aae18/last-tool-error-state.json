@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__Claude_Preview__preview_click",
+  "tool_input_preview": "{\"serverId\":\"490270a0-29ec-4f92-a1e6-5571aa6891ca\",\"selector\":\"button:has-text(\\\"목록으로\\\")\"}",
+  "error": "Failed to click element: button:has-text(\"목록으로\")",
+  "timestamp": "2026-06-22T06:15:11.248Z",
+  "retry_count": 1
+}
