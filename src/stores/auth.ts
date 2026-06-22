@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '@/types'
+import { parseJwt } from '@/utils/jwt'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
-  const user = ref<User | null>(null)
+  // 새로고침 시 user가 사라지면 X-User-Id/X-User-Role 등 인증 헤더가 비어 백엔드가 500을 내므로,
+  // 저장된 토큰이 있으면 즉시 디코드해 user를 복원한다.
+  const user = ref<User | null>(token.value ? (parseJwt(token.value) as User) : null)
 
   const isAuthenticated = computed(() => !!token.value)
 
@@ -16,6 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function setToken(newToken: string) {
     token.value = newToken
+    user.value = parseJwt(newToken) as User | null
     localStorage.setItem('token', newToken)
   }
 
