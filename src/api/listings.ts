@@ -1,17 +1,13 @@
-import client from './client'
+import client, { userIdHeader } from './client'
 import type { Listing, CreateListingRequest, UpdateListingRequest, ListingFilter, ListingPageResponse } from '@/types'
 import type { ApiResponse } from '@/types'
-import { useAuthStore } from '@/stores'
 
 export const listingsApi = {
   getList: (params?: ListingFilter) =>
     client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings', { params }),
 
   getMy: (params?: ListingFilter) =>
-    client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings/my', {
-      params,
-      headers: { 'X-User-Id': useAuthStore().user?.id },
-    }),
+    client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings/my', { params, headers: userIdHeader() }),
 
   getById: (id: number) =>
     client.get<ApiResponse<Listing>>(`/api/listings/${id}`),
@@ -45,7 +41,7 @@ export const listingsApi = {
     client.delete<ApiResponse<void>>(`/api/listings/${id}/bookmark`),
 
   getBookmarks: () =>
-    client.get<ApiResponse<Listing[]>>('/api/listings/bookmarks'),
+    client.get<ApiResponse<Listing[]>>('/api/listings/bookmarks', { headers: userIdHeader() }),
 
   report: (id: number, reason: string) =>
     client.post<ApiResponse<void>>(`/api/listings/${id}/report`, { reason }),

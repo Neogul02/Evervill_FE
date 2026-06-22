@@ -1,4 +1,4 @@
-import client from './client'
+import client, { userIdHeader } from './client'
 import type { MarketProperty, MarketFilter, MarketPageResponse } from '@/types'
 import type { ApiResponse } from '@/types'
 
@@ -16,5 +16,5 @@ export const marketApi = {
     client.delete<ApiResponse<void>>(`/api/market/${id}/bookmark`),
 
   getBookmarks: () =>
-    client.get<ApiResponse<MarketProperty[]>>('/api/market/bookmarks'),
+    client.get<ApiResponse<MarketProperty[]>>('/api/market/bookmarks', { headers: userIdHeader() }),
 }

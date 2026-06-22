@@ -1,5 +1,10 @@
 import axios from 'axios'
 import router from '@/router'
+import { useAuthStore } from '@/stores'
+
+export function userIdHeader() {
+  return { 'X-User-Id': useAuthStore().user?.id }
+}
 
 const client = axios.create({
   baseURL: '/',
