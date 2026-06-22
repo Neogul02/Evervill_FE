@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -31,6 +31,31 @@ async function loadRooms() {
   }
 }
 
+function subscribeAllRooms() {
+  rooms.value.forEach(room => {
+    subscribeRoom(room.id, (msg: ChatMessage) => {
+      if (selectedRoom.value?.id === room.id) {
+        messages.value.push(msg)
+        scrollToBottom()
+      } else {
+        const target = rooms.value.find(r => r.id === room.id)
+        if (target) {
+          target.lastMessage = msg.content
+          target.lastMessageAt = msg.createdAt
+          target.unreadCount = (target.unreadCount ?? 0) + 1
+        }
+      }
+    })
+  })
+}
+
+// WebSocket 연결 완료 후 전체 방 구독
+watch(isConnected, (connected) => {
+  if (connected && rooms.value.length > 0) {
+    subscribeAllRooms()
+  }
+})
+
 async function selectRoom(room: ChatRoom) {
   if (selectedRoom.value?.id === room.id) return
   selectedRoom.value = room
@@ -47,11 +72,6 @@ async function selectRoom(room: ChatRoom) {
   } finally {
     isLoadingMessages.value = false
   }
-
-  subscribeRoom(room.id, (msg: ChatMessage) => {
-    messages.value.push(msg)
-    scrollToBottom()
-  })
 
   scrollToBottom()
 }
@@ -89,10 +109,16 @@ function formatRoomTime(dateStr?: string) {
 }
 
 onMounted(async () => {
-  await loadRooms()
   if (authStore.token) {
     connect(authStore.token)
   }
+  await loadRooms()
+
+  // 연결이 이미 완료된 경우 (loadRooms보다 connect가 먼저 완료된 케이스)
+  if (isConnected.value) {
+    subscribeAllRooms()
+  }
+
   const listingId = route.query.listingId ? Number(route.query.listingId) : null
   if (listingId) {
     try {
@@ -100,6 +126,21 @@ onMounted(async () => {
       const room = res.data.data
       if (!rooms.value.find(r => r.id === room.id)) {
         rooms.value.unshift(room)
+        if (isConnected.value) {
+          subscribeRoom(room.id, (msg: ChatMessage) => {
+            if (selectedRoom.value?.id === room.id) {
+              messages.value.push(msg)
+              scrollToBottom()
+            } else {
+              const target = rooms.value.find(r => r.id === room.id)
+              if (target) {
+                target.lastMessage = msg.content
+                target.lastMessageAt = msg.createdAt
+                target.unreadCount = (target.unreadCount ?? 0) + 1
+              }
+            }
+          })
+        }
       }
       await selectRoom(room)
     } catch {}

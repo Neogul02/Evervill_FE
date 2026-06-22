@@ -10,6 +10,10 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
+// Vercel 프로덕션: 게이트웨이 절대 URL 필요 (.env.production에 설정)
+// 로컬 개발: 빈 문자열 → Vite 프록시가 상대 경로를 게이트웨이로 포워딩
+const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || ''
+
 const registered = route.query.registered === '1'
 
 const email = ref('')
@@ -93,7 +97,7 @@ async function onLogin() {
 
         <div class="mt-5 pt-5 border-t border-hairline dark:border-dark-border">
           <a
-            href="/oauth2/authorization/kakao"
+            :href="`${gatewayUrl}/oauth2/authorization/kakao`"
             class="block w-full transition-all active:scale-[0.98] rounded-lg overflow-hidden hover:opacity-90"
           >
             <img :src="kakaoLoginImg" alt="카카오로 로그인" class="w-full" />

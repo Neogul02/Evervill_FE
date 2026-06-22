@@ -58,6 +58,10 @@ async function run(key: string, fn: () => Promise<any>) {
   }
 }
 
+function json(val: any) {
+  return JSON.stringify(val, null, 2)
+}
+
 // ── Auth inputs ────────────────────────────────────────────
 const loginForm = reactive({ email: 'test@test.com', password: 'test1234' })
 const registerForm = reactive({ email: '', password: '', nickname: '' })
@@ -67,7 +71,7 @@ const listingFilter = reactive({ dealType: '', page: 0, size: 5 })
 const listingId = ref(1)
 
 // ── Market inputs ──────────────────────────────────────────
-const marketFilter = reactive({ districtCode: '', dealType: '', page: 0, size: 5 })
+const marketFilter = reactive({ city: '서울', district: '마포구', neighborhood: '', dealType: '', page: 0, size: 5 })
 const marketId = ref(1)
 
 // ── Chat inputs ────────────────────────────────────────────
@@ -183,6 +187,11 @@ const TABS = [
           <ResponseBox :result="results['register']" />
         </TestCard>
 
+        <!-- Me -->
+        <TestCard method="GET" endpoint="/auth/me">
+          <RunBtn :loading="results['me']?.loading" @click="run('me', () => authApi.me())" />
+          <ResponseBox :result="results['me']" />
+        </TestCard>
       </template>
 
       <!-- ── 매물 ───────────────────────────────────── -->
@@ -234,16 +243,18 @@ const TABS = [
         <!-- Get List -->
         <TestCard method="GET" endpoint="/api/market">
           <div class="flex gap-2 flex-wrap">
-            <input v-model="marketFilter.districtCode" placeholder="지역코드" class="input-sm w-28" />
+            <input v-model="marketFilter.city" placeholder="시" class="input-sm w-20" />
+            <input v-model="marketFilter.district" placeholder="구" class="input-sm w-24" />
+            <input v-model="marketFilter.neighborhood" placeholder="동" class="input-sm w-24" />
             <select v-model="marketFilter.dealType" class="input-sm w-24">
               <option value="">거래전체</option>
               <option value="SALE">매매</option>
               <option value="JEONSE">전세</option>
-              <option value="MONTHLY_RENT">월세</option>
+              <option value="MONTHLY">월세</option>
             </select>
             <input v-model.number="marketFilter.size" type="number" placeholder="size" class="input-sm w-16" />
             <RunBtn :loading="results['market-list']?.loading"
-              @click="run('market-list', () => marketApi.getList({ districtCode: marketFilter.districtCode || undefined, dealType: marketFilter.dealType as any || undefined, size: marketFilter.size }))" />
+              @click="run('market-list', () => marketApi.getList({ city: marketFilter.city || undefined, district: marketFilter.district || undefined, neighborhood: marketFilter.neighborhood || undefined, dealType: marketFilter.dealType as any || undefined, size: marketFilter.size }))" />
           </div>
           <ResponseBox :result="results['market-list']" />
         </TestCard>
@@ -304,8 +315,7 @@ const TABS = [
 
 <!-- ── 서브 컴포넌트 (인라인) ───────────────────────────── -->
 <script lang="ts">
-import { defineComponent, h } from 'vue'
-import type { PropType } from 'vue'
+import { defineComponent, h, PropType } from 'vue'
 
 const METHOD_COLOR: Record<string, string> = {
   GET: 'bg-green-100 text-green-700',

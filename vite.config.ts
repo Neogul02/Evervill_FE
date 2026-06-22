@@ -30,7 +30,7 @@ export default defineConfig({
         target: 'http://168.107.54.139:8080',
         changeOrigin: true,
       },
-      '^/oauth2/': {
+      '^/oauth2/authorization/': {
         target: 'http://168.107.54.139:8080',
         changeOrigin: true,
       },

@@ -11,7 +11,7 @@ const maxPrice = ref<number | undefined>(undefined)
 
 const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
   { value: undefined, label: '거래전체' },
-  { value: 'MONTHLY_RENT', label: '월세' },
+  { value: 'MONTHLY', label: '월세' },
   { value: 'JEONSE', label: '전세' },
   { value: 'SALE', label: '매매' },
 ]

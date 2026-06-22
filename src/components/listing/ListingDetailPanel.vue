@@ -131,8 +131,8 @@ async function toggleBookmark() {
           <div v-for="(info, i) in [
             { label: '면적', value: formatArea(detail.area) },
             { label: '층수', value: formatFloor(detail.floor) },
-            { label: '관리비', value: '-' },
-            { label: '방향', value: '-' },
+            { label: '관리비', value: detail.managementFee ? `${detail.managementFee}만` : '-' },
+            { label: '방향', value: detail.direction ?? '-' },
           ]" :key="i"
             class="bg-canvas-soft dark:bg-dark-elevated rounded-lg p-3"
           >
@@ -166,9 +166,9 @@ async function toggleBookmark() {
               :key="item.id"
               class="border-b border-hairline dark:border-dark-border/40 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
             >
-              <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealYear }}.{{ item.dealMonth }}.{{ item.dealDay }}</td>
+              <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealDate ?? '-' }}</td>
               <td class="py-2 text-ink-muted dark:text-dark-muted">{{ DEAL_TYPE_LABEL[item.dealType] }}</td>
-              <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.dealAmount) }}</td>
+              <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.price) }}</td>
               <td class="py-2 text-right text-ink-muted dark:text-dark-muted">{{ formatArea(item.area) }}</td>
             </tr>
           </tbody>

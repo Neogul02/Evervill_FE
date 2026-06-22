@@ -6,16 +6,7 @@ import type { ChatMessage } from '@/types/chat'
 export function useChat() {
   const isConnected = ref(false)
   let stompClient: Client | null = null
-  let subscription: StompSubscription | null = null
-  let pendingRoomId: number | null = null
-  let pendingCallback: ((msg: ChatMessage) => void) | null = null
-
-  function doSubscribe(roomId: number, onMessage: (msg: ChatMessage) => void) {
-    subscription?.unsubscribe()
-    subscription = stompClient!.subscribe(`/topic/chat/${roomId}`, (frame) => {
-      onMessage(JSON.parse(frame.body) as ChatMessage)
-    })
-  }
+  const subscriptions = new Map<number, StompSubscription>()
 
   function connect(token: string) {
     if (stompClient?.active) return
@@ -24,11 +15,6 @@ export function useChat() {
       reconnectDelay: 5000,
       onConnect: () => {
         isConnected.value = true
-        if (pendingRoomId !== null && pendingCallback !== null) {
-          doSubscribe(pendingRoomId, pendingCallback)
-          pendingRoomId = null
-          pendingCallback = null
-        }
       },
       onDisconnect: () => {
         isConnected.value = false
@@ -41,21 +27,27 @@ export function useChat() {
   }
 
   function subscribeRoom(roomId: number, onMessage: (msg: ChatMessage) => void) {
-    if (isConnected.value && stompClient) {
-      doSubscribe(roomId, onMessage)
-    } else {
-      pendingRoomId = roomId
-      pendingCallback = onMessage
-    }
+    if (!stompClient?.active) return
+    subscriptions.get(roomId)?.unsubscribe()
+    const sub = stompClient.subscribe(`/topic/chat/${roomId}`, (frame) => {
+      onMessage(JSON.parse(frame.body) as ChatMessage)
+    })
+    subscriptions.set(roomId, sub)
+  }
+
+  function unsubscribeRoom(roomId: number) {
+    subscriptions.get(roomId)?.unsubscribe()
+    subscriptions.delete(roomId)
   }
 
   function disconnect() {
-    subscription?.unsubscribe()
+    subscriptions.forEach(sub => sub.unsubscribe())
+    subscriptions.clear()
     stompClient?.deactivate()
     isConnected.value = false
   }
 
   onUnmounted(disconnect)
 
-  return { isConnected, connect, subscribeRoom, disconnect }
+  return { isConnected, connect, subscribeRoom, unsubscribeRoom, disconnect }
 }

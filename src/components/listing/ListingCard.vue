@@ -25,10 +25,10 @@ const emit = defineEmits<{
     <div class="flex gap-3">
       <!-- 썸네일 -->
       <div
-        v-if="listing.images?.[0]?.imageUrl"
+        v-if="listing.thumbnailUrl"
         class="w-16 h-16 rounded-lg bg-canvas-soft dark:bg-dark-elevated shrink-0 overflow-hidden"
       >
-        <img :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
+        <img :src="listing.thumbnailUrl" :alt="listing.title" class="w-full h-full object-cover" />
       </div>
       <div
         v-else
@@ -42,7 +42,7 @@ const emit = defineEmits<{
           <span
             class="text-xs px-2 py-0.5 rounded-full font-semibold"
             :class="{
-              'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400': listing.dealType === 'MONTHLY_RENT',
+              'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400': listing.dealType === 'MONTHLY',
               'bg-accent-light dark:bg-accent-dark-muted text-accent': listing.dealType === 'JEONSE',
               'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400': listing.dealType === 'SALE',
             }"
@@ -54,7 +54,7 @@ const emit = defineEmits<{
             :class="{
               'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400': listing.status === 'ACTIVE',
               'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-400': listing.status === 'RESERVED',
-              'bg-canvas-soft dark:bg-dark-elevated text-ink-muted dark:text-dark-muted': listing.status === 'CLOSED',
+              'bg-canvas-soft dark:bg-dark-elevated text-ink-muted dark:text-dark-muted': listing.status === 'COMPLETED',
             }"
           >
             {{ listing.status === 'ACTIVE' ? '거래가능' : listing.status === 'RESERVED' ? '예약중' : '거래완료' }}
