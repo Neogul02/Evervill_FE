@@ -31,11 +31,13 @@ const priceRange = ref(PRICE_RANGES[0])
 let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
 function emitUpdate() {
+  const q = keyword.value.trim() || undefined
   emit('update', {
     dealType: dealType.value,
     minPrice: priceRange.value.min,
     maxPrice: priceRange.value.max,
-    address: keyword.value.trim() || undefined,
+    address: q,
+    keyword: q,
   })
 }
 
