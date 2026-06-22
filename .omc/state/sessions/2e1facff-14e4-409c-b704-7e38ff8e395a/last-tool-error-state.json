@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git diff vercel.json --stat && git checkout -b dev origin/dev\",\"description\":\"Confirm fix still present and create local dev branch from origin/dev\"}",
+  "error": "Exit code 128\nfatal: option '--stat' must come before non-option arguments",
+  "timestamp": "2026-06-22T01:43:48.275Z",
+  "retry_count": 1
+}

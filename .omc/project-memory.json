@@ -37,7 +37,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "yarn build",
+    "buildCommand": "yarn build 2>&1 | tail -8",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": "yarn dev",
@@ -131,9 +131,81 @@
   },
   "hotPaths": [
     {
+      "path": "src\\api\\client.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782094645105,
+      "type": "file"
+    },
+    {
+      "path": "vercel.json",
+      "accessCount": 4,
+      "lastAccessed": 1782094098559,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 4,
+      "lastAccessed": 1782094591700,
+      "type": "directory"
+    },
+    {
+      "path": "src\\views\\LoginView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782093475948,
+      "type": "file"
+    },
+    {
       "path": "src\\views\\OAuth2CallbackView.vue",
       "accessCount": 1,
       "lastAccessed": 1781532533181,
+      "type": "file"
+    },
+    {
+      "path": "src\\composables\\useChat.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782093156335,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ChatView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782093156640,
+      "type": "file"
+    },
+    {
+      "path": "src\\types\\chat.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782093157140,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1782094064472,
+      "type": "directory"
+    },
+    {
+      "path": "src\\api",
+      "accessCount": 1,
+      "lastAccessed": 1782094591787,
+      "type": "directory"
+    },
+    {
+      "path": "src\\router\\index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782094604206,
+      "type": "file"
+    },
+    {
+      "path": "src\\stores\\auth.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782094614451,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\RegisterView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782094614902,
       "type": "file"
     }
   ],
