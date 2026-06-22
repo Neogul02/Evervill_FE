@@ -206,9 +206,7 @@ watch(
           </h3>
           <NaverMap
             :key="property.id"
-            :address="property.districtName"
-            :latitude="property.latitude"
-            :longitude="property.longitude"
+            :address="property.address"
             class="w-full h-96 rounded-lg overflow-hidden"
           />
           <p class="text-xs text-ink-faint dark:text-dark-muted mt-2">

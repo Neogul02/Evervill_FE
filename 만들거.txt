@@ -1,0 +1,22 @@
+1. 채팅 웹소켓 연결해서 채팅기능 구현
+2. 매물들 년도, 월별로 분리해서 보여주는 필터 추가
+http://localhost:3000/api/market?page=0&size=20&maxPrice=10000
+{
+                "id": 45270,
+                "districtCode": "30140",
+                "districtName": "문창동",
+                "address": "대전광역시 중구 문창동 112-19",
+                "propertyName": "영진빌라",
+                "propertyType": "MULTI_FAMILY",
+                "dealType": "MONTHLY_RENT",
+                "dealAmount": 1000,
+                "monthlyRent": 30,
+                "area": 48.14,
+                "floor": 1,
+                "buildYear": 1991,
+                "dealYear": 2026,
+                "dealMonth": 5,
+                "dealDay": 11
+            },
+3. AI 기능 구현하고 검증 해보기
+4. 
