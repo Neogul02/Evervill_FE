@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 
@@ -66,10 +67,9 @@ async function onRegister() {
             {{ error }}
           </p>
 
-          <button type="submit" :disabled="loading"
-            class="w-full py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-semibold disabled:opacity-50 transition-colors cursor-pointer active:scale-[0.98] shadow-sm mt-2">
+          <BaseButton type="submit" :disabled="loading" class="w-full mt-2">
             {{ loading ? '가입 중...' : '회원가입' }}
-          </button>
+          </BaseButton>
         </form>
 
         <p class="mt-5 text-center text-sm text-ink-faint dark:text-dark-muted">

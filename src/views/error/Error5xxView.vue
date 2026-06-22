@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -41,7 +42,7 @@ async function retry() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-canvas-soft dark:bg-dark-base flex flex-col items-center justify-center px-4 transition-colors duration-200">
+  <div class="min-h-screen bg-canvas-soft dark:bg-dark-base flex flex-col items-center justify-center px-4 transition-colors duration-150">
 
     <!-- 배경 숫자 -->
     <div class="relative select-none">
@@ -66,11 +67,7 @@ async function retry() {
     </div>
 
     <div class="flex flex-col sm:flex-row gap-2">
-      <button
-        class="flex items-center justify-center gap-1.5 px-4 py-2 text-sm bg-accent hover:bg-accent-hover text-white font-medium rounded-full transition-all duration-150 cursor-pointer active:scale-95 shadow-sm"
-        :disabled="retrying"
-        @click="retry"
-      >
+      <BaseButton :disabled="retrying" @click="retry">
         <svg
           class="w-3.5 h-3.5 transition-transform duration-500"
           :class="{ 'animate-spin': retrying }"
@@ -79,13 +76,8 @@ async function retry() {
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
         {{ retrying ? '재시도 중...' : '다시 시도' }}
-      </button>
-      <button
-        class="px-4 py-2 text-sm border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated font-medium rounded-full transition-all duration-150 cursor-pointer active:scale-95"
-        @click="router.push('/')"
-      >
-        홈으로 돌아가기
-      </button>
+      </BaseButton>
+      <BaseButton variant="secondary" @click="router.push('/')">홈으로 돌아가기</BaseButton>
     </div>
 
     <!-- 에러 코드 표시 -->

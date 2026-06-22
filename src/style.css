@@ -47,16 +47,27 @@
   /* ── Dark Mode Text ── */
   --color-dark-text:        #e8e6e1;
   --color-dark-muted:       #9b9892;
+
+  /* ── Spacing scale (Notion-derived) ── */
+  --spacing-xs:  8px;
+  --spacing-sm:  12px;
+  --spacing-md:  16px;
+  --spacing-lg:  24px;
+
+  /* ── Radius scale ── */
+  --radius-chip:  9999px;
+  --radius-card:  12px;
+  --radius-input: 8px;
 }
 
 @layer base {
   html {
     font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
-    @apply transition-colors duration-200;
+    @apply transition-colors duration-150;
     font-feature-settings: 'lnum' 1, 'locl' 1;
   }
   body {
-    @apply bg-canvas-soft dark:bg-dark-base text-ink dark:text-dark-text transition-colors duration-200;
+    @apply bg-canvas-soft dark:bg-dark-base text-ink dark:text-dark-text transition-colors duration-150;
   }
   h1, h2, h3, h4 {
     letter-spacing: -0.02em;

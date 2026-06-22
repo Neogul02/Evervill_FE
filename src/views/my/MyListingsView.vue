@@ -2,8 +2,11 @@
 import { ref, onMounted } from 'vue'
 import type { Listing } from '@/types'
 import { listingsApi } from '@/api'
-import { formatListingPrice, formatArea, formatFloor, STATUS_LABEL, STATUS_COLOR } from '@/utils/format'
+import { formatListingPrice, formatArea, formatFloor, STATUS_LABEL } from '@/utils/format'
+import { STATUS_TONE } from '@/constants/dealTypeColors'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import Badge from '@/components/ui/Badge.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const listings = ref<Listing[]>([])
 const loading = ref(false)
@@ -44,7 +47,7 @@ onMounted(fetchMyListings)
 
       <div v-else-if="error" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
         <p class="text-sm font-medium text-ink dark:text-dark-text">불러오기 실패</p>
-        <button class="text-sm text-accent hover:underline cursor-pointer" @click="fetchMyListings">다시 시도</button>
+        <BaseButton variant="secondary" size="sm" @click="fetchMyListings">다시 시도</BaseButton>
       </div>
 
       <div v-else-if="listings.length === 0" class="flex flex-col items-center justify-center py-20 gap-2 text-ink-faint dark:text-dark-muted">
@@ -71,9 +74,7 @@ onMounted(fetchMyListings)
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between gap-2 mb-1">
               <h3 class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</h3>
-              <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full" :class="STATUS_COLOR[listing.status]">
-                {{ STATUS_LABEL[listing.status] }}
-              </span>
+              <Badge class="shrink-0" :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
             </div>
             <p class="text-sm font-semibold text-accent mb-1">{{ formatListingPrice(listing) }}</p>
             <p class="text-xs text-ink-faint dark:text-dark-muted mb-1 truncate">{{ listing.address }}</p>

@@ -45,9 +45,3 @@ export const STATUS_LABEL: Record<string, string> = {
   RESERVED: '예약 중',
   CLOSED: '거래 완료',
 }
-
-export const STATUS_COLOR: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  RESERVED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
-  CLOSED: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
-}

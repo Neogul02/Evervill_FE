@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores'
 import { authApi } from '@/api'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const authStore = useAuthStore()
 
@@ -85,11 +86,9 @@ async function updatePassword() {
         <p v-if="nicknameSuccess" class="text-xs text-green-600 dark:text-green-400">닉네임이 변경됐습니다.</p>
         <p v-if="nicknameError" class="text-xs text-red-500 dark:text-red-400">{{ nicknameError }}</p>
 
-        <button
-          :disabled="nicknameLoading || !nickname.trim()"
-          class="px-4 py-2 text-sm font-medium bg-accent hover:bg-accent-hover text-white rounded-full transition-colors cursor-pointer disabled:opacity-50 active:scale-95 shadow-sm"
-          @click="updateNickname"
-        >{{ nicknameLoading ? '변경 중...' : '닉네임 변경' }}</button>
+        <BaseButton :disabled="nicknameLoading || !nickname.trim()" @click="updateNickname">
+          {{ nicknameLoading ? '변경 중...' : '닉네임 변경' }}
+        </BaseButton>
       </section>
 
       <!-- 비밀번호 변경 -->
@@ -129,11 +128,10 @@ async function updatePassword() {
         <p v-if="passwordSuccess" class="text-xs text-green-600 dark:text-green-400">비밀번호가 변경됐습니다. 다음 로그인 시 적용됩니다.</p>
         <p v-if="passwordError" class="text-xs text-red-500 dark:text-red-400">{{ passwordError }}</p>
 
-        <button
+        <BaseButton
           :disabled="passwordLoading || !currentPassword || !newPassword || !newPasswordConfirm"
-          class="px-4 py-2 text-sm font-medium bg-accent hover:bg-accent-hover text-white rounded-full transition-colors cursor-pointer disabled:opacity-50 active:scale-95 shadow-sm"
           @click="updatePassword"
-        >{{ passwordLoading ? '변경 중...' : '비밀번호 변경' }}</button>
+        >{{ passwordLoading ? '변경 중...' : '비밀번호 변경' }}</BaseButton>
       </section>
 
     </main>

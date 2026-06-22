@@ -144,7 +144,8 @@ onMounted(async () => {
   <div class="flex flex-col h-screen bg-canvas-soft dark:bg-dark-base">
     <AppHeader />
 
-    <main class="flex flex-1 overflow-hidden pt-14">
+    <main class="flex-1 overflow-hidden pt-14 flex justify-center">
+      <div class="flex w-full max-w-[1600px] h-full">
       <!-- 채팅방 목록 -->
       <aside class="w-72 shrink-0 border-r border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface flex flex-col">
         <div class="px-4 py-3 border-b border-hairline dark:border-dark-border shrink-0">
@@ -276,6 +277,7 @@ onMounted(async () => {
           <p class="text-sm text-ink-faint dark:text-dark-muted">채팅방을 선택해 대화를 시작하세요</p>
         </div>
       </section>
+      </div>
     </main>
   </div>
 </template>
