@@ -61,9 +61,8 @@ const emit = defineEmits<{
           </span>
         </div>
 
-        <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">
-          {{ listing.district }} {{ listing.neighborhood }}
-        </p>
+        <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</p>
+        <p class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ listing.address }}</p>
         <p class="text-sm font-bold text-ink dark:text-dark-text">{{ formatListingPrice(listing) }}</p>
         <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">
           {{ formatArea(listing.area) }} · {{ formatFloor(listing.floor) }}

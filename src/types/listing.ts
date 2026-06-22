@@ -48,6 +48,7 @@ export interface ListingFilter {
   minArea?: number
   maxArea?: number
   address?: string
+  keyword?: string
   page?: number
   size?: number
 }
