@@ -177,6 +177,7 @@ async function toggleBookmark() {
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">위치</h3>
         <NaverMap
+          :key="detail.id"
           :latitude="detail.latitude"
           :longitude="detail.longitude"
           :address="detail.address"
