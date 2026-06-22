@@ -129,7 +129,8 @@ router.afterEach(() => {
   useNavProgress().finish()
 })
 
-router.onError(() => {
+router.onError((error) => {
+  console.error('라우터 네비게이션 실패', error)
   useNavProgress().finish()
 })
 

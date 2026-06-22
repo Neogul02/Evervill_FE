@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { ListingFilter, DealType } from '@/types'
+import FilterChip from '@/components/ui/FilterChip.vue'
 
 const emit = defineEmits<{
   update: [filter: ListingFilter]
@@ -54,31 +55,21 @@ watch(() => route.query.address, (addr) => {
 <template>
   <div class="px-4 py-3 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface space-y-3">
     <div class="flex gap-1.5 flex-wrap">
-      <button
+      <FilterChip
         v-for="item in DEAL_TYPES"
         :key="item.label"
-        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer active:scale-95"
-        :class="
-          dealType === item.value
-            ? 'bg-accent text-white border-accent'
-            : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'
-        "
+        :active="dealType === item.value"
         @click="dealType = item.value"
-      >
-        {{ item.label }}
-      </button>
+      >{{ item.label }}</FilterChip>
     </div>
 
     <div class="flex gap-1.5 flex-wrap">
-      <button
+      <FilterChip
         v-for="range in PRICE_RANGES"
         :key="range.label"
-        class="px-3 py-1 text-xs rounded-full border font-medium transition-colors cursor-pointer active:scale-95"
-        :class="priceRange.label === range.label
-          ? 'bg-accent text-white border-accent'
-          : 'bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted border-hairline dark:border-dark-border hover:border-accent hover:text-accent'"
+        :active="priceRange.label === range.label"
         @click="priceRange = range"
-      >{{ range.label }}</button>
+      >{{ range.label }}</FilterChip>
     </div>
 
     <input

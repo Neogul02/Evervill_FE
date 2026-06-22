@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { MarketProperty } from '@/types'
 import { formatManWon, formatArea } from '@/utils/format'
+import Badge from '@/components/ui/Badge.vue'
+import { DEAL_TYPE_TONE } from '@/constants/dealTypeColors'
 
 const props = defineProps<{
   property: MarketProperty
@@ -12,11 +14,6 @@ const emit = defineEmits<{
 }>()
 
 const DEAL_LABEL: Record<string, string> = { SALE: '매매', JEONSE: '전세', MONTHLY_RENT: '월세' }
-const DEAL_COLOR: Record<string, string> = {
-  SALE: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  JEONSE: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  MONTHLY_RENT: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-}
 
 function formatPrice(p: MarketProperty): string {
   if (p.dealType === 'MONTHLY_RENT') return `${formatManWon(p.dealAmount)} / 월 ${p.monthlyRent?.toLocaleString() ?? '-'}만`
@@ -33,9 +30,7 @@ function formatPrice(p: MarketProperty): string {
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0">
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-xs font-semibold px-2 py-0.5 rounded-full" :class="DEAL_COLOR[property.dealType]">
-            {{ DEAL_LABEL[property.dealType] }}
-          </span>
+          <Badge :tone="DEAL_TYPE_TONE[property.dealType]">{{ DEAL_LABEL[property.dealType] }}</Badge>
           <span class="text-xs text-ink-faint dark:text-dark-muted truncate">
             {{ property.districtName }}
           </span>

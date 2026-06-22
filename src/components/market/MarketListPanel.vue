@@ -4,6 +4,7 @@ import type { MarketProperty, MarketFilter } from '@/types'
 import { marketApi } from '@/api'
 import MarketFilterBar from './MarketFilterBar.vue'
 import MarketCard from './MarketCard.vue'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
 const emit = defineEmits<{
   select: [property: MarketProperty]
@@ -110,13 +111,11 @@ const pageNumbers = computed(() => {
       class="shrink-0 flex items-center justify-center gap-1 px-4 py-2.5 border-t border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface"
     >
       <button
-        class="p-1 rounded text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
+        class="p-1 rounded-full text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
         :disabled="!hasPrev"
         @click="goToPage(currentPage - 1)"
       >
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
+        <ChevronLeft class="w-3.5 h-3.5" />
       </button>
 
       <template v-for="(p, i) in pageNumbers" :key="i">
@@ -132,13 +131,11 @@ const pageNumbers = computed(() => {
       </template>
 
       <button
-        class="p-1 rounded text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
+        class="p-1 rounded-full text-ink-faint dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 transition-colors cursor-pointer"
         :disabled="!hasNext"
         @click="goToPage(currentPage + 1)"
       >
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
+        <ChevronRight class="w-3.5 h-3.5" />
       </button>
 
       <form v-if="totalPages > 7" class="flex items-center gap-1 ml-2" @submit.prevent="submitJumpPage">

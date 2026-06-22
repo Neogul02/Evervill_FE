@@ -1,7 +1,7 @@
 {
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"git diff vercel.json --stat && git checkout -b dev origin/dev\",\"description\":\"Confirm fix still present and create local dev branch from origin/dev\"}",
-  "error": "Exit code 128\nfatal: option '--stat' must come before non-option arguments",
-  "timestamp": "2026-06-22T01:43:48.275Z",
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"C:\\\\Codes\\\\Evervill_FE\\\\src\\\\composables\"}",
+  "error": "EISDIR: illegal operation on a directory, read 'C:\\Codes\\Evervill_FE\\src\\composables'",
+  "timestamp": "2026-06-22T05:38:45.083Z",
   "retry_count": 1
 }

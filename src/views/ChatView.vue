@@ -31,22 +31,24 @@ async function loadRooms() {
   }
 }
 
-function subscribeAllRooms() {
-  rooms.value.forEach(room => {
-    subscribeRoom(room.id, (msg: ChatMessage) => {
-      if (selectedRoom.value?.id === room.id) {
-        messages.value.push(msg)
-        scrollToBottom()
-      } else {
-        const target = rooms.value.find(r => r.id === room.id)
-        if (target) {
-          target.lastMessage = msg.content
-          target.lastMessageAt = msg.createdAt
-          target.unreadCount = (target.unreadCount ?? 0) + 1
-        }
+function subscribeToRoom(room: ChatRoom) {
+  subscribeRoom(room.id, (msg: ChatMessage) => {
+    if (selectedRoom.value?.id === room.id) {
+      messages.value.push(msg)
+      scrollToBottom()
+    } else {
+      const target = rooms.value.find(r => r.id === room.id)
+      if (target) {
+        target.lastMessage = msg.content
+        target.lastMessageAt = msg.createdAt
+        target.unreadCount = (target.unreadCount ?? 0) + 1
       }
-    })
+    }
   })
+}
+
+function subscribeAllRooms() {
+  rooms.value.forEach(subscribeToRoom)
 }
 
 // WebSocket 연결 완료 후 전체 방 구독
@@ -127,23 +129,13 @@ onMounted(async () => {
       if (!rooms.value.find(r => r.id === room.id)) {
         rooms.value.unshift(room)
         if (isConnected.value) {
-          subscribeRoom(room.id, (msg: ChatMessage) => {
-            if (selectedRoom.value?.id === room.id) {
-              messages.value.push(msg)
-              scrollToBottom()
-            } else {
-              const target = rooms.value.find(r => r.id === room.id)
-              if (target) {
-                target.lastMessage = msg.content
-                target.lastMessageAt = msg.createdAt
-                target.unreadCount = (target.unreadCount ?? 0) + 1
-              }
-            }
-          })
+          subscribeToRoom(room)
         }
       }
       await selectRoom(room)
-    } catch {}
+    } catch (err) {
+      console.error('채팅방 생성/조회 실패', err)
+    }
   }
 })
 </script>

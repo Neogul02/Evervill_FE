@@ -8,6 +8,10 @@ export default defineConfig({
     vue(),
     tailwindcss(),
   ],
+  define: {
+    // sockjs-client는 Node의 global 객체를 참조하므로 브라우저 환경에서 폴리필 필요
+    global: 'globalThis',
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

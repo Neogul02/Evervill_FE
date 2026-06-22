@@ -24,6 +24,20 @@
   /* ── Hairline ── */
   --color-hairline:         #e6e6e6;
 
+  /* ── Decorative accents (Notion-derived, badge/category use only — never CTA) ── */
+  --color-accent-sky:        #62aef0;
+  --color-accent-sky-light:  #eaf3fd;
+  --color-accent-sky-dark:   #1f3a52;
+  --color-accent-amber:      #c2660a;
+  --color-accent-amber-light:#fdf0e3;
+  --color-accent-amber-dark: #3a2310;
+  --color-accent-rose:       #d63c8a;
+  --color-accent-rose-light: #fdeaf3;
+  --color-accent-rose-dark:  #3a1a2a;
+  --color-accent-violet:     #7c5cd6;
+  --color-accent-violet-light:#f0ecfb;
+  --color-accent-violet-dark: #271f3d;
+
   /* ── Dark Mode Surfaces (Warm) ── */
   --color-dark-base:        #1a1917;
   --color-dark-surface:     #201f1d;

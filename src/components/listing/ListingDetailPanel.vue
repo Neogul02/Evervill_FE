@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
+import { Lightbulb, Loader2 } from 'lucide-vue-next'
 import type { Listing, MarketProperty } from '@/types'
 import type { AiAnalysis } from '@/types/ai'
 import { listingsApi, marketApi, aiApi } from '@/api'
 import { formatListingPrice, formatArea, formatFloor, formatManWon, DEAL_TYPE_LABEL } from '@/utils/format'
 import NaverMap from '@/components/map/NaverMap.vue'
 import { useAuthStore } from '@/stores'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import BookmarkButton from '@/components/ui/BookmarkButton.vue'
+import Badge from '@/components/ui/Badge.vue'
+import type { BadgeTone } from '@/constants/dealTypeColors'
 
 const props = defineProps<{
   listingId: number | null
@@ -19,10 +24,10 @@ const aiResult = ref<AiAnalysis | null>(null)
 const aiLoading = ref(false)
 const aiError = ref('')
 
-const AI_LEVEL_COLOR: Record<string, string> = {
-  SAFE:    'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800',
-  CAUTION: 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800',
-  DANGER:  'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800',
+const AI_LEVEL_TONE: Record<string, BadgeTone> = {
+  SAFE: 'green',
+  CAUTION: 'amber',
+  DANGER: 'rose',
 }
 const AI_LEVEL_LABEL: Record<string, string> = {
   SAFE: '안전', CAUTION: '주의', DANGER: '위험',
@@ -135,17 +140,7 @@ async function toggleBookmark() {
             <h2 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight">{{ detail.title }}</h2>
             <p class="text-2xl font-bold text-accent mt-1.5">{{ formatListingPrice(detail) }}</p>
           </div>
-          <button
-            class="shrink-0 px-4 py-1.5 text-sm font-medium rounded-full border transition-colors cursor-pointer active:scale-95"
-            :class="
-              bookmarked
-                ? 'bg-accent-light dark:bg-accent-dark-muted border-accent text-accent'
-                : 'border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:border-accent hover:text-accent hover:bg-accent-light dark:hover:bg-accent-dark-muted'
-            "
-            @click="toggleBookmark"
-          >
-            {{ bookmarked ? '★ 저장됨' : '☆ 북마크' }}
-          </button>
+          <BookmarkButton :bookmarked="bookmarked" @click="toggleBookmark" />
         </div>
       </div>
 
@@ -206,7 +201,7 @@ async function toggleBookmark() {
           :latitude="detail.latitude"
           :longitude="detail.longitude"
           :address="detail.address"
-          class="w-full h-64 rounded-xl overflow-hidden"
+          class="w-full h-96 rounded-xl overflow-hidden"
         />
       </div>
 
@@ -218,13 +213,13 @@ async function toggleBookmark() {
           <RouterLink
             v-if="authStore.isAuthenticated"
             :to="`/chat?listingId=${detail.id}`"
-            class="text-sm font-medium bg-accent hover:bg-accent-hover text-white px-4 py-1.5 rounded-full transition-colors cursor-pointer active:scale-95 shadow-sm"
+            class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 text-sm px-4 py-1.5 bg-accent hover:bg-accent-hover text-white border-accent rounded-full shadow-sm"
           >채팅하기</RouterLink>
-          <button
+          <BaseButton
             v-else
-            class="text-sm font-medium border border-accent text-accent px-4 py-1.5 rounded-full transition-colors cursor-pointer hover:bg-accent-light dark:hover:bg-accent-dark-muted active:scale-95"
+            variant="secondary"
             @click="router.push({ path: '/login', query: { redirect: `/chat?listingId=${detail.id}` } })"
-          >로그인 후 채팅</button>
+          >로그인 후 채팅</BaseButton>
         </div>
       </div>
 
@@ -233,30 +228,19 @@ async function toggleBookmark() {
         <div class="border border-hairline dark:border-dark-border rounded-xl p-4 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.346A3.001 3.001 0 0112 21a3 3 0 01-2.121-.879l-.347-.347z" />
-              </svg>
+              <Lightbulb class="w-4 h-4 text-accent" />
               <h3 class="text-sm font-semibold text-ink dark:text-dark-text">AI 가격 분석</h3>
             </div>
-            <button
-              class="text-xs font-medium px-3 py-1 rounded-full bg-accent hover:bg-accent-hover text-white transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1"
-              :disabled="aiLoading"
-              @click="runAiAnalysis"
-            >
-              <svg v-if="aiLoading" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+            <BaseButton variant="primary" size="sm" :disabled="aiLoading" @click="runAiAnalysis">
+              <Loader2 v-if="aiLoading" class="w-3 h-3 animate-spin" />
               {{ aiLoading ? '분석 중...' : '분석 실행' }}
-            </button>
+            </BaseButton>
           </div>
 
           <!-- 결과 -->
           <div v-if="aiResult" class="space-y-2">
             <div class="flex items-center gap-2">
-              <span
-                class="text-xs font-semibold px-2.5 py-0.5 rounded-full border"
-                :class="AI_LEVEL_COLOR[aiResult.resultLevel ?? 'SAFE']"
-              >{{ AI_LEVEL_LABEL[aiResult.resultLevel ?? 'SAFE'] }}</span>
+              <Badge :tone="AI_LEVEL_TONE[aiResult.resultLevel ?? 'SAFE']">{{ AI_LEVEL_LABEL[aiResult.resultLevel ?? 'SAFE'] }}</Badge>
             </div>
             <p class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line">{{ aiResult.summary }}</p>
           </div>
