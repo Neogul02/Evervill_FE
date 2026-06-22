@@ -17,7 +17,7 @@ const notices = ref<AdminNoticeResponse[]>([])
 const noticeLoading = ref(false)
 const showNoticeForm = ref(false)
 const editingNotice = ref<AdminNoticeResponse | null>(null)
-const noticeForm = ref<AdminNoticeRequest>({ title: '', content: '', type: 'NOTICE' })
+const noticeForm = ref<AdminNoticeRequest>({ title: '', content: '', noticeType: 'NOTICE', active: true })
 const noticeSubmitting = ref(false)
 
 const reports = ref<AdminReportResponse[]>([])
@@ -50,13 +50,20 @@ async function fetchReports() {
 
 function openCreateForm() {
   editingNotice.value = null
-  noticeForm.value = { title: '', content: '', type: 'NOTICE' }
+  noticeForm.value = { title: '', content: '', noticeType: 'NOTICE', active: true }
   showNoticeForm.value = true
 }
 
 function openEditForm(notice: AdminNoticeResponse) {
   editingNotice.value = notice
-  noticeForm.value = { title: notice.title, content: notice.content, type: notice.type }
+  noticeForm.value = {
+    title: notice.title,
+    content: notice.content,
+    noticeType: notice.noticeType,
+    active: notice.active,
+    startAt: notice.startAt,
+    endAt: notice.endAt,
+  }
   showNoticeForm.value = true
 }
 
@@ -186,11 +193,15 @@ onMounted(async () => {
               v-for="[val, lbl] in [['NOTICE','공지'],['EVENT','이벤트']]"
               :key="val"
               type="button"
-              @click="noticeForm.type = val as 'NOTICE'|'EVENT'"
+              @click="noticeForm.noticeType = val as 'NOTICE'|'EVENT'"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer"
-              :class="noticeForm.type === val ? 'bg-accent text-white border-accent' : 'border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted'"
+              :class="noticeForm.noticeType === val ? 'bg-accent text-white border-accent' : 'border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted'"
             >{{ lbl }}</button>
           </div>
+          <label class="flex items-center gap-2 text-sm text-ink-muted dark:text-dark-muted cursor-pointer">
+            <input type="checkbox" v-model="noticeForm.active" class="cursor-pointer" />
+            활성화
+          </label>
           <input
             v-model="noticeForm.title"
             type="text"
@@ -226,9 +237,9 @@ onMounted(async () => {
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                  :class="notice.type === 'NOTICE' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'"
-                >{{ notice.type === 'NOTICE' ? '공지' : '이벤트' }}</span>
-                <span v-if="!notice.isActive" class="text-xs px-2 py-0.5 rounded-full bg-canvas-soft text-ink-faint dark:bg-dark-elevated dark:text-dark-muted">비활성</span>
+                  :class="notice.noticeType === 'NOTICE' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'"
+                >{{ notice.noticeType === 'NOTICE' ? '공지' : '이벤트' }}</span>
+                <span v-if="!notice.active" class="text-xs px-2 py-0.5 rounded-full bg-canvas-soft text-ink-faint dark:bg-dark-elevated dark:text-dark-muted">비활성</span>
               </div>
               <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ notice.title }}</p>
               <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ formatDate(notice.createdAt) }}</p>

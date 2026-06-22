@@ -3,21 +3,27 @@ import type { ApiResponse } from '@/types'
 import { useAuthStore } from '@/stores'
 
 function adminHeaders() {
-  return { 'X-User-Role': useAuthStore().user?.role }
+  const user = useAuthStore().user
+  return { 'X-User-Role': user?.role, 'X-User-Id': user?.id }
 }
 
 export interface AdminNoticeRequest {
   title: string
   content: string
-  type: 'NOTICE' | 'EVENT'
+  noticeType: 'NOTICE' | 'EVENT'
+  active: boolean
+  startAt?: string
+  endAt?: string
 }
 
 export interface AdminNoticeResponse {
   id: number
   title: string
   content: string
-  type: 'NOTICE' | 'EVENT'
-  isActive: boolean
+  noticeType: 'NOTICE' | 'EVENT'
+  active: boolean
+  startAt?: string
+  endAt?: string
   createdAt: string
   updatedAt: string
 }
