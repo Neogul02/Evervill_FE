@@ -179,6 +179,7 @@ async function toggleBookmark() {
         <NaverMap
           :latitude="detail.latitude"
           :longitude="detail.longitude"
+          :address="detail.address"
           class="w-full h-64 rounded-xl overflow-hidden"
         />
       </div>
