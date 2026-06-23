@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { listingsApi } from '@/api'
+import { adminApi } from '@/api/admin'
 import { useAuthStore } from '@/stores'
 import type { Listing } from '@/types'
 import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
@@ -25,6 +26,7 @@ const showReportModal = ref(false)
 const reportReason = ref('')
 const reportLoading = ref(false)
 const deleteLoading = ref(false)
+const forceDeleteLoading = ref(false)
 
 const id = Number(route.params.id)
 const isOwner = () => listing.value && authStore.user && listing.value.sellerId === authStore.user.id
@@ -70,6 +72,19 @@ async function deleteListing() {
     router.push('/my/listings')
   } finally {
     deleteLoading.value = false
+  }
+}
+
+async function forceDeleteListing() {
+  if (!confirm('관리자 권한으로 이 매물을 강제 삭제하시겠습니까?')) return
+  forceDeleteLoading.value = true
+  try {
+    await adminApi.deleteListing(id)
+    router.push('/')
+  } catch {
+    alert('강제 삭제에 실패했습니다.')
+  } finally {
+    forceDeleteLoading.value = false
   }
 }
 
@@ -210,11 +225,21 @@ onMounted(fetchListing)
               to="/chat"
               class="flex-1 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-full text-center text-sm font-semibold transition-colors"
             >채팅 문의</RouterLink>
+            <RouterLink
+              to="/ai/registry"
+              class="py-2.5 px-4 border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted rounded-full text-sm hover:bg-canvas dark:hover:bg-dark-elevated transition-colors"
+            >등기부등본 분석</RouterLink>
             <button
               @click="showReportModal = true"
               class="py-2.5 px-4 border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted rounded-full text-sm hover:bg-canvas dark:hover:bg-dark-elevated transition-colors cursor-pointer"
             >신고</button>
           </template>
+          <button
+            v-if="authStore.user?.role === 'ADMIN' && !isOwner()"
+            @click="forceDeleteListing"
+            :disabled="forceDeleteLoading"
+            class="py-2.5 px-4 border border-red-400 text-red-500 rounded-full text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50 cursor-pointer"
+          >{{ forceDeleteLoading ? '삭제 중...' : '관리자 강제삭제' }}</button>
         </div>
 
         <p class="text-xs text-ink-faint dark:text-dark-muted text-center mt-4">

@@ -281,19 +281,19 @@ const TABS = [
       <!-- ── AI 분석 ─────────────────────────────────── -->
       <template v-if="activeTab === 'ai'">
         <!-- Price Analysis -->
-        <TestCard method="POST" endpoint="/api/ai/price">
+        <TestCard method="POST" endpoint="/api/ai/analyses/price/{listingId}">
           <div class="flex gap-2">
-            <input v-model.number="aiTargetId" type="number" placeholder="targetId (매물ID)" class="input-sm w-36" />
+            <input v-model.number="aiTargetId" type="number" placeholder="listingId (매물ID)" class="input-sm w-36" />
             <RunBtn :loading="results['ai-price']?.loading"
-              @click="run('ai-price', () => aiApi.analyzePrice({ targetId: aiTargetId }))" />
+              @click="run('ai-price', () => aiApi.analyzePrice(aiTargetId))" />
           </div>
           <ResponseBox :result="results['ai-price']" />
         </TestCard>
 
         <!-- AI History -->
-        <TestCard method="GET" endpoint="/api/ai/history">
+        <TestCard method="GET" endpoint="/api/ai/analyses">
           <RunBtn :loading="results['ai-history']?.loading"
-            @click="run('ai-history', () => aiApi.getHistory())" />
+            @click="run('ai-history', () => aiApi.getMyAnalyses())" />
           <ResponseBox :result="results['ai-history']" />
         </TestCard>
       </template>

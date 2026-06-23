@@ -74,6 +74,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/ai/registry',
+      name: 'registry-analysis',
+      component: () => import('@/views/RegistryAnalysisView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/notices',
       name: 'notices',
       component: () => import('@/views/NoticesView.vue'),

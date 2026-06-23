@@ -41,8 +41,8 @@ async function runAiAnalysis() {
   aiError.value = ''
   aiResult.value = null
   try {
-    const res = await aiApi.analyzePrice({ targetId: detail.value.id })
-    aiResult.value = res.data
+    const res = await aiApi.analyzePrice(detail.value.id)
+    aiResult.value = res.data.data
   } catch {
     aiError.value = 'AI 분석에 실패했습니다. 잠시 후 다시 시도해주세요.'
   } finally {
@@ -358,9 +358,9 @@ async function submitReport() {
           <!-- 결과 -->
           <div v-if="aiResult" class="space-y-2">
             <div class="flex items-center gap-2">
-              <Badge :tone="AI_LEVEL_TONE[aiResult.resultLevel ?? 'SAFE']">{{ AI_LEVEL_LABEL[aiResult.resultLevel ?? 'SAFE'] }}</Badge>
+              <Badge :tone="AI_LEVEL_TONE[aiResult.riskLevel ?? 'SAFE']">{{ AI_LEVEL_LABEL[aiResult.riskLevel ?? 'SAFE'] }}</Badge>
             </div>
-            <p class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line">{{ aiResult.summary }}</p>
+            <p class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line">{{ aiResult.resultSummary }}</p>
           </div>
 
           <!-- 미실행 상태 -->

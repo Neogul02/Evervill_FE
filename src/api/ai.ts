@@ -1,16 +1,21 @@
-import client from './client'
-import type { AiAnalysis, PriceAnalysisRequest, RegistryAnalysisRequest } from '@/types'
+import client, { userIdHeader } from './client'
+import type { ApiResponse } from '@/types'
+import type { AiAnalysis } from '@/types/ai'
 
 export const aiApi = {
-  analyzePrice: (data: PriceAnalysisRequest) =>
-    client.post<AiAnalysis>('/api/ai/price', data),
+  analyzePrice: (listingId: number) =>
+    client.post<ApiResponse<AiAnalysis>>(`/api/ai/analyses/price/${listingId}`, undefined, {
+      headers: userIdHeader(),
+    }),
 
-  analyzeRegistry: (data: RegistryAnalysisRequest) =>
-    client.post<AiAnalysis>('/api/ai/registry', data),
+  analyzeRegistry: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return client.post<ApiResponse<AiAnalysis>>('/api/ai/analyses/registry', form, {
+      headers: { ...userIdHeader(), 'Content-Type': 'multipart/form-data' },
+    })
+  },
 
-  getHistory: () =>
-    client.get<AiAnalysis[]>('/api/ai/history'),
-
-  getById: (id: number) =>
-    client.get<AiAnalysis>(`/api/ai/${id}`),
+  getMyAnalyses: () =>
+    client.get<ApiResponse<AiAnalysis[]>>('/api/ai/analyses', { headers: userIdHeader() }),
 }

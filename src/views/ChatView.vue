@@ -120,16 +120,33 @@ function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'Asia/Seoul',
   })
 }
 
 function formatRoomTime(dateStr?: string) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  const isToday = new Date().toDateString() === d.toDateString()
+  const isToday =
+    new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }) ===
+    d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
   return isToday
-    ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-    : d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+    ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' })
+    : d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', timeZone: 'Asia/Seoul' })
+}
+
+async function leaveRoom(room: ChatRoom) {
+  if (!confirm('채팅방을 나가시겠습니까?')) return
+  try {
+    await chatApi.leaveRoom(room.id)
+    rooms.value = rooms.value.filter((r) => r.id !== room.id)
+    if (selectedRoom.value?.id === room.id) {
+      selectedRoom.value = null
+      messages.value = []
+    }
+  } catch {
+    alert('채팅방 나가기에 실패했습니다.')
+  }
 }
 
 onMounted(async () => {
@@ -208,7 +225,7 @@ onMounted(async () => {
             <li
               v-for="room in rooms"
               :key="room.id"
-              class="px-4 py-3 cursor-pointer transition-colors"
+              class="group px-4 py-3 cursor-pointer transition-colors"
               :class="
                 selectedRoom?.id === room.id
                   ? 'bg-accent/8 dark:bg-accent/12'
@@ -222,6 +239,12 @@ onMounted(async () => {
                 >
                   {{ room.listingTitle ?? `매물 #${room.listingId}` }}
                 </p>
+                <button
+                  type="button"
+                  title="채팅방 나가기"
+                  class="shrink-0 text-ink-faint dark:text-dark-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs px-1"
+                  @click.stop="leaveRoom(room)"
+                >✕</button>
                 <span
                   class="text-xs text-ink-faint dark:text-dark-muted shrink-0"
                 >
@@ -293,14 +316,21 @@ onMounted(async () => {
                       : 'justify-start'
                   "
                 >
-                  <div
-                    class="max-w-[68%] rounded-2xl px-3.5 py-2 text-sm"
-                    :class="
-                      msg.senderId === authStore.user?.id
-                        ? 'bg-accent text-white rounded-br-sm'
-                        : 'bg-canvas dark:bg-dark-surface text-ink dark:text-dark-text rounded-bl-sm border border-hairline dark:border-dark-border'
-                    "
-                  >
+                  <div class="max-w-[68%]">
+                    <p
+                      v-if="msg.senderId !== authStore.user?.id"
+                      class="text-[11px] font-medium text-ink-faint dark:text-dark-muted mb-0.5 px-1"
+                    >
+                      {{ msg.senderNickname ?? '상대방' }}
+                    </p>
+                    <div
+                      class="rounded-2xl px-3.5 py-2 text-sm"
+                      :class="
+                        msg.senderId === authStore.user?.id
+                          ? 'bg-accent text-white rounded-br-sm'
+                          : 'bg-canvas dark:bg-dark-surface text-ink dark:text-dark-text rounded-bl-sm border border-hairline dark:border-dark-border'
+                      "
+                    >
                     <p class="leading-relaxed break-words whitespace-pre-wrap">
                       {{ msg.content }}
                     </p>
@@ -314,6 +344,7 @@ onMounted(async () => {
                     >
                       {{ formatTime(msg.createdAt) }}
                     </p>
+                    </div>
                   </div>
                 </div>
               </template>

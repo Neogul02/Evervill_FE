@@ -163,7 +163,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-14">
     <AppHeader />
     <main class="pt-14 max-w-4xl mx-auto w-full px-4 py-8">
       <h1 class="text-xl font-bold text-ink dark:text-dark-text mb-6 tracking-tight">관리자</h1>

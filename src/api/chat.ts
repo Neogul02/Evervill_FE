@@ -17,4 +17,7 @@ export const chatApi = {
 
   markAsRead: (roomId: number) =>
     client.put<ApiResponse<void>>(`/api/chat/rooms/${roomId}/read`, undefined, { headers: userIdHeader() }),
+
+  leaveRoom: (roomId: number) =>
+    client.delete<ApiResponse<void>>(`/api/chat/rooms/${roomId}`, { headers: userIdHeader() }),
 }
