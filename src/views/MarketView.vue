@@ -16,16 +16,23 @@ function onSelect(property: MarketProperty) {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base">
+  <div
+    class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base"
+  >
     <AppHeader />
-    <main class="flex-1 overflow-hidden pt-14 flex justify-center px-4 sm:px-6 md:px-8">
+    <main
+      class="flex-1 overflow-hidden pt-14 flex justify-center px-12 sm:px-16 md:px-20"
+    >
       <div class="flex w-full max-w-[1600px] h-full">
         <aside
           v-if="isDesktop || selectedPropertyId === null"
           class="shrink-0 border-r border-hairline dark:border-dark-border overflow-hidden flex flex-col bg-canvas dark:bg-dark-surface"
           :class="isDesktop ? 'w-110' : 'w-full'"
         >
-          <MarketListPanel :selected-id="selectedPropertyId" @select="onSelect" />
+          <MarketListPanel
+            :selected-id="selectedPropertyId"
+            @select="onSelect"
+          />
         </aside>
         <section
           v-if="isDesktop || selectedPropertyId !== null"

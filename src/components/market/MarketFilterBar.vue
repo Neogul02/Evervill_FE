@@ -23,6 +23,13 @@ const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
 const priceRange = ref(PRICE_RANGES[0])
 let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
+const CURRENT_YEAR = new Date().getFullYear()
+const YEARS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - i)
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
+
+const dealYear = ref<number | undefined>(undefined)
+const dealMonth = ref<number | undefined>(undefined)
+
 const DEAL_TYPES: { value: MarketDealType | undefined; label: string }[] = [
   { value: undefined, label: '전체' },
   { value: 'SALE', label: '매매' },
@@ -42,11 +49,13 @@ function emitUpdate() {
     propertyType: propertyType.value,
     minPrice: priceRange.value.min,
     maxPrice: priceRange.value.max,
+    dealYear: dealYear.value,
+    dealMonth: dealMonth.value,
     keyword: keyword.value.trim() || undefined,
   })
 }
 
-watch([dealType, propertyType, priceRange], emitUpdate)
+watch([dealType, propertyType, priceRange, dealYear, dealMonth], emitUpdate)
 watch(keyword, () => {
   clearTimeout(keywordTimer)
   keywordTimer = setTimeout(emitUpdate, 400)
@@ -81,6 +90,24 @@ watch(keyword, () => {
         :active="priceRange.label === range.label"
         @click="priceRange = range"
       >{{ range.label }}</FilterChip>
+    </div>
+
+    <!-- 거래 연/월 -->
+    <div class="flex gap-1.5">
+      <select
+        v-model="dealYear"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+      >
+        <option :value="undefined">거래연도 전체</option>
+        <option v-for="y in YEARS" :key="y" :value="y">{{ y }}년</option>
+      </select>
+      <select
+        v-model="dealMonth"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+      >
+        <option :value="undefined">월 전체</option>
+        <option v-for="m in MONTHS" :key="m" :value="m">{{ m }}월</option>
+      </select>
     </div>
 
     <input

@@ -5,7 +5,7 @@ import { authApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { parseJwt } from '@/utils/jwt'
 import kakaoLoginImg from '@/assets/kakao_login_large_wide.png'
-import naverLoginImg from '@/assets/NAVER_login_Dark_wide_H56.png'
+import naverLoginImg from '@/assets/NAVER_login_large_wide.png'
 import logoImg from '@/assets/evervill_logo.png'
 import logoWhiteImg from '@/assets/evervill_logo_white.png'
 import { useTheme } from '@/composables/useTheme'
@@ -56,7 +56,7 @@ async function onLogin() {
         <img
           :src="isDark ? logoWhiteImg : logoImg"
           alt="Evervill"
-          class="h-10 w-auto object-contain mx-auto"
+          class="h-30 w-auto object-contain mx-auto"
           draggable="false"
         />
         <p class="text-sm text-ink-muted dark:text-dark-muted mt-1.5">부동산 직거래 플랫폼</p>

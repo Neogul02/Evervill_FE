@@ -47,6 +47,8 @@ export interface ListingFilter {
   maxPrice?: number
   minArea?: number
   maxArea?: number
+  year?: number
+  month?: number
   address?: string
   keyword?: string
   page?: number

@@ -16,10 +16,14 @@ function onSelectListing(listing: Listing) {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base">
+  <div
+    class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base"
+  >
     <AppHeader />
 
-    <main class="flex-1 overflow-hidden pt-14 flex justify-center px-4 sm:px-6 md:px-8">
+    <main
+      class="flex-1 overflow-hidden pt-14 flex justify-center px-12 sm:px-16 md:px-20"
+    >
       <div class="flex w-full max-w-[1600px] h-full">
         <!-- 왼쪽: 매물 목록 -->
         <aside
