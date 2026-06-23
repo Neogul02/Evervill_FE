@@ -8,8 +8,8 @@ import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import IconButton from '@/components/ui/IconButton.vue'
 import { Sun, Moon, Menu, X } from 'lucide-vue-next'
 import logoImg from '@/assets/evervill_logo.png'
+import logoWhiteImg from '@/assets/evervill_logo_white.png'
 // TODO: 다크모드용 화이트 로고 에셋(evervill_logo_white.png)이 아직 없어 기본 로고로 대체
-const logoWhiteImg = logoImg
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -43,7 +43,7 @@ function onSearch() {
     class="fixed top-0 left-0 right-0 z-50 h-14 bg-canvas dark:bg-dark-surface border-b border-hairline dark:border-dark-border transition-colors duration-150"
   >
     <div
-      class="h-full flex items-center px-4 sm:px-6 md:px-8 md:mx-auto md:max-w-[1600px]"
+      class="h-full flex items-center px-4 sm:px-6 md:px-8 md:mx-auto md:max-w-[1600px] select-none"
     >
       <!-- ── 왼쪽: 로고 + 도메인 링크 ── -->
       <div class="flex items-center gap-0.5 shrink-0">
@@ -52,6 +52,7 @@ function onSearch() {
             :src="isDark ? logoWhiteImg : logoImg"
             alt="Evervill"
             class="h-10 w-auto object-contain"
+            draggable="false"
           />
         </RouterLink>
 
@@ -75,7 +76,7 @@ function onSearch() {
       </div>
 
       <!-- ── 검색 ── -->
-      <div class="flex-1 flex justify-center px-2 sm:px-4">
+      <div class="flex-1 flex justify-center px-2 sm:px-4 select-text">
         <div class="w-full max-w-[140px] sm:max-w-xs">
           <input
             v-model="searchQuery"

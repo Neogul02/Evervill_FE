@@ -48,16 +48,20 @@
   --color-dark-text:        #e8e6e1;
   --color-dark-muted:       #9b9892;
 
-  /* ── Spacing scale (Notion-derived) ── */
-  --spacing-xs:  8px;
-  --spacing-sm:  12px;
-  --spacing-md:  16px;
-  --spacing-lg:  24px;
-
   /* ── Radius scale ── */
   --radius-chip:  9999px;
   --radius-card:  12px;
   --radius-input: 8px;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {

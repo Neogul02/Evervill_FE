@@ -83,7 +83,7 @@ watch(
 
 <template>
   <div
-    class="h-full flex flex-col overflow-y-auto bg-canvas-soft dark:bg-dark-base"
+    class="h-full flex flex-col overflow-y-auto scrollbar-hide bg-canvas-soft dark:bg-dark-base"
   >
     <!-- 선택 전 플레이스홀더 -->
     <div

@@ -5,10 +5,15 @@ import { authApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { parseJwt } from '@/utils/jwt'
 import kakaoLoginImg from '@/assets/kakao_login_large_wide.png'
+import naverLoginImg from '@/assets/NAVER_login_Dark_wide_H56.png'
+import logoImg from '@/assets/evervill_logo.png'
+import logoWhiteImg from '@/assets/evervill_logo_white.png'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const { isDark } = useTheme()
 
 // Vercel 프로덕션: 게이트웨이 절대 URL 필요 (.env.production에 설정)
 // 로컬 개발: 빈 문자열 → Vite 프록시가 상대 경로를 게이트웨이로 포워딩
@@ -48,7 +53,12 @@ async function onLogin() {
 
       <!-- 헤더 -->
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-ink dark:text-dark-text tracking-tight">Evervill</h1>
+        <img
+          :src="isDark ? logoWhiteImg : logoImg"
+          alt="Evervill"
+          class="h-10 w-auto object-contain mx-auto"
+          draggable="false"
+        />
         <p class="text-sm text-ink-muted dark:text-dark-muted mt-1.5">부동산 직거래 플랫폼</p>
       </div>
 
@@ -95,12 +105,19 @@ async function onLogin() {
           </button>
         </form>
 
-        <div class="mt-5 pt-5 border-t border-hairline dark:border-dark-border">
+        <div class="mt-5 pt-5 border-t border-hairline dark:border-dark-border space-y-2.5">
           <a
             :href="`${gatewayUrl}/oauth2/authorization/kakao`"
             class="block w-full transition-all active:scale-[0.98] rounded-lg overflow-hidden hover:opacity-90"
           >
             <img :src="kakaoLoginImg" alt="카카오로 로그인" class="w-full" />
+          </a>
+
+          <a
+            :href="`${gatewayUrl}/oauth2/authorization/naver`"
+            class="block w-full transition-all active:scale-[0.98] rounded-lg overflow-hidden hover:opacity-90"
+          >
+            <img :src="naverLoginImg" alt="네이버로 로그인" class="w-full" />
           </a>
         </div>
 
