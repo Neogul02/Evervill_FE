@@ -144,7 +144,7 @@ onMounted(async () => {
   <div class="flex flex-col h-screen bg-canvas-soft dark:bg-dark-base">
     <AppHeader />
 
-    <main class="flex-1 overflow-hidden pt-14 flex justify-center">
+    <main class="flex-1 overflow-hidden pt-14 flex justify-center px-4 sm:px-6 md:px-8">
       <div class="flex w-full max-w-[1600px] h-full">
       <!-- 채팅방 목록 -->
       <aside class="w-72 shrink-0 border-r border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface flex flex-col">

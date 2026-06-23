@@ -86,7 +86,7 @@ const pageNumbers = computed(() => {
         총 <span class="font-semibold text-ink-secondary dark:text-dark-text">{{ total.toLocaleString() }}</span>건
       </p>
     </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto scrollbar-hide">
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-3 text-ink-faint dark:text-dark-muted">
         <div class="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         <p class="text-sm">불러오는 중...</p>

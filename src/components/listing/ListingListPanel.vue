@@ -92,7 +92,7 @@ const pageNumbers = computed(() => {
   <div class="flex flex-col h-full bg-canvas dark:bg-dark-surface">
     <FilterBar @update="onFilterUpdate" />
 
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto scrollbar-hide">
       <div
         v-if="loading"
         class="flex flex-col items-center justify-center py-20 gap-3 text-ink-faint dark:text-dark-muted"

@@ -19,7 +19,7 @@ function onSelectListing(listing: Listing) {
   <div class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base">
     <AppHeader />
 
-    <main class="flex-1 overflow-hidden pt-14 flex justify-center">
+    <main class="flex-1 overflow-hidden pt-14 flex justify-center px-4 sm:px-6 md:px-8">
       <div class="flex w-full max-w-[1600px] h-full">
         <!-- 왼쪽: 매물 목록 -->
         <aside
