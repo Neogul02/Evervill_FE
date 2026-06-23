@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { animate } from 'animejs'
 import { useRouter, RouterLink } from 'vue-router'
-import { ChevronLeft, ChevronRight, Lightbulb, Loader2 } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Lightbulb, Loader2, ImageOff, Share2, Check } from 'lucide-vue-next'
 import type { Listing, MarketProperty } from '@/types'
 import type { AiAnalysis } from '@/types/ai'
 import { listingsApi, aiApi } from '@/api'
@@ -79,12 +79,15 @@ const showReportModal = ref(false)
 const reportReason = ref('')
 const reportLoading = ref(false)
 const deleteLoading = ref(false)
+const scrollEl = ref<HTMLElement | null>(null)
+const shareCopied = ref(false)
 
 const isOwner = () => !!detail.value && !!authStore.user && detail.value.sellerId === authStore.user.id
 
 watch(
   () => props.listingId,
   async (id) => {
+    scrollEl.value?.scrollTo({ top: 0 })
     if (!id) { detail.value = null; aiResult.value = null; return }
     loading.value = true
     detail.value = null
@@ -104,6 +107,20 @@ watch(
   },
   { immediate: true },
 )
+
+async function shareListing() {
+  if (!detail.value) return
+  const url = `${window.location.origin}/listings/${detail.value.id}`
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: detail.value.title, url })
+    } catch {}
+    return
+  }
+  await navigator.clipboard.writeText(url)
+  shareCopied.value = true
+  setTimeout(() => (shareCopied.value = false), 1500)
+}
 
 async function toggleBookmark() {
   if (!detail.value || !authStore.isAuthenticated) return
@@ -130,9 +147,8 @@ async function deleteListing() {
 
 function onDetailEnter(el: Element, done: () => void) {
   animate(el, {
-    translateY: [8, 0],
     opacity: [0, 1],
-    duration: 250,
+    duration: 200,
     ease: 'outCubic',
     onComplete: done,
   })
@@ -153,7 +169,7 @@ async function submitReport() {
 </script>
 
 <template>
-  <div class="h-full overflow-y-auto scrollbar-hide bg-canvas-soft dark:bg-dark-base">
+  <div ref="scrollEl" class="h-full overflow-y-auto scrollbar-hide bg-canvas dark:bg-dark-surface">
 
     <!-- 미선택 -->
     <div v-if="!listingId" class="flex items-center justify-center h-full text-ink-faint dark:text-dark-muted">
@@ -170,11 +186,11 @@ async function submitReport() {
     </div>
 
     <Transition :css="false" @enter="onDetailEnter">
-    <div v-if="detail" :key="detail.id">
+    <div v-if="detail" :key="detail.id" class="max-w-2xl mx-auto">
 
       <!-- 이미지 -->
       <div
-        class="relative h-48 bg-canvas-soft dark:bg-dark-elevated"
+        class="relative h-64 bg-canvas-soft dark:bg-dark-elevated"
         @pointerdown="onImagePointerDown"
         @pointerup="onImagePointerUp"
       >
@@ -213,8 +229,9 @@ async function submitReport() {
             </div>
           </template>
         </template>
-        <div v-else class="w-full h-full flex items-center justify-center text-ink-faint dark:text-dark-muted text-sm">
-          이미지 없음
+        <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1.5 text-ink-faint dark:text-dark-muted">
+          <ImageOff class="w-7 h-7" />
+          <span class="text-sm">이미지 없음</span>
         </div>
       </div>
 
@@ -224,7 +241,7 @@ async function submitReport() {
           <div>
             <div class="flex items-center gap-2 mb-2">
               <Badge :tone="DEAL_TYPE_TONE[detail.dealType]">{{ DEAL_TYPE_LABEL[detail.dealType] }}</Badge>
-              <Badge :tone="STATUS_TONE[detail.status]">{{ STATUS_LABEL[detail.status] }}</Badge>
+              <Badge v-if="STATUS_LABEL[detail.status]" :tone="STATUS_TONE[detail.status]">{{ STATUS_LABEL[detail.status] }}</Badge>
             </div>
             <p class="text-xs text-ink-faint dark:text-dark-muted mb-1 truncate">
               {{ detail.address }}
@@ -232,18 +249,32 @@ async function submitReport() {
             <h2 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight">{{ detail.title }}</h2>
             <p class="text-2xl font-bold text-accent mt-1.5">{{ formatListingPrice(detail) }}</p>
           </div>
-          <BookmarkButton :bookmarked="bookmarked" @click="toggleBookmark" />
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              aria-label="링크 공유"
+              class="relative shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:border-accent hover:text-accent hover:bg-accent-light dark:hover:bg-accent-dark-muted transition-colors duration-150 cursor-pointer active:scale-95"
+              @click="shareListing"
+            >
+              <Check v-if="shareCopied" class="w-4 h-4 text-accent" />
+              <Share2 v-else class="w-4 h-4" />
+              <span
+                v-if="shareCopied"
+                class="absolute -bottom-7 right-0 text-xs whitespace-nowrap bg-ink dark:bg-dark-elevated text-white dark:text-dark-text px-2 py-1 rounded shadow-sm"
+              >링크 복사됨</span>
+            </button>
+            <BookmarkButton :bookmarked="bookmarked" @click="toggleBookmark" />
+          </div>
         </div>
       </div>
 
       <!-- 기본 정보 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">기본 정보</h3>
-        <div class="grid grid-cols-4 gap-2 text-center">
+        <div class="grid grid-cols-3 gap-2 text-center">
           <div v-for="(info, i) in [
             { label: '면적', value: formatArea(detail.area) },
             { label: '층수', value: formatFloor(detail.floor) },
-            { label: '조회수', value: String(detail.viewCount) },
             { label: '등록일', value: new Date(detail.createdAt).toLocaleDateString('ko-KR') },
           ]" :key="i"
             class="bg-canvas-soft dark:bg-dark-elevated rounded-lg p-3"

@@ -127,9 +127,9 @@ async function withdraw() {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-14">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-10">
     <AppHeader />
-    <main class="pt-14 max-w-lg mx-auto w-full px-4 py-8 space-y-6">
+    <main class="pt-14 max-w-lg mx-auto w-full px-4 pb-8 space-y-6">
 
       <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">프로필 설정</h1>
 

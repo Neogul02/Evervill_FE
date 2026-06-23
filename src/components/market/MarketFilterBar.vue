@@ -14,8 +14,7 @@ const keyword = ref('')
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
   { label: '1억 이하', min: undefined, max: 10000 },
-  { label: '1~3억', min: 10000, max: 30000 },
-  { label: '3~5억', min: 30000, max: 50000 },
+  { label: '1~5억', min: 10000, max: 50000 },
   { label: '5~10억', min: 50000, max: 100000 },
   { label: '10억 이상', min: 100000, max: undefined },
 ]
@@ -24,7 +23,7 @@ const priceRange = ref(PRICE_RANGES[0])
 let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
 const CURRENT_YEAR = new Date().getFullYear()
-const YEARS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - i)
+const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
 
 const dealYear = ref<number | undefined>(undefined)

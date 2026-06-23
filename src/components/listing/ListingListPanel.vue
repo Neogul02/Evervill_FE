@@ -11,17 +11,19 @@ import IconButton from '@/components/ui/IconButton.vue'
 
 const emit = defineEmits<{
   select: [listing: Listing]
+  'page-change': [page: number]
 }>()
 
 const props = defineProps<{
   selectedId?: number | null
+  initialPage?: number
 }>()
 
 const route = useRoute()
 
 const listings = ref<Listing[]>([])
 const loading = ref(false)
-const currentPage = ref(0)
+const currentPage = ref(props.initialPage ?? 0)
 const totalCount = ref(0)
 const hasNextPage = ref(false)
 const filter = ref<ListingFilter>({
@@ -55,6 +57,7 @@ function onFilterUpdate(newFilter: ListingFilter) {
 
 function goToPage(page: number) {
   fetchListings(page)
+  emit('page-change', page)
 }
 
 const jumpPage = ref('')
@@ -73,7 +76,7 @@ watch(() => route.query.address, (addr) => {
   currentPage.value = 0
 })
 
-onMounted(() => fetchListings(0))
+onMounted(() => fetchListings(props.initialPage ?? 0))
 
 function onCardEnter(el: Element, done: () => void) {
   animate(el, {

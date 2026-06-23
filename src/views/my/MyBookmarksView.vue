@@ -83,9 +83,9 @@ onMounted(fetchListingBookmarks)
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-14">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-10">
     <AppHeader />
-    <main class="pt-14 max-w-3xl mx-auto w-full px-4 py-8">
+    <main class="pt-14 max-w-3xl mx-auto w-full px-4 pb-8">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">북마크</h1>
         <span class="text-sm text-ink-faint dark:text-dark-muted">

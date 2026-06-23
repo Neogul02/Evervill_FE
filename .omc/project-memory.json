@@ -37,7 +37,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd C:/Codes/Evervill_FE && npm run build 2>&1 | grep -iE \"error|TS[0-9]\"; echo \"exit:$?\"",
+    "buildCommand": "cd C:/Codes/Evervill_FE && npx vue-tsc -b --noEmit 2>&1 | head -100",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": "npm run dev",
@@ -153,8 +153,20 @@
   "hotPaths": [
     {
       "path": "src\\components\\listing\\ListingDetailPanel.vue",
-      "accessCount": 28,
-      "lastAccessed": 1782196762044,
+      "accessCount": 45,
+      "lastAccessed": 1782221789715,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ListingDetailView.vue",
+      "accessCount": 18,
+      "lastAccessed": 1782215984239,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\listing\\ListingListPanel.vue",
+      "accessCount": 13,
+      "lastAccessed": 1782219953171,
       "type": "file"
     },
     {
@@ -164,9 +176,15 @@
       "type": "file"
     },
     {
-      "path": "src\\components\\listing\\ListingListPanel.vue",
-      "accessCount": 8,
-      "lastAccessed": 1782196762979,
+      "path": "src\\views\\HomeView.vue",
+      "accessCount": 10,
+      "lastAccessed": 1782221536595,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ChatView.vue",
+      "accessCount": 9,
+      "lastAccessed": 1782222373581,
       "type": "file"
     },
     {
@@ -176,21 +194,39 @@
       "type": "file"
     },
     {
+      "path": "src",
+      "accessCount": 8,
+      "lastAccessed": 1782221813829,
+      "type": "directory"
+    },
+    {
       "path": "src\\types\\listing.ts",
       "accessCount": 7,
       "lastAccessed": 1782196885404,
       "type": "file"
     },
     {
-      "path": "src",
-      "accessCount": 6,
-      "lastAccessed": 1782196849578,
+      "path": "src\\components\\listing\\ListingCard.vue",
+      "accessCount": 7,
+      "lastAccessed": 1782221768703,
       "type": "directory"
     },
     {
       "path": "src\\components\\listing\\FilterBar.vue",
-      "accessCount": 4,
-      "lastAccessed": 1782196861408,
+      "accessCount": 6,
+      "lastAccessed": 1782221807445,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\MarketView.vue",
+      "accessCount": 6,
+      "lastAccessed": 1782222733286,
+      "type": "file"
+    },
+    {
+      "path": "src\\router\\index.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782220752537,
       "type": "file"
     },
     {
@@ -200,39 +236,27 @@
       "type": "file"
     },
     {
-      "path": "src\\views\\HomeView.vue",
+      "path": "src\\views\\my\\MyListingsView.vue",
       "accessCount": 4,
-      "lastAccessed": 1782196974625,
+      "lastAccessed": 1782222316964,
       "type": "file"
     },
     {
-      "path": "src\\components\\listing\\ListingCard.vue",
+      "path": "src\\components\\layout\\AppHeader.vue",
       "accessCount": 3,
-      "lastAccessed": 1782195929003,
-      "type": "directory"
-    },
-    {
-      "path": "src\\views\\ListingDetailView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782196423776,
+      "lastAccessed": 1782214838662,
       "type": "file"
     },
     {
-      "path": "src\\views\\MarketView.vue",
+      "path": "src\\style.css",
       "accessCount": 3,
-      "lastAccessed": 1782196975809,
-      "type": "file"
-    },
-    {
-      "path": "src\\views\\ChatView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782196977030,
+      "lastAccessed": 1782221332154,
       "type": "file"
     },
     {
       "path": "src\\views\\LoginView.vue",
-      "accessCount": 2,
-      "lastAccessed": 1782195299381,
+      "accessCount": 3,
+      "lastAccessed": 1782222244578,
       "type": "file"
     },
     {
@@ -254,9 +278,39 @@
       "type": "file"
     },
     {
-      "path": "src\\components\\layout\\AppHeader.vue",
+      "path": ".claude\\launch.json",
       "accessCount": 2,
-      "lastAccessed": 1782196973118,
+      "lastAccessed": 1782219746628,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ListingListView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782219958405,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\AdminView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782222314308,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\NoticesView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782222314680,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\my\\MyBookmarksView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782222315576,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\my\\MyProfileView.vue",
+      "accessCount": 2,
+      "lastAccessed": 1782222318430,
       "type": "file"
     },
     {
@@ -266,9 +320,75 @@
       "type": "file"
     },
     {
-      "path": "src\\style.css",
+      "path": "src\\App.vue",
       "accessCount": 1,
-      "lastAccessed": 1782195912095,
+      "lastAccessed": 1782214832861,
+      "type": "file"
+    },
+    {
+      "path": "src\\router",
+      "accessCount": 1,
+      "lastAccessed": 1782215545323,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\ui\\BookmarkButton.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782220715630,
+      "type": "file"
+    },
+    {
+      "path": "src\\composables\\useBreakpoint.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782221284589,
+      "type": "directory"
+    },
+    {
+      "path": "src\\constants\\dealTypeColors.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782221748991,
+      "type": "file"
+    },
+    {
+      "path": "src\\utils\\format.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782221749615,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\ui\\Badge.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782221761054,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ApiTestView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782222244328,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ListingEditView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782222244370,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ListingCreateView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782222244386,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\RegisterView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782222245674,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\RegistryAnalysisView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1782222246052,
       "type": "file"
     }
   ],

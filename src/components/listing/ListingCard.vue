@@ -3,6 +3,7 @@ import type { Listing } from '@/types'
 import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
 import Badge from '@/components/ui/Badge.vue'
 import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
+import { ImageOff } from 'lucide-vue-next'
 
 const props = defineProps<{
   listing: Listing
@@ -34,15 +35,16 @@ const emit = defineEmits<{
       </div>
       <div
         v-else
-        class="w-16 h-16 rounded-lg bg-canvas-soft dark:bg-dark-elevated shrink-0 flex items-center justify-center text-ink-faint dark:text-dark-muted text-xs"
+        class="w-16 h-16 rounded-lg border border-dashed border-hairline dark:border-dark-border bg-canvas-soft dark:bg-dark-elevated shrink-0 flex flex-col items-center justify-center gap-0.5 text-ink-faint dark:text-dark-muted"
       >
-        사진없음
+        <ImageOff class="w-4 h-4" />
+        <span class="text-[10px]">사진없음</span>
       </div>
 
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 mb-1">
           <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{ DEAL_TYPE_LABEL[listing.dealType] }}</Badge>
-          <Badge :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
+          <Badge v-if="STATUS_LABEL[listing.status]" :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
         </div>
 
         <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</p>

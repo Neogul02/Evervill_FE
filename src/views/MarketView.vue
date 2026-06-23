@@ -21,9 +21,9 @@ function onSelect(property: MarketProperty) {
   >
     <AppHeader />
     <main
-      class="flex-1 overflow-hidden pt-14 flex justify-center px-0 sm:px-16 md:px-20"
+      class="flex-1 w-full overflow-hidden pt-14 flex justify-center px-0 sm:px-16 md:px-20 md:mx-auto md:max-w-[1300px]"
     >
-      <div class="flex w-full max-w-[1600px] h-full">
+      <div class="flex w-full h-full">
         <aside
           v-if="isDesktop || selectedPropertyId === null"
           class="shrink-0 border-r border-hairline dark:border-dark-border overflow-hidden flex flex-col bg-canvas dark:bg-dark-surface"

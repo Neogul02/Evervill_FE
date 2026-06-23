@@ -22,8 +22,7 @@ const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
   { label: '1억 이하', min: undefined, max: 10000 },
-  { label: '1~3억', min: 10000, max: 30000 },
-  { label: '3~5억', min: 30000, max: 50000 },
+  { label: '1~5억', min: 10000, max: 50000 },
   { label: '5~10억', min: 50000, max: 100000 },
   { label: '10억 이상', min: 100000, max: undefined },
 ]
@@ -83,14 +82,14 @@ watch(() => route.query.address, (addr) => {
     <div class="flex gap-1.5">
       <select
         v-model="year"
-        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent cursor-pointer"
       >
         <option :value="undefined">등록연도 전체</option>
         <option v-for="y in YEARS" :key="y" :value="y">{{ y }}년</option>
       </select>
       <select
         v-model="month"
-        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
+        class="flex-1 px-2.5 py-1.5 text-xs border border-hairline dark:border-dark-border rounded bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent cursor-pointer"
       >
         <option :value="undefined">월 전체</option>
         <option v-for="m in MONTHS" :key="m" :value="m">{{ m }}월</option>
