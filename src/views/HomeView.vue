@@ -22,7 +22,7 @@ function onSelectListing(listing: Listing) {
     <AppHeader />
 
     <main
-      class="flex-1 overflow-hidden pt-14 flex justify-center px-12 sm:px-16 md:px-20"
+      class="flex-1 overflow-hidden pt-14 flex justify-center px-0 sm:px-16 md:px-20"
     >
       <div class="flex w-full max-w-[1600px] h-full">
         <!-- 왼쪽: 매물 목록 -->

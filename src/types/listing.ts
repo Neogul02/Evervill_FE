@@ -1,3 +1,5 @@
+import type { MarketProperty } from './market'
+
 export type DealType = 'SALE' | 'JEONSE' | 'MONTHLY_RENT'
 export type ListingStatus = 'ACTIVE' | 'RESERVED' | 'CLOSED'
 
@@ -10,7 +12,7 @@ export interface ListingImage {
 export interface Listing {
   id: number
   sellerId: number
-  sellerNickname: string | null
+  sellerNickname?: string | null
   title: string
   description: string | null
   dealType: DealType
@@ -20,15 +22,13 @@ export interface Listing {
   floor: number | null
   address: string
   addressDetail: string | null
-  city: string | null
-  district: string | null
-  neighborhood: string | null
   latitude: number | null
   longitude: number | null
   status: ListingStatus
   viewCount: number
-  isBookmarked: boolean
+  isBookmarked?: boolean
   images: ListingImage[]
+  nearbyMarketPrices: MarketProperty[] | null
   createdAt: string
 }
 
@@ -49,7 +49,6 @@ export interface ListingFilter {
   maxArea?: number
   year?: number
   month?: number
-  regions?: string[]
   address?: string
   keyword?: string
   page?: number

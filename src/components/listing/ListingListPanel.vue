@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { animate, stagger } from 'animejs'
 import type { Listing, ListingFilter } from '@/types'
 import { listingsApi } from '@/api'
 import FilterBar from './FilterBar.vue'
@@ -74,6 +75,20 @@ watch(() => route.query.address, (addr) => {
 
 onMounted(() => fetchListings(0))
 
+function onCardEnter(el: Element, done: () => void) {
+  animate(el, {
+    translateY: [16, 0],
+    opacity: [0, 1],
+    duration: 300,
+    delay: stagger(35),
+    ease: 'outCubic',
+    onComplete: done,
+  })
+}
+function onCardLeave(el: Element, done: () => void) {
+  animate(el, { opacity: [1, 0], duration: 150, onComplete: done })
+}
+
 const pageNumbers = computed(() => {
   const total = totalPages.value
   if (total <= 0) return []
@@ -107,7 +122,7 @@ const pageNumbers = computed(() => {
         <p class="text-sm">매물이 없습니다</p>
         <p class="text-xs">필터를 변경해보세요</p>
       </div>
-      <template v-else>
+      <TransitionGroup v-else tag="div" :css="false" appear @enter="onCardEnter" @leave="onCardLeave">
         <ListingCard
           v-for="listing in listings"
           :key="listing.id"
@@ -115,7 +130,7 @@ const pageNumbers = computed(() => {
           :selected="listing.id === selectedId"
           @select="emit('select', $event)"
         />
-      </template>
+      </TransitionGroup>
     </div>
 
     <!-- 페이지네이션 -->

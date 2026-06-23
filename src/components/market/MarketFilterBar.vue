@@ -2,7 +2,6 @@
 import { ref, watch } from 'vue'
 import type { MarketFilter, MarketDealType, MarketPropertyType } from '@/types'
 import FilterChip from '@/components/ui/FilterChip.vue'
-import { REGION_FILTERS } from '@/constants/regions'
 
 const emit = defineEmits<{
   update: [filter: MarketFilter]
@@ -11,8 +10,6 @@ const emit = defineEmits<{
 const dealType = ref<MarketDealType | undefined>(undefined)
 const propertyType = ref<MarketPropertyType | undefined>(undefined)
 const keyword = ref('')
-
-const region = ref(REGION_FILTERS[0])
 
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
@@ -54,12 +51,11 @@ function emitUpdate() {
     maxPrice: priceRange.value.max,
     dealYear: dealYear.value,
     dealMonth: dealMonth.value,
-    regions: region.value.regions,
     keyword: keyword.value.trim() || undefined,
   })
 }
 
-watch([dealType, propertyType, priceRange, dealYear, dealMonth, region], emitUpdate)
+watch([dealType, propertyType, priceRange, dealYear, dealMonth], emitUpdate)
 watch(keyword, () => {
   clearTimeout(keywordTimer)
   keywordTimer = setTimeout(emitUpdate, 400)
@@ -68,16 +64,6 @@ watch(keyword, () => {
 
 <template>
   <div class="px-4 py-3 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface space-y-3">
-    <!-- 지역 -->
-    <div class="flex gap-1.5 flex-wrap">
-      <FilterChip
-        v-for="item in REGION_FILTERS"
-        :key="item.label"
-        :active="region.label === item.label"
-        @click="region = item"
-      >{{ item.label }}</FilterChip>
-    </div>
-
     <!-- 거래 유형 -->
     <div class="flex gap-1.5 flex-wrap">
       <FilterChip

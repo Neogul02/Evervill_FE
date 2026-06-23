@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { animate } from 'animejs'
 import { useRouter, RouterLink } from 'vue-router'
 import { ChevronLeft, ChevronRight, Lightbulb, Loader2 } from 'lucide-vue-next'
 import type { Listing, MarketProperty } from '@/types'
 import type { AiAnalysis } from '@/types/ai'
-import { listingsApi, marketApi, aiApi } from '@/api'
+import { listingsApi, aiApi } from '@/api'
 import { formatListingPrice, formatArea, formatFloor, formatManWon, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
 import NaverMap from '@/components/map/NaverMap.vue'
 import { useAuthStore } from '@/stores'
@@ -86,15 +87,15 @@ watch(
   async (id) => {
     if (!id) { detail.value = null; aiResult.value = null; return }
     loading.value = true
+    detail.value = null
     aiResult.value = null
     aiError.value = ''
     currentImageIndex.value = 0
     try {
       const res = await listingsApi.getById(id)
       detail.value = res.data.data
-      bookmarked.value = res.data.data.isBookmarked
-      const marketRes = await marketApi.getList({ size: 5 })
-      nearbyMarket.value = marketRes.data.data.content
+      bookmarked.value = res.data.data.isBookmarked ?? false
+      nearbyMarket.value = res.data.data.nearbyMarketPrices ?? []
     } catch {
       detail.value = null
     } finally {
@@ -125,6 +126,16 @@ async function deleteListing() {
   } finally {
     deleteLoading.value = false
   }
+}
+
+function onDetailEnter(el: Element, done: () => void) {
+  animate(el, {
+    translateY: [8, 0],
+    opacity: [0, 1],
+    duration: 250,
+    ease: 'outCubic',
+    onComplete: done,
+  })
 }
 
 async function submitReport() {
@@ -158,7 +169,8 @@ async function submitReport() {
       <p class="text-sm">불러오는 중...</p>
     </div>
 
-    <template v-else-if="detail">
+    <Transition :css="false" @enter="onDetailEnter">
+    <div v-if="detail" :key="detail.id">
 
       <!-- 이미지 -->
       <div
@@ -214,8 +226,8 @@ async function submitReport() {
               <Badge :tone="DEAL_TYPE_TONE[detail.dealType]">{{ DEAL_TYPE_LABEL[detail.dealType] }}</Badge>
               <Badge :tone="STATUS_TONE[detail.status]">{{ STATUS_LABEL[detail.status] }}</Badge>
             </div>
-            <p class="text-xs text-ink-faint dark:text-dark-muted mb-1">
-              {{ detail.city }} {{ detail.district }} {{ detail.neighborhood }}
+            <p class="text-xs text-ink-faint dark:text-dark-muted mb-1 truncate">
+              {{ detail.address }}
             </p>
             <h2 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight">{{ detail.title }}</h2>
             <p class="text-2xl font-bold text-accent mt-1.5">{{ formatListingPrice(detail) }}</p>
@@ -249,30 +261,35 @@ async function submitReport() {
       </div>
 
       <!-- 실거래가 비교 -->
-      <div v-if="nearbyMarket.length > 0" class="p-6 border-b border-hairline dark:border-dark-border">
+      <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">인근 실거래가 비교</h3>
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="text-ink-faint dark:text-dark-muted border-b border-hairline dark:border-dark-border">
-              <th class="pb-2 text-left font-medium">거래일</th>
-              <th class="pb-2 text-left font-medium">유형</th>
-              <th class="pb-2 text-right font-medium">가격</th>
-              <th class="pb-2 text-right font-medium">면적</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item in nearbyMarket"
-              :key="item.id"
-              class="border-b border-hairline dark:border-dark-border/40 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
-            >
-              <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealYear }}.{{ item.dealMonth }}.{{ item.dealDay }}</td>
-              <td class="py-2 text-ink-muted dark:text-dark-muted">{{ DEAL_TYPE_LABEL[item.dealType] }}</td>
-              <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.dealAmount) }}</td>
-              <td class="py-2 text-right text-ink-muted dark:text-dark-muted">{{ formatArea(item.area) }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <p v-if="nearbyMarket.length === 0" class="text-sm text-ink-faint dark:text-dark-muted py-4 text-center">
+          주변 최근 실거래가가 없습니다
+        </p>
+        <div v-else class="max-h-[220px] overflow-y-auto scrollbar-hide">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-ink-faint dark:text-dark-muted border-b border-hairline dark:border-dark-border">
+                <th class="pb-2 text-left font-medium">거래일</th>
+                <th class="pb-2 text-left font-medium">유형</th>
+                <th class="pb-2 text-right font-medium">가격</th>
+                <th class="pb-2 text-right font-medium">면적</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="item in nearbyMarket"
+                :key="item.id"
+                class="border-b border-hairline dark:border-dark-border/40 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              >
+                <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealYear }}.{{ item.dealMonth }}.{{ item.dealDay }}</td>
+                <td class="py-2 text-ink-muted dark:text-dark-muted">{{ DEAL_TYPE_LABEL[item.dealType] }}</td>
+                <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.dealAmount) }}</td>
+                <td class="py-2 text-right text-ink-muted dark:text-dark-muted">{{ formatArea(item.area) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 지도 -->
@@ -293,7 +310,7 @@ async function submitReport() {
       <div class="p-6">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">판매자</h3>
         <div class="flex items-center justify-between">
-          <span class="text-sm text-ink-muted dark:text-dark-muted">{{ detail.sellerNickname }}</span>
+          <span class="text-sm text-ink-muted dark:text-dark-muted">{{ detail.sellerNickname ?? `판매자 #${detail.sellerId}` }}</span>
           <div v-if="isOwner()" class="flex items-center gap-2">
             <RouterLink
               :to="`/listings/${detail.id}/edit`"
@@ -356,7 +373,8 @@ async function submitReport() {
         </div>
       </div>
 
-    </template>
+    </div>
+    </Transition>
 
     <!-- 신고 모달 -->
     <Teleport to="body">

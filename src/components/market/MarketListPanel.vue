@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
+import { animate, stagger } from 'animejs'
 import type { MarketProperty, MarketFilter } from '@/types'
 import { marketApi } from '@/api'
 import MarketFilterBar from './MarketFilterBar.vue'
@@ -64,6 +65,20 @@ function submitJumpPage() {
 watch(filter, () => fetchMarket(0), { deep: true })
 onMounted(() => fetchMarket(0))
 
+function onCardEnter(el: Element, done: () => void) {
+  animate(el, {
+    translateY: [16, 0],
+    opacity: [0, 1],
+    duration: 300,
+    delay: stagger(35),
+    ease: 'outCubic',
+    onComplete: done,
+  })
+}
+function onCardLeave(el: Element, done: () => void) {
+  animate(el, { opacity: [1, 0], duration: 150, onComplete: done })
+}
+
 const pageNumbers = computed(() => {
   const total = totalPages.value
   if (total <= 0) return []
@@ -95,7 +110,7 @@ const pageNumbers = computed(() => {
         <p class="text-sm">실거래 내역이 없습니다</p>
         <p class="text-xs">필터를 변경해보세요</p>
       </div>
-      <template v-else>
+      <TransitionGroup v-else tag="div" :css="false" appear @enter="onCardEnter" @leave="onCardLeave">
         <MarketCard
           v-for="p in properties"
           :key="p.id"
@@ -103,7 +118,7 @@ const pageNumbers = computed(() => {
           :selected="p.id === selectedId"
           @select="emit('select', $event)"
         />
-      </template>
+      </TransitionGroup>
     </div>
 
     <!-- 페이지네이션 -->

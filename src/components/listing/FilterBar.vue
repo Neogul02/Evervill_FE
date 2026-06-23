@@ -3,7 +3,6 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { ListingFilter, DealType } from '@/types'
 import FilterChip from '@/components/ui/FilterChip.vue'
-import { REGION_FILTERS } from '@/constants/regions'
 
 const emit = defineEmits<{
   update: [filter: ListingFilter]
@@ -12,8 +11,6 @@ const emit = defineEmits<{
 const route = useRoute()
 const dealType = ref<DealType | undefined>(undefined)
 const keyword = ref((route.query.address as string) ?? '')
-
-const region = ref(REGION_FILTERS[0])
 
 const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
   { value: undefined, label: '거래전체' },
@@ -34,8 +31,7 @@ const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
 const priceRange = ref(PRICE_RANGES[0])
 let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
-const CURRENT_YEAR = new Date().getFullYear()
-const YEARS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - i)
+const YEARS = [2026, 2025]
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
 
 const year = ref<number | undefined>(undefined)
@@ -49,13 +45,12 @@ function emitUpdate() {
     maxPrice: priceRange.value.max,
     year: year.value,
     month: month.value,
-    regions: region.value.regions,
     address: q,
     keyword: q,
   })
 }
 
-watch([dealType, priceRange, year, month, region], emitUpdate)
+watch([dealType, priceRange, year, month], emitUpdate)
 watch(keyword, () => {
   clearTimeout(keywordTimer)
   keywordTimer = setTimeout(emitUpdate, 400)
@@ -67,15 +62,6 @@ watch(() => route.query.address, (addr) => {
 
 <template>
   <div class="px-4 py-3 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface space-y-3">
-    <div class="flex gap-1.5 flex-wrap">
-      <FilterChip
-        v-for="item in REGION_FILTERS"
-        :key="item.label"
-        :active="region.label === item.label"
-        @click="region = item"
-      >{{ item.label }}</FilterChip>
-    </div>
-
     <div class="flex gap-1.5 flex-wrap">
       <FilterChip
         v-for="item in DEAL_TYPES"

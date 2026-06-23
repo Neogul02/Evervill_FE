@@ -9,6 +9,7 @@ import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import NaverMap from '@/components/map/NaverMap.vue'
 import Badge from '@/components/ui/Badge.vue'
+import BookmarkButton from '@/components/ui/BookmarkButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,6 +35,7 @@ async function fetchListing() {
   try {
     const res = await listingsApi.getById(id)
     listing.value = res.data.data
+    bookmarked.value = res.data.data.isBookmarked ?? false
   } catch {
     error.value = true
   } finally {
@@ -150,15 +152,7 @@ onMounted(fetchListing)
               <h1 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight truncate">{{ listing.title }}</h1>
               <p class="text-2xl font-bold text-accent mt-1">{{ formatListingPrice(listing) }}</p>
             </div>
-            <button
-              @click="toggleBookmark"
-              :disabled="bookmarkLoading"
-              class="flex-shrink-0 w-9 h-9 rounded-full border border-hairline dark:border-dark-border flex items-center justify-center transition-colors hover:bg-canvas-soft dark:hover:bg-dark-elevated cursor-pointer"
-            >
-              <span class="text-base" :class="bookmarked ? 'text-red-500' : 'text-ink-faint'">
-                {{ bookmarked ? '♥' : '♡' }}
-              </span>
-            </button>
+            <BookmarkButton :bookmarked="bookmarked" :disabled="bookmarkLoading" @click="toggleBookmark" />
           </div>
 
           <!-- 기본 정보 -->

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { animate } from 'animejs'
 import { marketApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { useRouter } from 'vue-router'
@@ -71,6 +72,16 @@ async function toggleBookmark() {
   }
 }
 
+function onDetailEnter(el: Element, done: () => void) {
+  animate(el, {
+    translateY: [8, 0],
+    opacity: [0, 1],
+    duration: 250,
+    ease: 'outCubic',
+    onComplete: done,
+  })
+}
+
 watch(
   () => props.propertyId,
   (id) => {
@@ -106,8 +117,8 @@ watch(
     </div>
 
     <!-- 상세 정보 -->
-    <template v-else-if="property">
-      <div class="p-6 space-y-3">
+    <Transition v-else :css="false" @enter="onDetailEnter">
+      <div v-if="property" :key="property.id" class="p-6 space-y-3">
         <!-- 헤더 -->
         <div
           class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-5"
@@ -215,6 +226,6 @@ watch(
           </p>
         </div>
       </div>
-    </template>
+    </Transition>
   </div>
 </template>

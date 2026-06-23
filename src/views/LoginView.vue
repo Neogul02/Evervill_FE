@@ -5,10 +5,10 @@ import { authApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { parseJwt } from '@/utils/jwt'
 import kakaoLoginImg from '@/assets/kakao_login_large_wide.png'
-import naverLoginImg from '@/assets/NAVER_login_large_wide.png'
 import logoImg from '@/assets/evervill_logo.png'
 import logoWhiteImg from '@/assets/evervill_logo_white.png'
 import { useTheme } from '@/composables/useTheme'
+import { Github } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -114,10 +114,11 @@ async function onLogin() {
           </a>
 
           <a
-            :href="`${gatewayUrl}/oauth2/authorization/naver`"
-            class="block w-full transition-all active:scale-[0.98] rounded-lg overflow-hidden hover:opacity-90"
+            :href="`${gatewayUrl}/oauth2/authorization/github`"
+            class="relative flex items-center justify-center w-full py-3.5 bg-[#24292f] hover:bg-[#1c2127] text-white rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]"
           >
-            <img :src="naverLoginImg" alt="네이버로 로그인" class="w-full" />
+            <Github class="absolute left-4 w-5 h-5" />
+            GitHub로 로그인
           </a>
         </div>
 

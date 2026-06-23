@@ -10,7 +10,7 @@ export const listingsApi = {
     client.get<ApiResponse<ListingPageResponse<Listing>>>('/api/listings/my', { params, headers: userIdHeader() }),
 
   getById: (id: number) =>
-    client.get<ApiResponse<Listing>>(`/api/listings/${id}`),
+    client.get<ApiResponse<Listing>>(`/api/listings/${id}`, { headers: userIdHeader() }),
 
   create: (data: CreateListingRequest) =>
     client.post<ApiResponse<Listing>>('/api/listings', data),
