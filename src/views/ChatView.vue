@@ -5,11 +5,18 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import { useAuthStore } from '@/stores/auth'
 import { chatApi } from '@/api/chat'
 import { useChat } from '@/composables/useChat'
+import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import type { ChatRoom, ChatMessage } from '@/types/chat'
 
 const authStore = useAuthStore()
 const route = useRoute()
 const { isConnected, connect, subscribeRoom } = useChat()
+const {
+  syncUnreadCountFromRooms,
+  incrementUnreadCount,
+  decrementUnreadCount,
+  refreshUnreadCount,
+} = useUnreadChatCount()
 
 const rooms = ref<ChatRoom[]>([])
 const selectedRoom = ref<ChatRoom | null>(null)
@@ -24,6 +31,7 @@ async function loadRooms() {
   try {
     const res = await chatApi.getRooms()
     rooms.value = res.data.data
+    syncUnreadCountFromRooms(rooms.value)
   } catch {
     // 빈 목록으로 처리
   } finally {
@@ -33,20 +41,30 @@ async function loadRooms() {
 
 function subscribeToRoom(room: ChatRoom) {
   subscribeRoom(room.id, (msg: ChatMessage) => {
-    if (selectedRoom.value?.id === room.id) {
+    const isSelectedRoom = selectedRoom.value?.id === room.id
+    const isIncomingFromOtherUser = msg.senderId !== authStore.user?.id
+    const target = rooms.value.find((r) => r.id === room.id)
+
+    if (target) {
+      target.lastMessage = msg.content
+      target.lastMessageAt = msg.createdAt
+    }
+
+    if (isSelectedRoom) {
       messages.value.push(msg)
       scrollToBottom()
-    } else {
-      const target = rooms.value.find((r) => r.id === room.id)
-      if (target) {
-        target.lastMessage = msg.content
-        target.lastMessageAt = msg.createdAt
-        target.unreadCount = (target.unreadCount ?? 0) + 1
+      if (isIncomingFromOtherUser) {
+        void chatApi.markAsRead(room.id).then(refreshUnreadCount).catch(() => {})
       }
+      return
+    }
+
+    if (target && isIncomingFromOtherUser) {
+      target.unreadCount = (target.unreadCount ?? 0) + 1
+      incrementUnreadCount()
     }
   })
 }
-
 function subscribeAllRooms() {
   rooms.value.forEach(subscribeToRoom)
 }
@@ -65,10 +83,12 @@ async function selectRoom(room: ChatRoom) {
   isLoadingMessages.value = true
 
   try {
+    const previousUnreadCount = room.unreadCount ?? 0
     const res = await chatApi.getMessages(room.id)
     messages.value = res.data.data
     await chatApi.markAsRead(room.id)
     room.unreadCount = 0
+    decrementUnreadCount(previousUnreadCount)
   } catch {
     // 조용히 실패
   } finally {
@@ -77,7 +97,6 @@ async function selectRoom(room: ChatRoom) {
 
   scrollToBottom()
 }
-
 function scrollToBottom() {
   nextTick(() => {
     if (messagesEl.value) {
@@ -350,3 +369,4 @@ onMounted(async () => {
     </main>
   </div>
 </template>
+

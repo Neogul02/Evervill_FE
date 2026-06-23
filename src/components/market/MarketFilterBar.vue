@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import type { MarketFilter, MarketDealType, MarketPropertyType } from '@/types'
 import FilterChip from '@/components/ui/FilterChip.vue'
+import { REGION_FILTERS } from '@/constants/regions'
 
 const emit = defineEmits<{
   update: [filter: MarketFilter]
@@ -11,18 +12,7 @@ const dealType = ref<MarketDealType | undefined>(undefined)
 const propertyType = ref<MarketPropertyType | undefined>(undefined)
 const keyword = ref('')
 
-const REGIONS: { label: string; regions?: string[] }[] = [
-  { label: '전체', regions: undefined },
-  { label: '서울', regions: ['서울'] },
-  { label: '수도권', regions: ['서울', '경기', '인천'] },
-  { label: '강원', regions: ['강원'] },
-  { label: '충청', regions: ['충청'] },
-  { label: '전라', regions: ['전라'] },
-  { label: '경상', regions: ['경상'] },
-  { label: '부울경', regions: ['부산', '대구', '울산'] },
-  { label: '제주', regions: ['제주'] },
-]
-const region = ref(REGIONS[0])
+const region = ref(REGION_FILTERS[0])
 
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
@@ -81,7 +71,7 @@ watch(keyword, () => {
     <!-- 지역 -->
     <div class="flex gap-1.5 flex-wrap">
       <FilterChip
-        v-for="item in REGIONS"
+        v-for="item in REGION_FILTERS"
         :key="item.label"
         :active="region.label === item.label"
         @click="region = item"
@@ -142,3 +132,4 @@ watch(keyword, () => {
     />
   </div>
 </template>
+
