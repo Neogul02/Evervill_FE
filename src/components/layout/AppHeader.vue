@@ -110,9 +110,7 @@ function logout() {
             <RouterLink
               to="/my/profile"
               class="text-xs text-ink-faint dark:text-dark-muted px-1.5 hover:text-ink dark:hover:text-dark-text transition-colors max-w-[80px] truncate"
-              >{{
-                authStore.user?.nickname ?? authStore.user?.email
-              }}</RouterLink
+              >내정보</RouterLink
             >
 
             <button
@@ -202,7 +200,7 @@ function logout() {
             to="/my/profile"
             class="text-xs text-ink-faint dark:text-dark-muted px-3 py-2 hover:text-ink dark:hover:text-dark-text transition-colors truncate"
             @click="mobileMenuOpen = false"
-            >{{ authStore.user?.nickname ?? authStore.user?.email }}</RouterLink
+            >내정보</RouterLink
           >
 
           <button
@@ -217,3 +215,4 @@ function logout() {
     </div>
   </header>
 </template>
+
