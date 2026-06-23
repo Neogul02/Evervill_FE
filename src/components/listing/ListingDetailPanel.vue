@@ -162,7 +162,7 @@ async function submitReport() {
 
       <!-- 이미지 -->
       <div
-        class="relative h-96 bg-canvas-soft dark:bg-dark-elevated"
+        class="relative h-48 bg-canvas-soft dark:bg-dark-elevated"
         @pointerdown="onImagePointerDown"
         @pointerup="onImagePointerUp"
       >
@@ -282,6 +282,8 @@ async function submitReport() {
         <p v-if="detail.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ detail.addressDetail }}</p>
         <NaverMap
           :key="detail.id"
+          :latitude="detail.latitude"
+          :longitude="detail.longitude"
           :address="detail.address"
           class="mt-3 w-full h-96 rounded-xl overflow-hidden"
         />
