@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useRouter, useRoute, RouterLink } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import { useBreakpoint } from '@/composables/useBreakpoint'
@@ -9,12 +9,9 @@ import IconButton from '@/components/ui/IconButton.vue'
 import { Sun, Moon, Menu, X } from 'lucide-vue-next'
 import logoImg from '@/assets/evervill_logo.png'
 import logoWhiteImg from '@/assets/evervill_logo_white.png'
-// TODO: 다크모드용 화이트 로고 에셋(evervill_logo_white.png)이 아직 없어 기본 로고로 대체
 
 const authStore = useAuthStore()
 const router = useRouter()
-const route = useRoute()
-const searchQuery = ref((route.query.address as string) ?? '')
 const { isDark, toggle } = useTheme()
 const { isDesktop } = useBreakpoint()
 const mobileMenuOpen = ref(false)
@@ -31,11 +28,6 @@ function logout() {
   router.push('/login')
 }
 
-function onSearch() {
-  const q = searchQuery.value.trim()
-  if (!q) return
-  router.push({ path: '/', query: { address: q } })
-}
 </script>
 
 <template>
@@ -43,7 +35,7 @@ function onSearch() {
     class="fixed top-0 left-0 right-0 z-50 h-14 bg-canvas dark:bg-dark-surface border-b border-hairline dark:border-dark-border transition-colors duration-150"
   >
     <div
-      class="h-full flex items-center px-4 sm:px-6 md:px-8 md:mx-auto md:max-w-[1600px] select-none"
+      class="h-full flex items-center px-12 sm:px-16 md:px-20 md:mx-auto md:max-w-[1600px] select-none"
     >
       <!-- ── 왼쪽: 로고 + 도메인 링크 ── -->
       <div class="flex items-center gap-0.5 shrink-0">
@@ -58,34 +50,26 @@ function onSearch() {
 
         <RouterLink
           to="/"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
           >매물</RouterLink
         >
 
         <RouterLink
           to="/market"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
           >실거래가</RouterLink
         >
 
         <RouterLink
           to="/notices"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
           >공지사항</RouterLink
         >
       </div>
 
       <!-- ── 검색 ── -->
       <div class="flex-1 flex justify-center px-2 sm:px-4 select-text">
-        <div class="w-full max-w-[140px] sm:max-w-xs">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="지역, 주소 검색"
-            class="w-full px-2.5 py-1 text-xs border border-hairline dark:border-dark-border rounded bg-canvas-soft dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
-            @keydown.enter="onSearch"
-          />
-        </div>
+        
       </div>
 
       <!-- ── 오른쪽: 유저 링크 + 다크모드 ── -->
@@ -161,8 +145,8 @@ function onSearch() {
           :aria-label="isDark ? '라이트 모드' : '다크 모드'"
           @click="toggle"
         >
-          <Sun v-if="isDark" class="w-3.5 h-3.5" />
-          <Moon v-else class="w-3.5 h-3.5" />
+          <Sun v-if="isDark" class="w-5 h-5" />
+          <Moon v-else class="w-5 h-5" />
         </IconButton>
 
         <!-- 모바일 햄버거 메뉴 (인증 상태일 때만 접을 메뉴가 존재) -->

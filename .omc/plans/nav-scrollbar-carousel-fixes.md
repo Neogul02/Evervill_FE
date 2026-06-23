@@ -43,12 +43,14 @@
 ## Implementation Steps
 
 ### 1. Nav 드래그 방지 — `src/components/layout/AppHeader.vue`
-- 헤더 루트 컨테이너(46행 `class="h-full flex items-center px-4 sm:px-6 md:px-8 md:mx-auto md:max-w-[1600px]"`)에 `select-none` 추가.
+
+- 헤더 루트 컨테이너(46행 `class="h-full flex items-center px-10 sm:px-14 md:px-18 md:mx-auto md:max-w-[1600px]"`)에 `select-none` 추가.
 - 검색 `<input>`이 포함된 `<div class="flex-1 flex justify-center px-2 sm:px-4">`(78행) 블록에는 `select-text`로 명시적으로 되돌려, 입력창 텍스트 선택은 막지 않는다.
 - 로고 `<img>` 엘리먼트에 `draggable="false"` 속성 추가.
 - 모바일 드롭다운(177행 `<div v-if="!isDesktop && mobileMenuOpen ...">`)에도 `select-none` 추가.
 
 ### 2. 스크롤바 숨김 — `src/style.css` + 4개 패널 컴포넌트
+
 - `src/style.css`에 유틸리티 추가:
   ```css
   .scrollbar-hide {
@@ -62,6 +64,7 @@
 - `ListingListPanel.vue:95`, `ListingDetailPanel.vue:108`, `MarketListPanel.vue:89`, `MarketDetailPanel.vue:86`의 `overflow-y-auto` 클래스 옆에 `scrollbar-hide` 추가.
 
 ### 3. 사진 캐러셀 — `src/components/listing/ListingDetailPanel.vue`
+
 - `<script setup>`에 `ChevronLeft`, `ChevronRight`를 `lucide-vue-next`에서 import.
 - 다음 함수 추가:
   ```ts
@@ -99,12 +102,12 @@
 
 ## Risks and Mitigations
 
-| Risk | Mitigation |
-|---|---|
-| `select-none`을 헤더 전체에 걸면 검색 입력창 텍스트도 선택 안 될 수 있음 | 검색 input이 포함된 블록에 `select-text`로 명시적으로 재정의 |
-| 드래그 임계값(50px)이 너무 작아 일반 클릭에도 이미지가 넘어갈 수 있음 | `pointerup`에서만 delta 계산, 클릭(드래그 없음)은 delta=0이라 영향 없음. 필요시 QA 중 임계값 조정 |
-| `scrollbar-hide`가 Firefox/Safari 등 일부 브라우저에서 표준 속성 미지원 시 스크롤바가 남을 수 있음 | `scrollbar-width`(Firefox), `-ms-overflow-style`(레거시 Edge), `::-webkit-scrollbar`(Chrome/Safari) 3종 모두 적용해 주요 브라우저 커버 |
-| 화살표 버튼과 닷 인디케이터 클릭이 드래그 핸들러와 충돌(클릭 시 pointerup이 같이 발동) | 버튼에 `@click.stop` 사용, 버튼은 이미지 위에 absolute로 얹혀 있어도 pointerdown이 버튼에서 시작되면 버튼의 클릭 핸들러만 동작 — 별도 stopPropagation 처리로 안전하게 분리 |
+| Risk                                                                                               | Mitigation                                                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `select-none`을 헤더 전체에 걸면 검색 입력창 텍스트도 선택 안 될 수 있음                           | 검색 input이 포함된 블록에 `select-text`로 명시적으로 재정의                                                                                                               |
+| 드래그 임계값(50px)이 너무 작아 일반 클릭에도 이미지가 넘어갈 수 있음                              | `pointerup`에서만 delta 계산, 클릭(드래그 없음)은 delta=0이라 영향 없음. 필요시 QA 중 임계값 조정                                                                          |
+| `scrollbar-hide`가 Firefox/Safari 등 일부 브라우저에서 표준 속성 미지원 시 스크롤바가 남을 수 있음 | `scrollbar-width`(Firefox), `-ms-overflow-style`(레거시 Edge), `::-webkit-scrollbar`(Chrome/Safari) 3종 모두 적용해 주요 브라우저 커버                                     |
+| 화살표 버튼과 닷 인디케이터 클릭이 드래그 핸들러와 충돌(클릭 시 pointerup이 같이 발동)             | 버튼에 `@click.stop` 사용, 버튼은 이미지 위에 absolute로 얹혀 있어도 pointerdown이 버튼에서 시작되면 버튼의 클릭 핸들러만 동작 — 별도 stopPropagation 처리로 안전하게 분리 |
 
 ## Verification Steps
 
