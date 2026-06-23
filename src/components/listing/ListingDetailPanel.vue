@@ -5,12 +5,13 @@ import { ChevronLeft, ChevronRight, Lightbulb, Loader2 } from 'lucide-vue-next'
 import type { Listing, MarketProperty } from '@/types'
 import type { AiAnalysis } from '@/types/ai'
 import { listingsApi, marketApi, aiApi } from '@/api'
-import { formatListingPrice, formatArea, formatFloor, formatManWon, DEAL_TYPE_LABEL } from '@/utils/format'
+import { formatListingPrice, formatArea, formatFloor, formatManWon, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
 import NaverMap from '@/components/map/NaverMap.vue'
 import { useAuthStore } from '@/stores'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BookmarkButton from '@/components/ui/BookmarkButton.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
 import type { BadgeTone } from '@/constants/dealTypeColors'
 
 const props = defineProps<{
@@ -76,6 +77,9 @@ function onImagePointerUp(e: PointerEvent) {
 const showReportModal = ref(false)
 const reportReason = ref('')
 const reportLoading = ref(false)
+const deleteLoading = ref(false)
+
+const isOwner = () => !!detail.value && !!authStore.user && detail.value.sellerId === authStore.user.id
 
 watch(
   () => props.listingId,
@@ -110,6 +114,17 @@ async function toggleBookmark() {
     }
     bookmarked.value = !bookmarked.value
   } catch {}
+}
+
+async function deleteListing() {
+  if (!detail.value || !confirm('매물을 삭제하시겠습니까?')) return
+  deleteLoading.value = true
+  try {
+    await listingsApi.delete(detail.value.id)
+    router.push('/my/listings')
+  } finally {
+    deleteLoading.value = false
+  }
 }
 
 async function submitReport() {
@@ -195,6 +210,10 @@ async function submitReport() {
       <div class="p-6 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface">
         <div class="flex items-start justify-between gap-3">
           <div>
+            <div class="flex items-center gap-2 mb-2">
+              <Badge :tone="DEAL_TYPE_TONE[detail.dealType]">{{ DEAL_TYPE_LABEL[detail.dealType] }}</Badge>
+              <Badge :tone="STATUS_TONE[detail.status]">{{ STATUS_LABEL[detail.status] }}</Badge>
+            </div>
             <p class="text-xs text-ink-faint dark:text-dark-muted mb-1">
               {{ detail.city }} {{ detail.district }} {{ detail.neighborhood }}
             </p>
@@ -208,10 +227,12 @@ async function submitReport() {
       <!-- 기본 정보 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">기본 정보</h3>
-        <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="grid grid-cols-4 gap-2 text-center">
           <div v-for="(info, i) in [
             { label: '면적', value: formatArea(detail.area) },
             { label: '층수', value: formatFloor(detail.floor) },
+            { label: '조회수', value: String(detail.viewCount) },
+            { label: '등록일', value: new Date(detail.createdAt).toLocaleDateString('ko-KR') },
           ]" :key="i"
             class="bg-canvas-soft dark:bg-dark-elevated rounded-lg p-3"
           >
@@ -257,10 +278,12 @@ async function submitReport() {
       <!-- 지도 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">위치</h3>
+        <p class="text-sm text-ink dark:text-dark-text">{{ detail.address }}</p>
+        <p v-if="detail.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ detail.addressDetail }}</p>
         <NaverMap
           :key="detail.id"
           :address="detail.address"
-          class="w-full h-96 rounded-xl overflow-hidden"
+          class="mt-3 w-full h-96 rounded-xl overflow-hidden"
         />
       </div>
 
@@ -269,7 +292,18 @@ async function submitReport() {
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">판매자</h3>
         <div class="flex items-center justify-between">
           <span class="text-sm text-ink-muted dark:text-dark-muted">{{ detail.sellerNickname }}</span>
-          <div class="flex items-center gap-2">
+          <div v-if="isOwner()" class="flex items-center gap-2">
+            <RouterLink
+              :to="`/listings/${detail.id}/edit`"
+              class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 text-sm px-4 py-1.5 border border-accent text-accent rounded-full hover:bg-accent-light dark:hover:bg-accent-dark-muted"
+            >수정하기</RouterLink>
+            <button
+              @click="deleteListing"
+              :disabled="deleteLoading"
+              class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 disabled:opacity-50 text-sm px-4 py-1.5 border border-red-400 text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
+            >삭제하기</button>
+          </div>
+          <div v-else class="flex items-center gap-2">
             <RouterLink
               v-if="authStore.isAuthenticated"
               :to="`/chat?listingId=${detail.id}`"

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"git checkout dev && git stash pop\",\"description\":\"Switch back to dev and restore stashed OMC state files\"}",
+  "error": "Exit code 1\nYour branch is up to date with 'origin/dev'.\nSwitched to branch 'dev'\n.omc/state/sessions/3a8476bb-af65-4f44-871a-682994687ea2/last-tool-error-state.json already exists, no checkout\n.omc/state/sessions/3a8476bb-af65-4f44-871a-682994687ea2/pre-tool-advisory-throttle.json already exists, no checkout\nerror: could not restore untracked files from stash\nOn branch dev\nYour branch is up to date with 'origin/dev'.\n\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will...",
+  "timestamp": "2026-06-22T23:42:31.872Z",
+  "retry_count": 1
+}

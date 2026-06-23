@@ -11,6 +11,19 @@ const dealType = ref<MarketDealType | undefined>(undefined)
 const propertyType = ref<MarketPropertyType | undefined>(undefined)
 const keyword = ref('')
 
+const REGIONS: { label: string; regions?: string[] }[] = [
+  { label: '전체', regions: undefined },
+  { label: '서울', regions: ['서울'] },
+  { label: '수도권', regions: ['서울', '경기', '인천'] },
+  { label: '강원', regions: ['강원'] },
+  { label: '충청', regions: ['충청'] },
+  { label: '전라', regions: ['전라'] },
+  { label: '경상', regions: ['경상'] },
+  { label: '부울경', regions: ['부산', '대구', '울산'] },
+  { label: '제주', regions: ['제주'] },
+]
+const region = ref(REGIONS[0])
+
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
   { label: '1억 이하', min: undefined, max: 10000 },
@@ -51,11 +64,12 @@ function emitUpdate() {
     maxPrice: priceRange.value.max,
     dealYear: dealYear.value,
     dealMonth: dealMonth.value,
+    regions: region.value.regions,
     keyword: keyword.value.trim() || undefined,
   })
 }
 
-watch([dealType, propertyType, priceRange, dealYear, dealMonth], emitUpdate)
+watch([dealType, propertyType, priceRange, dealYear, dealMonth, region], emitUpdate)
 watch(keyword, () => {
   clearTimeout(keywordTimer)
   keywordTimer = setTimeout(emitUpdate, 400)
@@ -64,6 +78,16 @@ watch(keyword, () => {
 
 <template>
   <div class="px-4 py-3 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface space-y-3">
+    <!-- 지역 -->
+    <div class="flex gap-1.5 flex-wrap">
+      <FilterChip
+        v-for="item in REGIONS"
+        :key="item.label"
+        :active="region.label === item.label"
+        @click="region = item"
+      >{{ item.label }}</FilterChip>
+    </div>
+
     <!-- 거래 유형 -->
     <div class="flex gap-1.5 flex-wrap">
       <FilterChip

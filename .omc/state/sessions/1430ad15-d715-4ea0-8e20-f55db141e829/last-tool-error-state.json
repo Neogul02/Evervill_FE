@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd C:/Codes/Evervill_FE && git checkout main && git pull origin main && git merge dev --no-edit && git push origin main && git checkout dev\",\"description\":\"Merge dev into main and push to ...",
+  "error": "Exit code 1\nM\t.omc/project-memory.json\nM\t.omc/sessions/149b47b0-8aa2-4e35-97e0-37e11f3aae18.json\nD\t.omc/state/sessions/149b47b0-8aa2-4e35-97e0-37e11f3aae18/session-started.json\nYour branch is up to date with 'origin/main'.\nSwitched to branch 'main'\nFrom https://github.com/Neogul02/Evervill_FE\n * branch            main       -> FETCH_HEAD\nAlready up to date.\nwarning: in the working copy of '.omc/project-memory.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working...",
+  "timestamp": "2026-06-23T00:05:35.402Z",
+  "retry_count": 1
+}

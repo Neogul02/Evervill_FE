@@ -41,7 +41,7 @@ export const DEAL_TYPE_LABEL: Record<DealType, string> = {
 }
 
 export const STATUS_LABEL: Record<string, string> = {
-  ACTIVE: '거래 가능',
+  ACTIVE: '',
   RESERVED: '예약 중',
   CLOSED: '거래 완료',
 }

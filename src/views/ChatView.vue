@@ -144,7 +144,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen bg-canvas-soft dark:bg-dark-base">
+  <div class="flex flex-col h-screen bg-canvas-soft dark:bg-dark-base mt-2">
     <AppHeader />
 
     <main

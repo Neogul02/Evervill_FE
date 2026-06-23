@@ -29,7 +29,7 @@ onMounted(fetchMyListings)
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-14">
     <AppHeader />
     <main class="pt-14 max-w-3xl mx-auto w-full px-4 py-8">
       <div class="flex items-center justify-between mb-6">

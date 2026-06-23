@@ -28,6 +28,7 @@ export interface MarketFilter {
   maxArea?: number
   dealYear?: number
   dealMonth?: number
+  regions?: string[]
   keyword?: string
   page?: number
   size?: number

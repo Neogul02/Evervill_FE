@@ -10,6 +10,22 @@ const client = axios.create({
   baseURL: '/',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
+  // 배열 파라미터를 axios 기본값(regions[]=a&regions[]=b) 대신
+  // Spring @RequestParam List<T>가 바로 받는 형식(regions=a&regions=b)으로 직렬화
+  paramsSerializer: {
+    serialize: (params) => {
+      const search = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        if (Array.isArray(value)) {
+          value.forEach((v) => search.append(key, String(v)))
+        } else {
+          search.append(key, String(value))
+        }
+      })
+      return search.toString()
+    },
+  },
 })
 
 const PUBLIC_PATHS = ['/auth/login', '/auth/signup']

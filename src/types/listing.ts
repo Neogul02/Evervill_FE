@@ -49,6 +49,7 @@ export interface ListingFilter {
   maxArea?: number
   year?: number
   month?: number
+  regions?: string[]
   address?: string
   keyword?: string
   page?: number

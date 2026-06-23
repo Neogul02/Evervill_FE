@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores'
 import { authApi } from '@/api'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
+const router = useRouter()
 const authStore = useAuthStore()
 
 const nickname = ref(authStore.user?.nickname ?? '')
@@ -60,6 +62,26 @@ async function updatePassword() {
     passwordLoading.value = false
   }
 }
+
+const withdrawPassword = ref('')
+const withdrawLoading = ref(false)
+const withdrawError = ref('')
+
+async function withdraw() {
+  if (!withdrawPassword.value) return
+  if (!confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return
+  withdrawLoading.value = true
+  withdrawError.value = ''
+  try {
+    await authApi.deleteAccount({ password: withdrawPassword.value })
+    authStore.logout()
+    router.push('/')
+  } catch (e: any) {
+    withdrawError.value = e.response?.data?.message ?? '회원탈퇴에 실패했습니다.'
+  } finally {
+    withdrawLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -68,6 +90,25 @@ async function updatePassword() {
     <main class="pt-14 max-w-lg mx-auto w-full px-4 py-8 space-y-6">
 
       <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">프로필 설정</h1>
+
+      <!-- 계정 정보 -->
+      <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 space-y-3">
+        <h2 class="text-sm font-semibold text-ink dark:text-dark-text">계정 정보</h2>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">닉네임</p>
+            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.nickname }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">이메일</p>
+            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.email }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">가입일</p>
+            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.createdAt ? new Date(authStore.user.createdAt).toLocaleDateString('ko-KR') : '-' }}</p>
+          </div>
+        </div>
+      </section>
 
       <!-- 닉네임 변경 -->
       <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 space-y-4">
@@ -132,6 +173,32 @@ async function updatePassword() {
           :disabled="passwordLoading || !currentPassword || !newPassword || !newPasswordConfirm"
           @click="updatePassword"
         >{{ passwordLoading ? '변경 중...' : '비밀번호 변경' }}</BaseButton>
+      </section>
+
+      <!-- 회원탈퇴 -->
+      <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-red-300 dark:border-red-900/50 p-6 space-y-4">
+        <div>
+          <h2 class="text-sm font-semibold text-red-500 dark:text-red-400">회원탈퇴</h2>
+          <p class="text-xs text-ink-faint dark:text-dark-muted mt-1">탈퇴 시 계정 정보는 복구할 수 없습니다.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-ink-muted dark:text-dark-muted mb-1.5">비밀번호 확인</label>
+          <input
+            v-model="withdrawPassword"
+            type="password"
+            placeholder="현재 비밀번호 입력"
+            class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-red-400 transition-colors"
+          />
+        </div>
+
+        <p v-if="withdrawError" class="text-xs text-red-500 dark:text-red-400">{{ withdrawError }}</p>
+
+        <button
+          :disabled="withdrawLoading || !withdrawPassword"
+          @click="withdraw"
+          class="py-2 px-4 border border-red-400 text-red-500 rounded-full text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50 cursor-pointer"
+        >{{ withdrawLoading ? '처리 중...' : '회원탈퇴' }}</button>
       </section>
 
     </main>

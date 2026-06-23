@@ -16,4 +16,7 @@ export const authApi = {
 
   updatePassword: (data: { currentPassword: string; newPassword: string }) =>
     client.patch<ApiResponse<void>>('/auth/password', data),
+
+  deleteAccount: (data: { password: string }) =>
+    client.delete<ApiResponse<void>>('/auth/account', { data }),
 }

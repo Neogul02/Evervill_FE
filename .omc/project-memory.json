@@ -37,7 +37,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd C:/Codes/Evervill_FE && yarn build 2>&1 | tail -10",
+    "buildCommand": "cd C:/Codes/Evervill_FE && node -e \"\nconst { URLSearchParams } = require('url');\nfunction serialize(params) {\n  const search = new URLSearchParams();\n  Object.entries(params).forEach(([key, value]) => {\n    if (value === undefined || value === null) return;\n    if (Array.isArray(value)) {\n      value.forEach((v) => search.append(key, String(v)));\n    } else {\n      search.append(key, String(value));\n    }\n  });\n  return search.toString();\n}\nconsole.log(serialize({ regions: ['서울','경기','인천'], year: 2026, month: undefined }));\n\"\nyarn build 2>&1 | grep -iE \"error|TS[0-9]\"; echo \"exit:$?\"",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": "yarn dev",
@@ -132,56 +132,80 @@
   "hotPaths": [
     {
       "path": "src\\components\\listing\\ListingDetailPanel.vue",
-      "accessCount": 25,
-      "lastAccessed": 1782108227857,
-      "type": "file"
-    },
-    {
-      "path": "src\\components\\listing\\FilterBar.vue",
-      "accessCount": 19,
-      "lastAccessed": 1782108163634,
-      "type": "file"
-    },
-    {
-      "path": "src\\components\\market\\MarketFilterBar.vue",
-      "accessCount": 19,
-      "lastAccessed": 1782108227104,
-      "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 15,
-      "lastAccessed": 1782108772038,
-      "type": "directory"
-    },
-    {
-      "path": "src\\components\\listing\\ListingListPanel.vue",
-      "accessCount": 13,
-      "lastAccessed": 1782108262015,
-      "type": "file"
-    },
-    {
-      "path": "src\\components\\market\\MarketListPanel.vue",
-      "accessCount": 12,
-      "lastAccessed": 1782108268987,
+      "accessCount": 52,
+      "lastAccessed": 1782175342667,
       "type": "file"
     },
     {
       "path": "src\\components\\layout\\AppHeader.vue",
-      "accessCount": 11,
-      "lastAccessed": 1782109124803,
+      "accessCount": 29,
+      "lastAccessed": 1782174614423,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\market\\MarketFilterBar.vue",
+      "accessCount": 28,
+      "lastAccessed": 1782175986414,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\listing\\FilterBar.vue",
+      "accessCount": 27,
+      "lastAccessed": 1782175968984,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 20,
+      "lastAccessed": 1782175522327,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\listing\\ListingListPanel.vue",
+      "accessCount": 18,
+      "lastAccessed": 1782176834760,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\market\\MarketListPanel.vue",
+      "accessCount": 16,
+      "lastAccessed": 1782173315012,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\LoginView.vue",
+      "accessCount": 14,
+      "lastAccessed": 1782173037592,
       "type": "file"
     },
     {
       "path": "src\\components\\market\\MarketDetailPanel.vue",
-      "accessCount": 9,
-      "lastAccessed": 1782108267087,
+      "accessCount": 12,
+      "lastAccessed": 1782172367863,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\MarketView.vue",
+      "accessCount": 11,
+      "lastAccessed": 1782174585752,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\HomeView.vue",
+      "accessCount": 10,
+      "lastAccessed": 1782174584289,
       "type": "file"
     },
     {
       "path": "src\\api\\client.ts",
+      "accessCount": 10,
+      "lastAccessed": 1782176060643,
+      "type": "file"
+    },
+    {
+      "path": "src\\types\\listing.ts",
       "accessCount": 8,
-      "lastAccessed": 1782099328564,
+      "lastAccessed": 1782176001307,
       "type": "file"
     },
     {
@@ -209,9 +233,27 @@
       "type": "file"
     },
     {
-      "path": "src\\views\\MarketView.vue",
+      "path": "src\\views\\ChatView.vue",
+      "accessCount": 7,
+      "lastAccessed": 1782174586742,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\ListingDetailView.vue",
+      "accessCount": 7,
+      "lastAccessed": 1782175116160,
+      "type": "file"
+    },
+    {
+      "path": "src\\types\\market.ts",
+      "accessCount": 7,
+      "lastAccessed": 1782176002215,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\listings.ts",
       "accessCount": 6,
-      "lastAccessed": 1782108227981,
+      "lastAccessed": 1782175145674,
       "type": "file"
     },
     {
@@ -221,21 +263,15 @@
       "type": "file"
     },
     {
-      "path": "src\\views\\HomeView.vue",
+      "path": "",
       "accessCount": 5,
-      "lastAccessed": 1782108227569,
-      "type": "file"
+      "lastAccessed": 1782172017313,
+      "type": "directory"
     },
     {
-      "path": "src\\views\\ListingDetailView.vue",
+      "path": "src\\views\\RegisterView.vue",
       "accessCount": 5,
-      "lastAccessed": 1782109063221,
-      "type": "file"
-    },
-    {
-      "path": "src\\api\\listings.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782099341371,
+      "lastAccessed": 1782172319335,
       "type": "file"
     },
     {
@@ -251,9 +287,15 @@
       "type": "file"
     },
     {
+      "path": "vite.config.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782172014044,
+      "type": "file"
+    },
+    {
       "path": "src\\api\\market.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782099353618,
+      "accessCount": 4,
+      "lastAccessed": 1782173311180,
       "type": "file"
     },
     {
@@ -263,33 +305,9 @@
       "type": "file"
     },
     {
-      "path": "src\\types\\listing.ts",
+      "path": "src\\types\\auth.ts",
       "accessCount": 3,
-      "lastAccessed": 1782108077407,
-      "type": "file"
-    },
-    {
-      "path": "src\\types\\market.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782108077513,
-      "type": "file"
-    },
-    {
-      "path": "src\\views\\LoginView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782108590430,
-      "type": "file"
-    },
-    {
-      "path": "vite.config.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782108669433,
-      "type": "file"
-    },
-    {
-      "path": "src\\views\\ChatView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782109061521,
+      "lastAccessed": 1782175626102,
       "type": "file"
     },
     {
@@ -302,12 +320,6 @@
       "path": "src\\api\\index.ts",
       "accessCount": 2,
       "lastAccessed": 1782098793205,
-      "type": "file"
-    },
-    {
-      "path": "src\\types\\auth.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782098983701,
       "type": "file"
     },
     {
@@ -341,12 +353,6 @@
       "type": "file"
     },
     {
-      "path": "",
-      "accessCount": 2,
-      "lastAccessed": 1782108616337,
-      "type": "directory"
-    },
-    {
       "path": "src\\views\\my\\MyListingsView.vue",
       "accessCount": 2,
       "lastAccessed": 1782109060349,
@@ -356,12 +362,6 @@
       "path": "src\\views\\my\\MyBookmarksView.vue",
       "accessCount": 2,
       "lastAccessed": 1782109060803,
-      "type": "file"
-    },
-    {
-      "path": "src\\views\\RegisterView.vue",
-      "accessCount": 2,
-      "lastAccessed": 1782109062859,
       "type": "file"
     },
     {
