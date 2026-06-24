@@ -21,6 +21,7 @@ const loading = ref(true)
 const error = ref(false)
 const bookmarked = ref(false)
 const bookmarkLoading = ref(false)
+const addressResolved = ref(true)
 const currentImageIndex = ref(0)
 const showReportModal = ref(false)
 const reportReason = ref('')
@@ -37,7 +38,8 @@ async function fetchListing() {
   try {
     const res = await listingsApi.getById(id)
     listing.value = res.data.data
-    bookmarked.value = res.data.data.isBookmarked ?? false
+    bookmarked.value = res.data.data.bookmarked ?? false
+    addressResolved.value = true
   } catch {
     error.value = true
   } finally {
@@ -55,9 +57,11 @@ async function toggleBookmark() {
     if (bookmarked.value) {
       await listingsApi.unbookmark(id)
       bookmarked.value = false
+      if (listing.value) listing.value.bookmarkCount--
     } else {
       await listingsApi.bookmark(id)
       bookmarked.value = true
+      if (listing.value) listing.value.bookmarkCount++
     }
   } finally {
     bookmarkLoading.value = false
@@ -167,7 +171,10 @@ onMounted(fetchListing)
               <h1 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight truncate">{{ listing.title }}</h1>
               <p class="text-2xl font-bold text-accent mt-1">{{ formatListingPrice(listing) }}</p>
             </div>
-            <BookmarkButton :bookmarked="bookmarked" :disabled="bookmarkLoading" @click="toggleBookmark" />
+            <div class="flex items-center gap-1.5">
+              <BookmarkButton :bookmarked="bookmarked" :disabled="bookmarkLoading" @click="toggleBookmark" />
+              <span class="text-xs text-ink-faint dark:text-dark-muted">{{ listing.bookmarkCount }}</span>
+            </div>
           </div>
 
           <!-- 기본 정보 -->
@@ -190,13 +197,15 @@ onMounted(fetchListing)
         <!-- 주소 -->
         <div class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-5 mb-3">
           <h2 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-2 uppercase tracking-wide">위치</h2>
-          <p class="text-sm text-ink dark:text-dark-text">{{ listing.address }}</p>
-          <p v-if="listing.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ listing.addressDetail }}</p>
+          <p v-if="addressResolved" class="text-sm text-ink dark:text-dark-text">{{ listing.address }}</p>
+          <p v-else class="text-sm text-ink-faint dark:text-dark-muted">주소 정보 없음</p>
+          <p v-if="listing.addressDetail && addressResolved" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ listing.addressDetail }}</p>
           <NaverMap
             :key="listing.id"
             :latitude="listing.latitude"
             :longitude="listing.longitude"
             :address="listing.address"
+            @geocode-result="(found) => addressResolved = found || !!(listing?.latitude && listing?.longitude)"
             class="mt-3 w-full h-56 rounded-lg overflow-hidden border border-hairline dark:border-dark-border"
           />
         </div>

@@ -127,7 +127,7 @@ onMounted(fetchListingBookmarks)
             class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-4 flex gap-4 hover:shadow-sm transition-shadow">
             <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated">
               <img v-if="listing.images?.[0]?.imageUrl" :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full flex items-center justify-center text-xl text-ink-faint dark:text-dark-muted">🏠</div>
+              <div v-else class="w-full h-full flex items-center justify-center text-[11px] text-ink-faint dark:text-dark-muted">사진없음</div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2 mb-1">
@@ -159,22 +159,25 @@ onMounted(fetchListingBookmarks)
         </div>
         <div v-else class="space-y-2">
           <div v-for="property in marketBookmarks" :key="property.id"
-            class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-4 hover:shadow-sm transition-shadow">
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ property.propertyName }}</p>
-                <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ property.districtName }}</p>
+            class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-4 flex gap-4 hover:shadow-sm transition-shadow">
+            <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated flex items-center justify-center text-[11px] text-ink-faint dark:text-dark-muted">사진없음</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ property.propertyName }}</p>
+                  <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ property.districtName }}</p>
+                </div>
+                <button class="shrink-0 text-xs text-ink-faint dark:text-dark-muted hover:text-red-500 transition-colors cursor-pointer"
+                  @click="removeMarketBookmark(property)">삭제</button>
               </div>
-              <button class="shrink-0 text-xs text-ink-faint dark:text-dark-muted hover:text-red-500 transition-colors cursor-pointer"
-                @click="removeMarketBookmark(property)">삭제</button>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <Badge :tone="DEAL_TYPE_TONE[property.dealType]">{{ formatMarketDealType(property.dealType) }}</Badge>
-              <span class="text-sm font-semibold text-accent">{{ formatMarketPrice(property.dealAmount) }}</span>
-              <span v-if="property.area" class="text-xs text-ink-faint dark:text-dark-muted">{{ formatArea(property.area) }}</span>
-              <span class="text-xs text-ink-faint dark:text-dark-muted ml-auto">
-                {{ property.dealYear }}.{{ String(property.dealMonth).padStart(2, '0') }}
-              </span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <Badge :tone="DEAL_TYPE_TONE[property.dealType]">{{ formatMarketDealType(property.dealType) }}</Badge>
+                <span class="text-sm font-semibold text-accent">{{ formatMarketPrice(property.dealAmount) }}</span>
+                <span v-if="property.area" class="text-xs text-ink-faint dark:text-dark-muted">{{ formatArea(property.area) }}</span>
+                <span class="text-xs text-ink-faint dark:text-dark-muted ml-auto">
+                  {{ property.dealYear }}.{{ String(property.dealMonth).padStart(2, '0') }}
+                </span>
+              </div>
             </div>
           </div>
         </div>

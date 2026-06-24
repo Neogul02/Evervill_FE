@@ -90,6 +90,12 @@ function logout() {
             >
 
             <RouterLink
+              to="/my/recent"
+              class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              > 최근 본 매물</RouterLink
+            >
+
+            <RouterLink
               to="/chat"
               class="relative text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
               >채팅<span
@@ -174,6 +180,13 @@ function logout() {
             class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
             @click="mobileMenuOpen = false"
             >북마크</RouterLink
+          >
+
+          <RouterLink
+            to="/my/recent"
+            class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            @click="mobileMenuOpen = false"
+            >최근 본 매물</RouterLink
           >
 
           <RouterLink

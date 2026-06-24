@@ -43,6 +43,9 @@ export const listingsApi = {
   getBookmarks: () =>
     client.get<ApiResponse<Listing[]>>('/api/listings/bookmarks', { headers: userIdHeader() }),
 
+  getRecent: () =>
+    client.get<ApiResponse<Listing[]>>('/api/listings/recent', { headers: userIdHeader() }),
+
   report: (id: number, reason: string) =>
     client.post<ApiResponse<void>>(`/api/listings/${id}/report`, { reason }, { headers: userIdHeader() }),
 }

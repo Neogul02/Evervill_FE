@@ -9,8 +9,6 @@ export interface ChatParticipant {
 export interface ChatRoom {
   id: number
   listingId: number
-  buyerId: number
-  sellerId: number
   listingTitle?: string
   lastMessage?: string
   lastMessageAt?: string

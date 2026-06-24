@@ -62,6 +62,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/my/recent',
+      name: 'my-recent',
+      component: () => import('@/views/my/RecentListingsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/my/profile',
       name: 'my-profile',
       component: () => import('@/views/my/MyProfileView.vue'),

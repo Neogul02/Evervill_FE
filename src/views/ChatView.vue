@@ -2,11 +2,16 @@
 import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
+import { UserRound } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { chatApi } from '@/api/chat'
+import { listingsApi, authApi } from '@/api'
 import { useChat } from '@/composables/useChat'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import type { ChatRoom, ChatMessage } from '@/types/chat'
+import type { Listing, PublicProfile } from '@/types'
+import { formatListingPrice } from '@/utils/format'
+import { parseServerDate } from '@/utils/date'
 
 const authStore = useAuthStore()
 const route = useRoute()
@@ -20,11 +25,22 @@ const {
 
 const rooms = ref<ChatRoom[]>([])
 const selectedRoom = ref<ChatRoom | null>(null)
+const selectedListing = ref<Listing | null>(null)
+const participantProfiles = ref<Record<number, PublicProfile>>({})
 const messages = ref<ChatMessage[]>([])
 const newMessage = ref('')
 const messagesEl = ref<HTMLElement | null>(null)
 const isLoadingRooms = ref(false)
 const isLoadingMessages = ref(false)
+
+function loadParticipantProfiles(room: ChatRoom) {
+  room.participants?.forEach((p) => {
+    if (p.userId === authStore.user?.id || participantProfiles.value[p.userId]) return
+    authApi.getPublicProfile(p.userId)
+      .then((res) => { participantProfiles.value[p.userId] = res.data.data })
+      .catch(() => {})
+  })
+}
 
 async function loadRooms() {
   isLoadingRooms.value = true
@@ -79,8 +95,14 @@ watch(isConnected, (connected) => {
 async function selectRoom(room: ChatRoom) {
   if (selectedRoom.value?.id === room.id) return
   selectedRoom.value = room
+  selectedListing.value = null
   messages.value = []
   isLoadingMessages.value = true
+  loadParticipantProfiles(room)
+
+  listingsApi.getById(room.listingId)
+    .then((res) => { selectedListing.value = res.data.data })
+    .catch(() => {})
 
   try {
     const previousUnreadCount = room.unreadCount ?? 0
@@ -117,7 +139,7 @@ async function handleSend() {
 }
 
 function formatTime(dateStr: string) {
-  return new Date(dateStr).toLocaleTimeString('ko-KR', {
+  return parseServerDate(dateStr).toLocaleTimeString('ko-KR', {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'Asia/Seoul',
@@ -126,7 +148,7 @@ function formatTime(dateStr: string) {
 
 function formatRoomTime(dateStr?: string) {
   if (!dateStr) return ''
-  const d = new Date(dateStr)
+  const d = parseServerDate(dateStr)
   const isToday =
     new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }) ===
     d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
@@ -290,9 +312,30 @@ onMounted(async () => {
                     : 'bg-canvas-soft text-ink-faint dark:bg-dark-elevated dark:text-dark-muted'
                 "
               >
-                {{ isConnected ? '연결됨' : '연결 중...' }}
+                {{ isConnected ? '온라인' : '오프라인' }}
               </span>
             </div>
+
+            <!-- 매물 정보 배너 -->
+            <RouterLink
+              v-if="selectedListing"
+              :to="`/listings/${selectedListing.id}`"
+              class="flex items-center gap-3 px-4 py-2.5 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors shrink-0"
+            >
+              <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated flex items-center justify-center text-[10px] text-ink-faint dark:text-dark-muted">
+                <img
+                  v-if="selectedListing.images?.[0]?.imageUrl"
+                  :src="selectedListing.images[0].imageUrl"
+                  :alt="selectedListing.title"
+                  class="w-full h-full object-cover"
+                />
+                <span v-else>사진없음</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-ink dark:text-dark-text truncate">{{ selectedListing.title }}</p>
+                <p class="text-xs text-accent font-semibold">{{ formatListingPrice(selectedListing) }}</p>
+              </div>
+            </RouterLink>
 
             <!-- 메시지 목록 -->
             <div
@@ -317,12 +360,22 @@ onMounted(async () => {
                   "
                 >
                   <div class="max-w-[68%]">
-                    <p
+                    <div
                       v-if="msg.senderId !== authStore.user?.id"
-                      class="text-[11px] font-medium text-ink-faint dark:text-dark-muted mb-0.5 px-1"
+                      class="flex items-center gap-1.5 mb-0.5 px-1"
                     >
-                      {{ msg.senderNickname ?? '상대방' }}
-                    </p>
+                      <div class="w-4 h-4 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+                        <img
+                          v-if="participantProfiles[msg.senderId]?.profileImageUrl"
+                          :src="participantProfiles[msg.senderId].profileImageUrl!"
+                          class="w-full h-full object-cover"
+                        />
+                        <UserRound v-else class="w-2.5 h-2.5 text-ink-faint" />
+                      </div>
+                      <p class="text-[11px] font-medium text-ink-faint dark:text-dark-muted">
+                        {{ participantProfiles[msg.senderId]?.nickname ?? msg.senderNickname ?? '상대방' }}
+                      </p>
+                    </div>
                     <div
                       class="rounded-2xl px-3.5 py-2 text-sm"
                       :class="

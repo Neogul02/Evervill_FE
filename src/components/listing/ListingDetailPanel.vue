@@ -2,10 +2,10 @@
 import { ref, watch } from 'vue'
 import { animate } from 'animejs'
 import { useRouter, RouterLink } from 'vue-router'
-import { ChevronLeft, ChevronRight, Lightbulb, Loader2 } from 'lucide-vue-next'
-import type { Listing, MarketProperty } from '@/types'
+import { ChevronLeft, ChevronRight, Lightbulb, Loader2, UserRound } from 'lucide-vue-next'
+import type { Listing, MarketProperty, PublicProfile } from '@/types'
 import type { AiAnalysis } from '@/types/ai'
-import { listingsApi, aiApi } from '@/api'
+import { listingsApi, aiApi, authApi } from '@/api'
 import { formatListingPrice, formatArea, formatFloor, formatManWon, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
 import NaverMap from '@/components/map/NaverMap.vue'
 import { useAuthStore } from '@/stores'
@@ -22,6 +22,7 @@ const props = defineProps<{
 const authStore = useAuthStore()
 const router = useRouter()
 const detail = ref<Listing | null>(null)
+const sellerProfile = ref<PublicProfile | null>(null)
 const aiResult = ref<AiAnalysis | null>(null)
 const aiLoading = ref(false)
 const aiError = ref('')
@@ -52,6 +53,7 @@ async function runAiAnalysis() {
 const nearbyMarket = ref<MarketProperty[]>([])
 const loading = ref(false)
 const bookmarked = ref(false)
+const addressResolved = ref(true)
 const currentImageIndex = ref(0)
 const dragStartX = ref<number | null>(null)
 
@@ -85,17 +87,24 @@ const isOwner = () => !!detail.value && !!authStore.user && detail.value.sellerI
 watch(
   () => props.listingId,
   async (id) => {
-    if (!id) { detail.value = null; aiResult.value = null; return }
+    if (!id) { detail.value = null; aiResult.value = null; sellerProfile.value = null; return }
     loading.value = true
     detail.value = null
+    sellerProfile.value = null
     aiResult.value = null
     aiError.value = ''
     currentImageIndex.value = 0
     try {
       const res = await listingsApi.getById(id)
       detail.value = res.data.data
-      bookmarked.value = res.data.data.isBookmarked ?? false
+      bookmarked.value = res.data.data.bookmarked ?? false
+      addressResolved.value = true
       nearbyMarket.value = res.data.data.nearbyMarketPrices ?? []
+      if (!detail.value.sellerNickname) {
+        authApi.getPublicProfile(detail.value.sellerId)
+          .then((r) => { sellerProfile.value = r.data.data })
+          .catch(() => {})
+      }
     } catch {
       detail.value = null
     } finally {
@@ -110,8 +119,10 @@ async function toggleBookmark() {
   try {
     if (bookmarked.value) {
       await listingsApi.unbookmark(detail.value.id)
+      detail.value.bookmarkCount--
     } else {
       await listingsApi.bookmark(detail.value.id)
+      detail.value.bookmarkCount++
     }
     bookmarked.value = !bookmarked.value
   } catch {}
@@ -232,7 +243,10 @@ async function submitReport() {
             <h2 class="text-lg font-bold text-ink dark:text-dark-text tracking-tight">{{ detail.title }}</h2>
             <p class="text-2xl font-bold text-accent mt-1.5">{{ formatListingPrice(detail) }}</p>
           </div>
-          <BookmarkButton :bookmarked="bookmarked" @click="toggleBookmark" />
+          <div class="flex items-center gap-1.5">
+            <BookmarkButton :bookmarked="bookmarked" @click="toggleBookmark" />
+            <span class="text-xs text-ink-faint dark:text-dark-muted">{{ detail.bookmarkCount }}</span>
+          </div>
         </div>
       </div>
 
@@ -295,14 +309,16 @@ async function submitReport() {
       <!-- 지도 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">위치</h3>
-        <p class="text-sm text-ink dark:text-dark-text">{{ detail.address }}</p>
-        <p v-if="detail.addressDetail" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ detail.addressDetail }}</p>
+        <p v-if="addressResolved" class="text-sm text-ink dark:text-dark-text">{{ detail.address }}</p>
+        <p v-else class="text-sm text-ink-faint dark:text-dark-muted">주소 정보 없음</p>
+        <p v-if="detail.addressDetail && addressResolved" class="text-xs text-ink-faint dark:text-dark-muted mt-1">{{ detail.addressDetail }}</p>
         <NaverMap
           :key="detail.id"
           :latitude="detail.latitude"
           :longitude="detail.longitude"
           :address="detail.address"
           class="mt-3 w-full h-96 rounded-xl overflow-hidden"
+          @geocode-result="(found) => addressResolved = found || !!(detail?.latitude && detail?.longitude)"
         />
       </div>
 
@@ -310,7 +326,19 @@ async function submitReport() {
       <div class="p-6">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">판매자</h3>
         <div class="flex items-center justify-between">
-          <span class="text-sm text-ink-muted dark:text-dark-muted">{{ detail.sellerNickname ?? `판매자 #${detail.sellerId}` }}</span>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+              <img
+                v-if="sellerProfile?.profileImageUrl"
+                :src="sellerProfile.profileImageUrl"
+                class="w-full h-full object-cover"
+              />
+              <UserRound v-else class="w-4 h-4 text-ink-faint" />
+            </div>
+            <span class="text-sm text-ink-muted dark:text-dark-muted">
+              {{ detail.sellerNickname ?? sellerProfile?.nickname ?? `판매자 #${detail.sellerId}` }}
+            </span>
+          </div>
           <div v-if="isOwner()" class="flex items-center gap-2">
             <RouterLink
               :to="`/listings/${detail.id}/edit`"

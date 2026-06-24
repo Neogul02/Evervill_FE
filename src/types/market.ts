@@ -16,6 +16,7 @@ export interface MarketProperty {
   dealYear: number
   dealMonth: number
   dealDay: number
+  bookmarked?: boolean
 }
 
 export interface MarketFilter {

@@ -26,7 +26,8 @@ export interface Listing {
   longitude: number | null
   status: ListingStatus
   viewCount: number
-  isBookmarked?: boolean
+  bookmarked?: boolean
+  bookmarkCount: number
   images: ListingImage[]
   nearbyMarketPrices: MarketProperty[] | null
   createdAt: string

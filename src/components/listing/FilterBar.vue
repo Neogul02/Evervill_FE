@@ -22,8 +22,7 @@ const DEAL_TYPES: { value: DealType | undefined; label: string }[] = [
 const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
   { label: '전체', min: undefined, max: undefined },
   { label: '1억 이하', min: undefined, max: 10000 },
-  { label: '1~3억', min: 10000, max: 30000 },
-  { label: '3~5억', min: 30000, max: 50000 },
+  { label: '1~5억', min: 10000, max: 50000 },
   { label: '5~10억', min: 50000, max: 100000 },
   { label: '10억 이상', min: 100000, max: undefined },
 ]

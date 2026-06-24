@@ -8,6 +8,13 @@ export interface User {
   updatedAt: string
 }
 
+export interface PublicProfile {
+  id: number
+  email: string
+  nickname: string
+  profileImageUrl?: string | null
+}
+
 export interface LoginRequest {
   email: string
   password: string
@@ -24,7 +31,7 @@ export interface RegisterRequest {
 
 export interface UpdateProfileRequest {
   nickname?: string
-  profileImage?: File
+  profileImageUrl?: string
 }
 
 export interface TokenResponse {

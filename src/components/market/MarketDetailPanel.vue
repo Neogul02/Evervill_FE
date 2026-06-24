@@ -47,6 +47,7 @@ async function fetchDetail(id: number) {
   try {
     const res = await marketApi.getById(id)
     property.value = res.data.data
+    bookmarked.value = res.data.data.bookmarked ?? false
   } finally {
     loading.value = false
   }

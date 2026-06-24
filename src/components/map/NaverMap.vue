@@ -9,6 +9,10 @@ const props = defineProps<{
   address?: string | null
 }>()
 
+const emit = defineEmits<{
+  'geocode-result': [found: boolean]
+}>()
+
 const mapEl = ref<HTMLDivElement | null>(null)
 const hasCoords = ref(false)
 const geocoding = ref(false)
@@ -57,8 +61,10 @@ async function initMap() {
     geocoding.value = false
     if (result) {
       placeMarker(result.lat, result.lng)
+      emit('geocode-result', true)
     } else {
       geocodeFailed.value = true
+      emit('geocode-result', false)
     }
   }
 
@@ -85,8 +91,13 @@ watch(
       geocodeFailed.value = false
       const result = await geocodeAddress(address)
       geocoding.value = false
-      if (result) placeMarker(result.lat, result.lng)
-      else geocodeFailed.value = true
+      if (result) {
+        placeMarker(result.lat, result.lng)
+        emit('geocode-result', true)
+      } else {
+        geocodeFailed.value = true
+        emit('geocode-result', false)
+      }
     }
   },
 )
