@@ -108,7 +108,7 @@ watch(
   { immediate: true },
 )
 
-const parsedAddress = (fullAddress) => {
+const parsedAddress = (fullAddress: string | null | undefined) => {
   if (!fullAddress) return "";
   
   // 정규식 매칭을 통해 하위 주소 추출
@@ -254,7 +254,7 @@ const parsedAddress = (fullAddress) => {
           <h3 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-3 uppercase tracking-wide">위치</h3>
           <NaverMap
             :key="property.id"
-            :address="parsedAddress(property.address)"
+            :address="parsedAddress(property.districtName)"
             class="w-full h-96 rounded-lg overflow-hidden"
           />
           <p class="text-xs text-ink-faint dark:text-dark-muted mt-2">* 법정동 기준 근사 위치입니다 (정확한 지번 정보 없음)</p>

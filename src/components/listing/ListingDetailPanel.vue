@@ -48,6 +48,11 @@ const AI_LEVEL_TONE: Record<string, BadgeTone> = {
   CAUTION: 'amber',
   DANGER: 'rose',
 }
+const AI_LEVEL_LABEL: Record<string, string> = {
+  SAFE: '안전',
+  CAUTION: '주의',
+  DANGER: '위험',
+}
 
 async function runAiAnalysis() {
   if (!detail.value || aiLoading.value) return
@@ -616,8 +621,10 @@ async function submitReport() {
 
             <!-- 결과 -->
             <div v-if="aiResult" class="space-y-2">
-              <div class="flex items-center gap-2">
-                
+              <div v-if="aiResult.riskLevel" class="flex items-center gap-2">
+                <Badge :tone="AI_LEVEL_TONE[aiResult.riskLevel]">{{
+                  AI_LEVEL_LABEL[aiResult.riskLevel]
+                }}</Badge>
               </div>
               <p
                 class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line"
