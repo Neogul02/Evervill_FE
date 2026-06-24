@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores'
 import { authApi } from '@/api'
+import { NICKNAME_PATTERN, isReservedNickname, containsUnsafePattern } from '@/utils/validation'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
@@ -76,13 +77,22 @@ const passwordSuccess = ref(false)
 const passwordError = ref('')
 
 async function updateNickname() {
-  if (!nickname.value.trim()) return
+  const trimmed = nickname.value.trim()
+  if (!trimmed) return
+  if (!NICKNAME_PATTERN.test(trimmed)) {
+    nicknameError.value = '닉네임은 한글/영문/숫자/언더스코어 2~20자로 입력해주세요'
+    return
+  }
+  if (isReservedNickname(trimmed) || containsUnsafePattern(trimmed)) {
+    nicknameError.value = '사용할 수 없는 닉네임입니다'
+    return
+  }
   nicknameLoading.value = true
   nicknameSuccess.value = false
   nicknameError.value = ''
   try {
-    await authApi.updateProfile({ nickname: nickname.value.trim() })
-    if (authStore.user) authStore.user.nickname = nickname.value.trim()
+    await authApi.updateProfile({ nickname: trimmed })
+    if (authStore.user) authStore.user.nickname = trimmed
     nicknameSuccess.value = true
   } catch (e: any) {
     nicknameError.value = e.response?.data?.message ?? '닉네임 변경에 실패했습니다.'
@@ -213,6 +223,7 @@ async function updatePassword() {
           <input
             v-model="nickname"
             type="text"
+            maxlength="20"
             placeholder="새 닉네임 입력"
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
           />

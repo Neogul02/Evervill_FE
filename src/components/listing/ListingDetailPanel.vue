@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { animate } from 'animejs'
 import { useRouter, RouterLink } from 'vue-router'
 import { ChevronLeft, ChevronRight, Lightbulb, Loader2, UserRound, ImageOff, Share2, Check } from 'lucide-vue-next'
@@ -51,6 +51,13 @@ async function runAiAnalysis() {
   }
 }
 const nearbyMarket = ref<MarketProperty[]>([])
+const nearbyMarketPage = ref(0)
+const NEARBY_MARKET_PAGE_SIZE = 10
+const nearbyMarketTotalPages = computed(() => Math.ceil(nearbyMarket.value.length / NEARBY_MARKET_PAGE_SIZE))
+const nearbyMarketPaged = computed(() => {
+  const start = nearbyMarketPage.value * NEARBY_MARKET_PAGE_SIZE
+  return nearbyMarket.value.slice(start, start + NEARBY_MARKET_PAGE_SIZE)
+})
 const loading = ref(false)
 const bookmarked = ref(false)
 const addressResolved = ref(true)
@@ -103,6 +110,7 @@ watch(
       bookmarked.value = res.data.data.bookmarked ?? false
       addressResolved.value = true
       nearbyMarket.value = res.data.data.nearbyMarketPrices ?? []
+      nearbyMarketPage.value = 0
       if (!detail.value.sellerNickname) {
         authApi.getPublicProfile(detail.value.sellerId)
           .then((r) => { sellerProfile.value = r.data.data })
@@ -201,7 +209,7 @@ async function submitReport() {
 
       <!-- 이미지 -->
       <div
-        class="relative h-64 bg-canvas-soft dark:bg-dark-elevated"
+        class="relative h-84 bg-canvas-soft dark:bg-dark-elevated"
         @pointerdown="onImagePointerDown"
         @pointerup="onImagePointerUp"
       >
@@ -283,10 +291,11 @@ async function submitReport() {
       <!-- 기본 정보 -->
       <div class="p-6 border-b border-hairline dark:border-dark-border">
         <h3 class="text-sm font-semibold text-ink-secondary dark:text-dark-text mb-3">기본 정보</h3>
-        <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="grid grid-cols-4 gap-2 text-center">
           <div v-for="(info, i) in [
             { label: '면적', value: formatArea(detail.area) },
             { label: '층수', value: formatFloor(detail.floor) },
+            { label: '조회수', value: String(detail.viewCount) },
             { label: '등록일', value: new Date(detail.createdAt).toLocaleDateString('ko-KR') },
           ]" :key="i"
             class="bg-canvas-soft dark:bg-dark-elevated rounded-lg p-3"
@@ -309,29 +318,52 @@ async function submitReport() {
         <p v-if="nearbyMarket.length === 0" class="text-sm text-ink-faint dark:text-dark-muted py-4 text-center">
           주변 최근 실거래가가 없습니다
         </p>
-        <div v-else class="max-h-[220px] overflow-y-auto scrollbar-hide">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-ink-faint dark:text-dark-muted border-b border-hairline dark:border-dark-border">
-                <th class="pb-2 text-left font-medium">거래일</th>
-                <th class="pb-2 text-left font-medium">유형</th>
-                <th class="pb-2 text-right font-medium">가격</th>
-                <th class="pb-2 text-right font-medium">면적</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="item in nearbyMarket"
-                :key="item.id"
-                class="border-b border-hairline dark:border-dark-border/40 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
-              >
-                <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealYear }}.{{ item.dealMonth }}.{{ item.dealDay }}</td>
-                <td class="py-2 text-ink-muted dark:text-dark-muted">{{ DEAL_TYPE_LABEL[item.dealType] }}</td>
-                <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.dealAmount) }}</td>
-                <td class="py-2 text-right text-ink-muted dark:text-dark-muted">{{ formatArea(item.area) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div v-else>
+          <div class="max-h-[220px] overflow-y-auto scrollbar-hide">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-ink-faint dark:text-dark-muted border-b border-hairline dark:border-dark-border">
+                  <th class="pb-2 text-left font-medium">거래일</th>
+                  <th class="pb-2 text-left font-medium">유형</th>
+                  <th class="pb-2 text-right font-medium">가격</th>
+                  <th class="pb-2 text-right font-medium">면적</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in nearbyMarketPaged"
+                  :key="item.id"
+                  class="border-b border-hairline dark:border-dark-border/40 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+                >
+                  <td class="py-2 text-ink-muted dark:text-dark-muted">{{ item.dealYear }}.{{ item.dealMonth }}.{{ item.dealDay }}</td>
+                  <td class="py-2 text-ink-muted dark:text-dark-muted">{{ DEAL_TYPE_LABEL[item.dealType] }}</td>
+                  <td class="py-2 text-right font-semibold text-ink dark:text-dark-text">{{ formatManWon(item.dealAmount) }}</td>
+                  <td class="py-2 text-right text-ink-muted dark:text-dark-muted">{{ formatArea(item.area) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-if="nearbyMarketTotalPages > 1" class="flex items-center justify-between mt-2 text-xs text-ink-faint dark:text-dark-muted">
+            <button
+              type="button"
+              :disabled="nearbyMarketPage === 0"
+              class="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              @click="nearbyMarketPage--"
+            >
+              <ChevronLeft class="w-3.5 h-3.5" />
+              이전
+            </button>
+            <span>{{ nearbyMarketPage + 1 }} / {{ nearbyMarketTotalPages }}</span>
+            <button
+              type="button"
+              :disabled="nearbyMarketPage >= nearbyMarketTotalPages - 1"
+              class="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              @click="nearbyMarketPage++"
+            >
+              다음
+              <ChevronRight class="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -446,6 +478,7 @@ async function submitReport() {
             v-model="reportReason"
             placeholder="신고 사유를 입력해주세요"
             rows="4"
+            maxlength="500"
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent resize-none"
           />
           <div class="flex gap-3 mt-4">

@@ -27,18 +27,24 @@ const emit = defineEmits<{
   >
     <div class="flex gap-3">
       <!-- 썸네일 -->
-      <div
-        v-if="listing.images[0]?.imageUrl"
-        class="w-16 h-16 rounded-lg bg-canvas-soft dark:bg-dark-elevated shrink-0 overflow-hidden"
-      >
-        <img :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
-      </div>
-      <div
-        v-else
-        class="w-16 h-16 rounded-lg border border-dashed border-hairline dark:border-dark-border bg-canvas-soft dark:bg-dark-elevated shrink-0 flex flex-col items-center justify-center gap-0.5 text-ink-faint dark:text-dark-muted"
-      >
-        <ImageOff class="w-4 h-4" />
-        <span class="text-[10px]">사진없음</span>
+      <div class="w-16 shrink-0 flex flex-col gap-1">
+        <div
+          v-if="listing.images[0]?.imageUrl"
+          class="w-16 h-16 rounded-lg bg-canvas-soft dark:bg-dark-elevated overflow-hidden"
+        >
+          <img :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
+        </div>
+        <div
+          v-else
+          class="w-16 h-16 rounded-lg border border-dashed border-hairline dark:border-dark-border bg-canvas-soft dark:bg-dark-elevated flex flex-col items-center justify-center gap-0.5 text-ink-faint dark:text-dark-muted"
+        >
+          <ImageOff class="w-4 h-4" />
+          <span class="text-[10px]">사진없음</span>
+        </div>
+        <div class="flex-col items-center justify-center gap-2 text-[10px] text-ink-faint dark:text-dark-muted">
+          <div>view {{ listing.viewCount }}</div>
+          <div>♥️ {{ listing.bookmarkCount }}</div>
+        </div>
       </div>
 
       <div class="flex-1 min-w-0">

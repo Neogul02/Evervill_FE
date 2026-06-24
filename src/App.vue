@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
 import NavProgressBar from '@/components/layout/NavProgressBar.vue'
+import ToastContainer from '@/components/ui/ToastContainer.vue'
 
 const { init } = useTheme()
 init()
@@ -19,5 +20,6 @@ onMounted(() => {
 
 <template>
   <NavProgressBar />
+  <ToastContainer />
   <RouterView />
 </template>

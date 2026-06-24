@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api'
+import { NICKNAME_PATTERN, isReservedNickname, containsUnsafePattern } from '@/utils/validation'
 
 const router = useRouter()
 
@@ -33,6 +34,17 @@ async function onRegister() {
   if (!email.value || !password.value || !passwordConfirm.value) return
   if (password.value.length < 8) { error.value = '비밀번호는 8자 이상이어야 합니다'; return }
   if (password.value !== passwordConfirm.value) { error.value = '비밀번호가 일치하지 않습니다'; return }
+  const trimmedNickname = nickname.value.trim()
+  if (trimmedNickname) {
+    if (!NICKNAME_PATTERN.test(trimmedNickname)) {
+      error.value = '닉네임은 한글/영문/숫자/언더스코어 2~20자로 입력해주세요'
+      return
+    }
+    if (isReservedNickname(trimmedNickname) || containsUnsafePattern(trimmedNickname)) {
+      error.value = '사용할 수 없는 닉네임입니다'
+      return
+    }
+  }
 
   loading.value = true
   error.value = ''
@@ -70,7 +82,7 @@ async function onRegister() {
           </div>
           <div>
             <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">닉네임</label>
-            <input v-model="nickname" type="text" placeholder="미입력 시 이메일 앞부분으로 자동 설정"
+            <input v-model="nickname" type="text" maxlength="20" placeholder="미입력 시 이메일 앞부분으로 자동 설정"
               class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
           </div>
           <div>

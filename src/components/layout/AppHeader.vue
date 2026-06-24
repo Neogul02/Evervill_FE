@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
+import { useChat } from '@/composables/useChat'
 import IconButton from '@/components/ui/IconButton.vue'
 import { Sun, Moon, Menu, X } from 'lucide-vue-next'
 import logoImg from '@/assets/evervill_logo.png'
@@ -16,14 +17,24 @@ const { isDark, toggle } = useTheme()
 const { isDesktop } = useBreakpoint()
 const mobileMenuOpen = ref(false)
 const { unreadCount, startPolling, stopPolling } = useUnreadChatCount()
+const { connect, disconnect } = useChat()
 
 watch(
   () => authStore.isAuthenticated,
-  (authenticated) => (authenticated ? startPolling() : stopPolling()),
+  (authenticated) => {
+    if (authenticated && authStore.token && authStore.user) {
+      startPolling()
+      connect(authStore.token, authStore.user.id)
+    } else {
+      stopPolling()
+      disconnect()
+    }
+  },
   { immediate: true },
 )
 
 function logout() {
+  if (!confirm('로그아웃하시겠습니까?')) return
   authStore.logout()
   router.push('/login')
 }
@@ -43,7 +54,7 @@ function logout() {
           <img
             :src="isDark ? logoWhiteImg : logoImg"
             alt="Evervill"
-            class="h-10 w-auto object-contain"
+            class="ml-2 h-8 md:h-10 w-auto object-contain"
             draggable="false"
           />
         </RouterLink>

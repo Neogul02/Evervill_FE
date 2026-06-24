@@ -207,12 +207,14 @@ onMounted(async () => {
           <input
             v-model="noticeForm.title"
             type="text"
+            maxlength="200"
             placeholder="제목"
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent"
           />
           <textarea
             v-model="noticeForm.content"
             rows="4"
+            maxlength="5000"
             placeholder="내용"
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent resize-none"
           />

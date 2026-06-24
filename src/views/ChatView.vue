@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, watch } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ChevronLeft } from 'lucide-vue-next'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -18,10 +18,9 @@ import { parseServerDate } from '@/utils/date'
 const authStore = useAuthStore()
 const route = useRoute()
 const { isDesktop } = useBreakpoint()
-const { isConnected, connect, subscribeRoom } = useChat()
+const { isConnected, subscribeRoom, setActiveRoom, onMessage } = useChat()
 const {
   syncUnreadCountFromRooms,
-  incrementUnreadCount,
   decrementUnreadCount,
   refreshUnreadCount,
 } = useUnreadChatCount()
@@ -58,46 +57,36 @@ async function loadRooms() {
   }
 }
 
-function subscribeToRoom(room: ChatRoom) {
-  subscribeRoom(room.id, (msg: ChatMessage) => {
-    const isSelectedRoom = selectedRoom.value?.id === room.id
-    const isIncomingFromOtherUser = msg.senderId !== authStore.user?.id
-    const target = rooms.value.find((r) => r.id === room.id)
+function handleIncomingMessage(msg: ChatMessage) {
+  const isSelectedRoom = selectedRoom.value?.id === msg.chatRoomId
+  const isIncomingFromOtherUser = msg.senderId !== authStore.user?.id
+  const target = rooms.value.find((r) => r.id === msg.chatRoomId)
 
-    if (target) {
-      target.lastMessage = msg.content
-      target.lastMessageAt = msg.createdAt
-    }
-
-    if (isSelectedRoom) {
-      messages.value.push(msg)
-      scrollToBottom()
-      if (isIncomingFromOtherUser) {
-        void chatApi.markAsRead(room.id).then(refreshUnreadCount).catch(() => {})
-      }
-      return
-    }
-
-    if (target && isIncomingFromOtherUser) {
-      target.unreadCount = (target.unreadCount ?? 0) + 1
-      incrementUnreadCount()
-    }
-  })
-}
-function subscribeAllRooms() {
-  rooms.value.forEach(subscribeToRoom)
-}
-
-// WebSocket 연결 완료 후 전체 방 구독
-watch(isConnected, (connected) => {
-  if (connected && rooms.value.length > 0) {
-    subscribeAllRooms()
+  if (target) {
+    target.lastMessage = msg.content
+    target.lastMessageAt = msg.createdAt
   }
-})
+
+  if (isSelectedRoom) {
+    messages.value.push(msg)
+    scrollToBottom()
+    if (isIncomingFromOtherUser) {
+      void chatApi.markAsRead(msg.chatRoomId).then(refreshUnreadCount).catch(() => {})
+    }
+    return
+  }
+
+  if (target && isIncomingFromOtherUser) {
+    target.unreadCount = (target.unreadCount ?? 0) + 1
+  }
+}
+
+let unregisterMessageListener: (() => void) | null = null
 
 async function selectRoom(room: ChatRoom) {
   if (selectedRoom.value?.id === room.id) return
   selectedRoom.value = room
+  setActiveRoom(room.id)
   selectedListing.value = null
   messages.value = []
   isLoadingMessages.value = true
@@ -162,6 +151,7 @@ function formatRoomTime(dateStr?: string) {
 
 function backToRooms() {
   selectedRoom.value = null
+  setActiveRoom(null)
 }
 
 async function leaveRoom(room: ChatRoom) {
@@ -171,6 +161,7 @@ async function leaveRoom(room: ChatRoom) {
     rooms.value = rooms.value.filter((r) => r.id !== room.id)
     if (selectedRoom.value?.id === room.id) {
       selectedRoom.value = null
+      setActiveRoom(null)
       messages.value = []
     }
   } catch {
@@ -179,32 +170,33 @@ async function leaveRoom(room: ChatRoom) {
 }
 
 onMounted(async () => {
-  if (authStore.token) {
-    connect(authStore.token)
-  }
+  unregisterMessageListener = onMessage(handleIncomingMessage)
   await loadRooms()
 
-  // 연결이 이미 완료된 경우 (loadRooms보다 connect가 먼저 완료된 케이스)
-  if (isConnected.value) {
-    subscribeAllRooms()
-  }
-
+  const roomId = route.query.roomId ? Number(route.query.roomId) : null
   const listingId = route.query.listingId ? Number(route.query.listingId) : null
-  if (listingId) {
+
+  if (roomId) {
+    const room = rooms.value.find((r) => r.id === roomId)
+    if (room) await selectRoom(room)
+  } else if (listingId) {
     try {
       const res = await chatApi.getOrCreateRoom(listingId)
       const room = res.data.data
       if (!rooms.value.find((r) => r.id === room.id)) {
         rooms.value.unshift(room)
-        if (isConnected.value) {
-          subscribeToRoom(room)
-        }
+        subscribeRoom(room.id)
       }
       await selectRoom(room)
     } catch (err) {
       console.error('채팅방 생성/조회 실패', err)
     }
   }
+})
+
+onUnmounted(() => {
+  setActiveRoom(null)
+  unregisterMessageListener?.()
 })
 </script>
 
@@ -215,7 +207,7 @@ onMounted(async () => {
     <main
       class="flex-1 overflow-hidden pt-14 flex justify-center px-0 sm:px-16 md:px-20"
     >
-      <div class="flex w-full max-w-[1300px] h-full">
+      <div class="flex w-full max-w-[1100px] h-full">
         <!-- 채팅방 목록 -->
         <aside
           v-if="isDesktop || !selectedRoom"
@@ -225,7 +217,7 @@ onMounted(async () => {
           <div
             class="px-4 py-3 border-b border-hairline dark:border-dark-border shrink-0"
           >
-            <h2 class="text-sm font-semibold text-ink dark:text-dark-text">
+            <h2 class="text-s font-semibold text-ink dark:text-dark-text">
               채팅
             </h2>
           </div>
@@ -270,17 +262,14 @@ onMounted(async () => {
                 >
                   {{ room.listingTitle ?? `매물 #${room.listingId}` }}
                 </p>
+                
+                
                 <button
                   type="button"
                   title="채팅방 나가기"
                   class="shrink-0 text-ink-faint dark:text-dark-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs px-1"
                   @click.stop="leaveRoom(room)"
                 >✕</button>
-                <span
-                  class="text-xs text-ink-faint dark:text-dark-muted shrink-0"
-                >
-                  {{ formatRoomTime(room.lastMessageAt) }}
-                </span>
               </div>
               <div class="flex items-center justify-between mt-0.5">
                 <p
@@ -288,6 +277,11 @@ onMounted(async () => {
                 >
                   {{ room.lastMessage ?? '메시지 없음' }}
                 </p>
+                <span
+                  class="text-xs text-ink-faint dark:text-dark-muted shrink-0"
+                >
+                  {{ formatRoomTime(room.lastMessageAt) }}
+                </span>
                 <span
                   v-if="room.unreadCount && room.unreadCount > 0"
                   class="ml-2 shrink-0 bg-accent text-white text-xs rounded-full w-4.5 h-4.5 flex items-center justify-center font-medium"
@@ -340,7 +334,7 @@ onMounted(async () => {
               :to="`/listings/${selectedListing.id}`"
               class="flex items-center gap-3 px-4 py-2.5 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors shrink-0"
             >
-              <div class="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated flex items-center justify-center text-[10px] text-ink-faint dark:text-dark-muted">
+              <div class="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated flex items-center justify-center text-[11px] text-ink-faint dark:text-dark-muted">
                 <img
                   v-if="selectedListing.images?.[0]?.imageUrl"
                   :src="selectedListing.images[0].imageUrl"
@@ -350,8 +344,8 @@ onMounted(async () => {
                 <span v-else>사진없음</span>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-xs font-medium text-ink dark:text-dark-text truncate">{{ selectedListing.title }}</p>
-                <p class="text-xs text-accent font-semibold">{{ formatListingPrice(selectedListing) }}</p>
+                <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ selectedListing.title }}</p>
+                <p class="text-sm text-accent font-semibold">{{ formatListingPrice(selectedListing) }}</p>
               </div>
             </RouterLink>
 
@@ -382,15 +376,15 @@ onMounted(async () => {
                       v-if="msg.senderId !== authStore.user?.id"
                       class="flex items-center gap-1.5 mb-0.5 px-1"
                     >
-                      <div class="w-4 h-4 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+                      <div class="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
                         <img
                           v-if="participantProfiles[msg.senderId]?.profileImageUrl"
                           :src="participantProfiles[msg.senderId].profileImageUrl!"
                           class="w-full h-full object-cover"
                         />
-                        <UserRound v-else class="w-2.5 h-2.5 text-ink-faint" />
+                        <UserRound v-else class="w-3.5 h-3.5 text-ink-faint" />
                       </div>
-                      <p class="text-[11px] font-medium text-ink-faint dark:text-dark-muted">
+                      <p class="text-xs font-medium text-ink-faint dark:text-dark-muted">
                         {{ participantProfiles[msg.senderId]?.nickname ?? msg.senderNickname ?? '상대방' }}
                       </p>
                     </div>
@@ -429,6 +423,7 @@ onMounted(async () => {
                 <input
                   v-model="newMessage"
                   type="text"
+                  maxlength="1000"
                   placeholder="메시지를 입력하세요"
                   class="flex-1 px-4 py-2 text-sm border border-hairline dark:border-dark-border rounded-full bg-canvas-soft dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
                 />

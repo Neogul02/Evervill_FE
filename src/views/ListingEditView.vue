@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { listingsApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import type { DealType, Listing } from '@/types'
+import { clampNumber } from '@/utils/validation'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
@@ -92,6 +93,26 @@ async function onSubmit() {
     error.value = '제목, 주소, 가격은 필수 항목입니다.'
     return
   }
+  const price = Number(form.value.price)
+  const monthlyRent = form.value.monthlyRent ? Number(form.value.monthlyRent) : undefined
+  const area = form.value.area ? Number(form.value.area) : undefined
+  const floor = form.value.floor ? Number(form.value.floor) : undefined
+  if (!Number.isFinite(price) || price < 0 || price > 2000000000) {
+    error.value = '가격은 0 이상 2,000,000,000 이하로 입력해주세요.'
+    return
+  }
+  if (monthlyRent !== undefined && (!Number.isFinite(monthlyRent) || monthlyRent < 0 || monthlyRent > 2000000000)) {
+    error.value = '월세는 0 이상 2,000,000,000 이하로 입력해주세요.'
+    return
+  }
+  if (area !== undefined && (!Number.isFinite(area) || area < 0 || area > 100000)) {
+    error.value = '면적은 0 이상 100,000 이하로 입력해주세요.'
+    return
+  }
+  if (floor !== undefined && (!Number.isFinite(floor) || floor < -10 || floor > 200)) {
+    error.value = '층수는 -10 이상 200 이하로 입력해주세요.'
+    return
+  }
   saving.value = true
   error.value = ''
   try {
@@ -99,10 +120,10 @@ async function onSubmit() {
       title: form.value.title,
       description: form.value.description || undefined,
       dealType: form.value.dealType,
-      price: Number(form.value.price),
-      monthlyRent: form.value.monthlyRent ? Number(form.value.monthlyRent) : undefined,
-      area: form.value.area ? Number(form.value.area) : undefined,
-      floor: form.value.floor ? Number(form.value.floor) : undefined,
+      price: clampNumber(price, 0, 2000000000),
+      monthlyRent: monthlyRent !== undefined ? clampNumber(monthlyRent, 0, 2000000000) : undefined,
+      area: area !== undefined ? clampNumber(area, 0, 100000) : undefined,
+      floor: floor !== undefined ? clampNumber(floor, -10, 200) : undefined,
       address: form.value.address,
       addressDetail: form.value.addressDetail || undefined,
     })
@@ -177,6 +198,8 @@ onMounted(fetchListing)
             <input
               v-model="form.price"
               type="number"
+              min="0"
+              max="2000000000"
               placeholder="만원 단위로 입력"
               class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent"
             />
@@ -187,6 +210,8 @@ onMounted(fetchListing)
             <input
               v-model="form.monthlyRent"
               type="number"
+              min="0"
+              max="2000000000"
               placeholder="월세 금액"
               class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent"
             />
@@ -199,6 +224,8 @@ onMounted(fetchListing)
                 v-model="form.area"
                 type="number"
                 step="0.01"
+                min="0"
+                max="100000"
                 placeholder="예: 33.5"
                 class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent"
               />
@@ -208,6 +235,8 @@ onMounted(fetchListing)
               <input
                 v-model="form.floor"
                 type="number"
+                min="-10"
+                max="200"
                 placeholder="예: 3"
                 class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent"
               />
@@ -243,6 +272,7 @@ onMounted(fetchListing)
           <textarea
             v-model="form.description"
             rows="5"
+            maxlength="2000"
             placeholder="매물에 대한 상세 설명을 입력하세요"
             class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent resize-none"
           />
