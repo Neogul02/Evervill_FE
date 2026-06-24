@@ -1,5 +1,5 @@
 import client from './client'
-import type { ApiResponse } from '@/types'
+import type { ApiResponse, DealerApplication, DealerStatus } from '@/types'
 import { useAuthStore } from '@/stores'
 
 // API 게이트웨이가 JWT에서 X-User-Role을 자동으로 채워주므로
@@ -66,4 +66,15 @@ export const adminApi = {
   // 매물 강제삭제
   deleteListing: (id: number) =>
     client.delete<ApiResponse<void>>(`/api/admin/listings/${id}`, { headers: adminHeaders() }),
+
+  // 공인중개사 승인 (요청 예정 — 현재 백엔드 미구현, dealer-matching-and-signup-role.md 참고)
+  getDealerApplications: (status?: DealerStatus) =>
+    client.get<ApiResponse<DealerApplication[]>>('/api/admin/dealers', {
+      params: status ? { status } : undefined,
+      headers: adminHeaders(),
+    }),
+  approveDealer: (id: number) =>
+    client.put<ApiResponse<void>>(`/api/admin/dealers/${id}/approve`, null, { headers: adminHeaders() }),
+  rejectDealer: (id: number, reason?: string) =>
+    client.put<ApiResponse<void>>(`/api/admin/dealers/${id}/reject`, { reason }, { headers: adminHeaders() }),
 }

@@ -20,4 +20,12 @@ export const chatApi = {
 
   leaveRoom: (roomId: number) =>
     client.delete<ApiResponse<void>>(`/api/chat/rooms/${roomId}`, { headers: userIdHeader() }),
+
+  // 요청 예정 — 현재 백엔드 미구현 (dealer-matching-and-signup-role.md 참고)
+  addDealerParticipant: (roomId: number, dealerId: number) =>
+    client.post<ApiResponse<ChatRoom>>(
+      `/api/chat/rooms/${roomId}/participants`,
+      { dealerId },
+      { headers: userIdHeader() },
+    ),
 }

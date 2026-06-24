@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronLeft } from 'lucide-vue-next'
+import { ChevronLeft, Handshake } from 'lucide-vue-next'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { UserRound } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
@@ -11,6 +11,7 @@ import { useChat } from '@/composables/useChat'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useAsyncAction } from '@/composables/useAsyncAction'
+import DealerMatchModal from '@/components/chat/DealerMatchModal.vue'
 import type { ChatRoom, ChatMessage } from '@/types/chat'
 import type { Listing, PublicProfile } from '@/types'
 import { formatListingPrice } from '@/utils/format'
@@ -35,6 +36,22 @@ const newMessage = ref('')
 const messagesEl = ref<HTMLElement | null>(null)
 const { loading: isLoadingRooms, run: runRooms } = useAsyncAction()
 const { loading: isLoadingMessages, run: runMessages } = useAsyncAction()
+const showMatchModal = ref(false)
+
+const matchedDealerName = computed(() => {
+  const dealer = selectedRoom.value?.participants?.find((p) => p.role === 'DEALER')
+  if (!dealer) return null
+  return dealer.nickname ?? participantProfiles.value[dealer.userId]?.nickname ?? '공인중개사'
+})
+
+function handleDealerMatched(room: ChatRoom) {
+  if (selectedRoom.value?.id === room.id) {
+    selectedRoom.value.participants = room.participants
+    loadParticipantProfiles(selectedRoom.value)
+  }
+  const target = rooms.value.find((r) => r.id === room.id)
+  if (target) target.participants = room.participants
+}
 
 function loadParticipantProfiles(room: ChatRoom) {
   room.participants?.forEach((p) => {
@@ -311,6 +328,19 @@ onUnmounted(() => {
                   selectedRoom.listingTitle ?? `매물 #${selectedRoom.listingId}`
                 }}
               </h3>
+              <button
+                type="button"
+                class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer"
+                :class="
+                  matchedDealerName
+                    ? 'border-accent text-accent bg-accent-light dark:bg-accent-dark-muted'
+                    : 'border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:border-accent hover:text-accent'
+                "
+                @click="showMatchModal = true"
+              >
+                <Handshake class="w-3.5 h-3.5" />
+                {{ matchedDealerName ? '매칭됨' : '매칭하기' }}
+              </button>
               <span
                 class="text-xs px-2 py-0.5 rounded-full font-medium"
                 :class="
@@ -459,6 +489,14 @@ onUnmounted(() => {
         </section>
       </div>
     </main>
+
+    <DealerMatchModal
+      v-if="showMatchModal && selectedRoom"
+      v-model:open="showMatchModal"
+      :room-id="selectedRoom.id"
+      :matched-dealer-name="matchedDealerName"
+      @matched="handleDealerMatched"
+    />
   </div>
 </template>
 

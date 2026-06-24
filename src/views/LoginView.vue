@@ -20,6 +20,7 @@ const { isDark } = useTheme()
 const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || ''
 
 const registered = route.query.registered === '1'
+const pendingReview = route.query.pendingReview === '1'
 
 const email = ref('')
 const password = ref('')
@@ -65,8 +66,11 @@ async function onLogin() {
       <!-- 카드 -->
       <div class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-8 shadow-sm">
 
-        <p v-if="registered" class="mb-5 text-sm text-accent bg-accent-light dark:bg-accent-dark-muted px-4 py-2.5 rounded-lg text-center">
+        <p v-if="registered && !pendingReview" class="mb-5 text-sm text-accent bg-accent-light dark:bg-accent-dark-muted px-4 py-2.5 rounded-lg text-center">
           회원가입이 완료됐습니다. 로그인해주세요!
+        </p>
+        <p v-else-if="registered && pendingReview" class="mb-5 text-sm text-accent bg-accent-light dark:bg-accent-dark-muted px-4 py-2.5 rounded-lg text-center leading-relaxed">
+          공인중개사 가입 신청이 접수됐습니다.<br />서류 심사 후 승인되면 공인중개사로 활동할 수 있어요.
         </p>
 
         <form class="space-y-4" @submit.prevent="onLogin">

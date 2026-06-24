@@ -37,7 +37,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "wc -l src/components/listing/ListingDetailPanel.vue && yarn build 2>&1 | grep -iE \"error|warning\" -A3 | grep -v \"INVALID_ANNOTATION\\|rolldown.rs\\|comment ignored\\|#__PURE__\\|^--$\\|^\\s*│\" ; echo \"BUILD_EXIT_CHECK_DONE\"; yarn build 2>&1 | tail -5",
+    "buildCommand": "cd /c/Codes/Evervill_FE && yarn build 2>&1 | grep -v \"INVALID_ANNOTATION\\|rolldown.rs\\|comment ignored\\|#__PURE__\\|^\\[\" | tail -60",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": "yarn dev",
@@ -144,8 +144,8 @@
     },
     {
       "path": "src\\views\\ChatView.vue",
-      "accessCount": 34,
-      "lastAccessed": 1782310817566,
+      "accessCount": 39,
+      "lastAccessed": 1782312713402,
       "type": "file"
     },
     {
@@ -173,6 +173,12 @@
       "type": "file"
     },
     {
+      "path": "src\\views\\AdminView.vue",
+      "accessCount": 15,
+      "lastAccessed": 1782312779569,
+      "type": "file"
+    },
+    {
       "path": "src\\components\\listing\\FilterBar.vue",
       "accessCount": 12,
       "lastAccessed": 1782310518031,
@@ -182,6 +188,12 @@
       "path": "src\\components\\market\\MarketListPanel.vue",
       "accessCount": 12,
       "lastAccessed": 1782310804171,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\RegisterView.vue",
+      "accessCount": 12,
+      "lastAccessed": 1782312646049,
       "type": "file"
     },
     {
@@ -233,21 +245,9 @@
       "type": "file"
     },
     {
-      "path": "src\\views\\RegisterView.vue",
-      "accessCount": 8,
-      "lastAccessed": 1782308526353,
-      "type": "file"
-    },
-    {
       "path": "src\\components\\market\\MarketFilterBar.vue",
       "accessCount": 8,
       "lastAccessed": 1782310522375,
-      "type": "file"
-    },
-    {
-      "path": "src\\views\\AdminView.vue",
-      "accessCount": 7,
-      "lastAccessed": 1782308527720,
       "type": "file"
     },
     {
@@ -260,6 +260,18 @@
       "path": "src\\views\\my\\MyBookmarksView.vue",
       "accessCount": 6,
       "lastAccessed": 1782310826984,
+      "type": "file"
+    },
+    {
+      "path": "src\\views\\LoginView.vue",
+      "accessCount": 6,
+      "lastAccessed": 1782312612602,
+      "type": "file"
+    },
+    {
+      "path": "src\\types\\auth.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782312493418,
       "type": "file"
     },
     {
@@ -281,21 +293,27 @@
       "type": "file"
     },
     {
+      "path": "src\\types\\index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782312515373,
+      "type": "file"
+    },
+    {
       "path": "src\\style.css",
       "accessCount": 3,
       "lastAccessed": 1782221332154,
       "type": "file"
     },
     {
-      "path": "src\\views\\LoginView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782222244578,
-      "type": "file"
-    },
-    {
       "path": "src\\composables\\useChat.ts",
       "accessCount": 3,
       "lastAccessed": 1782309316461,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\client.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782312530335,
       "type": "file"
     },
     {
@@ -332,24 +350,6 @@
       "path": "src\\utils\\format.ts",
       "accessCount": 2,
       "lastAccessed": 1782278554273,
-      "type": "file"
-    },
-    {
-      "path": "src\\api\\client.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782306467912,
-      "type": "file"
-    },
-    {
-      "path": "src\\types\\index.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782306469685,
-      "type": "file"
-    },
-    {
-      "path": "src\\types\\auth.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782308526751,
       "type": "file"
     },
     {

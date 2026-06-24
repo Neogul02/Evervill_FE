@@ -1,6 +1,20 @@
 # 공인중개사 매칭 + 회원가입 역할(Role) 확장 계획
 
-> 상태: **pending approval** (계획 단계 — 아직 구현 시작 안 함)
+> 상태: **FE 구현 완료, 백엔드 API 대기 중** — 백엔드는 추후 별도 제공 예정. FE는 1.1~1.5 계약을 가정하고 미리 구현해뒀고, 백엔드 연동 시 API 응답 스키마가 본 문서와 다르면 FE 타입/매핑만 조정하면 된다.
+
+## 진행 상황
+
+| 구분 | 상태 |
+|---|---|
+| 1.1~1.5 백엔드 API | **미구현 — 추후 제공 예정** |
+| 2.1 타입 확장 | ✅ 완료 — [src/types/auth.ts](../../src/types/auth.ts), [src/types/dealer.ts](../../src/types/dealer.ts) |
+| 2.2 API 모듈 | ✅ 완료 — [src/api/auth.ts](../../src/api/auth.ts), [src/api/dealer.ts](../../src/api/dealer.ts), [src/api/chat.ts](../../src/api/chat.ts), [src/api/admin.ts](../../src/api/admin.ts) |
+| 2.3 회원가입 폼 | ✅ 완료 — [src/views/RegisterView.vue](../../src/views/RegisterView.vue), 가입 후 안내는 [src/views/LoginView.vue](../../src/views/LoginView.vue) |
+| 2.4 매칭하기 버튼 + 모달 | ✅ 완료 — [src/views/ChatView.vue](../../src/views/ChatView.vue), [src/components/chat/DealerMatchModal.vue](../../src/components/chat/DealerMatchModal.vue) |
+| 2.5 관리자 중개사 승인 탭 | ✅ 완료 — [src/views/AdminView.vue](../../src/views/AdminView.vue) |
+| 2.6 라우팅/가드 | 변경 불필요 (기존 계획대로) |
+
+**FE는 백엔드 없이 빌드/타입체크만 통과한 상태**이며, 실제 API 응답이 오기 전까지는 화면에서 빈 목록/네트워크 에러로 보일 수 있다 (정상 동작). 백엔드가 1.1~1.5를 구현하면 추가 FE 작업 없이 바로 연동된다 — 단, 아래 "미해결 결정 사항"은 백엔드 구현 전에 확정 필요.
 
 ## 배경
 
