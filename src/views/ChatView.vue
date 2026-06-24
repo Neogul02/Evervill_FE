@@ -10,6 +10,7 @@ import { listingsApi, authApi } from '@/api'
 import { useChat } from '@/composables/useChat'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import { useBreakpoint } from '@/composables/useBreakpoint'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { ChatRoom, ChatMessage } from '@/types/chat'
 import type { Listing, PublicProfile } from '@/types'
 import { formatListingPrice } from '@/utils/format'
@@ -32,8 +33,8 @@ const participantProfiles = ref<Record<number, PublicProfile>>({})
 const messages = ref<ChatMessage[]>([])
 const newMessage = ref('')
 const messagesEl = ref<HTMLElement | null>(null)
-const isLoadingRooms = ref(false)
-const isLoadingMessages = ref(false)
+const { loading: isLoadingRooms, run: runRooms } = useAsyncAction()
+const { loading: isLoadingMessages, run: runMessages } = useAsyncAction()
 
 function loadParticipantProfiles(room: ChatRoom) {
   room.participants?.forEach((p) => {
@@ -45,16 +46,13 @@ function loadParticipantProfiles(room: ChatRoom) {
 }
 
 async function loadRooms() {
-  isLoadingRooms.value = true
-  try {
+  await runRooms(async () => {
     const res = await chatApi.getRooms()
     rooms.value = res.data.data
     syncUnreadCountFromRooms(rooms.value)
-  } catch {
+  }).catch(() => {
     // 빈 목록으로 처리
-  } finally {
-    isLoadingRooms.value = false
-  }
+  })
 }
 
 function handleIncomingMessage(msg: ChatMessage) {
@@ -89,25 +87,22 @@ async function selectRoom(room: ChatRoom) {
   setActiveRoom(room.id)
   selectedListing.value = null
   messages.value = []
-  isLoadingMessages.value = true
   loadParticipantProfiles(room)
 
   listingsApi.getById(room.listingId)
     .then((res) => { selectedListing.value = res.data.data })
     .catch(() => {})
 
-  try {
+  await runMessages(async () => {
     const previousUnreadCount = room.unreadCount ?? 0
     const res = await chatApi.getMessages(room.id)
     messages.value = res.data.data
     await chatApi.markAsRead(room.id)
     room.unreadCount = 0
     decrementUnreadCount(previousUnreadCount)
-  } catch {
+  }).catch(() => {
     // 조용히 실패
-  } finally {
-    isLoadingMessages.value = false
-  }
+  })
 
   scrollToBottom()
 }

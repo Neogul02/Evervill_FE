@@ -7,6 +7,7 @@ import MarketFilterBar from './MarketFilterBar.vue'
 import MarketCard from './MarketCard.vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import IconButton from '@/components/ui/IconButton.vue'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 
 const emit = defineEmits<{
   select: [property: MarketProperty]
@@ -18,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const properties = ref<MarketProperty[]>([])
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const total = ref(0)
 const currentPage = ref(0)
 const hasNext = ref(false)
@@ -28,8 +29,7 @@ const totalPages = computed(() => Math.ceil(total.value / (filter.value.size ?? 
 const hasPrev = computed(() => currentPage.value > 0)
 
 async function fetchMarket(page = currentPage.value) {
-  loading.value = true
-  try {
+  await run(async () => {
     const res = await marketApi.getList({ ...filter.value, page })
     const d = res.data.data
     properties.value = d.content
@@ -37,11 +37,9 @@ async function fetchMarket(page = currentPage.value) {
     hasNext.value = d.hasNext
     currentPage.value = page
     emit('loaded', d.content)
-  } catch {
+  }).catch(() => {
     properties.value = []
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 function onFilterUpdate(newFilter: MarketFilter) {

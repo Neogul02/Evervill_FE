@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { ListingFilter, DealType } from '@/types'
 import FilterChip from '@/components/ui/FilterChip.vue'
+import { useDebouncedWatch } from '@/composables/useDebouncedWatch'
 
 const emit = defineEmits<{
   update: [filter: ListingFilter]
@@ -28,7 +29,6 @@ const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
 ]
 
 const priceRange = ref(PRICE_RANGES[0])
-let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
 const YEARS = [2026, 2025]
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -50,10 +50,7 @@ function emitUpdate() {
 }
 
 watch([dealType, priceRange, year, month], emitUpdate)
-watch(keyword, () => {
-  clearTimeout(keywordTimer)
-  keywordTimer = setTimeout(emitUpdate, 400)
-})
+useDebouncedWatch(keyword, emitUpdate)
 watch(() => route.query.address, (addr) => {
   keyword.value = (addr as string) ?? ''
 })

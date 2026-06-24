@@ -8,6 +8,7 @@ import FilterBar from './FilterBar.vue'
 import ListingCard from './ListingCard.vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import IconButton from '@/components/ui/IconButton.vue'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 
 const emit = defineEmits<{
   select: [listing: Listing]
@@ -22,7 +23,7 @@ const props = defineProps<{
 const route = useRoute()
 
 const listings = ref<Listing[]>([])
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const currentPage = ref(props.initialPage ?? 0)
 const totalCount = ref(0)
 const hasNextPage = ref(false)
@@ -35,19 +36,16 @@ const totalPages = computed(() => Math.ceil(totalCount.value / (filter.value.siz
 const hasPrev = computed(() => currentPage.value > 0)
 
 async function fetchListings(page = currentPage.value) {
-  loading.value = true
-  try {
+  await run(async () => {
     const res = await listingsApi.getList({ ...filter.value, page })
     const d = res.data.data
     listings.value = d.content
     totalCount.value = d.totalCount
     hasNextPage.value = d.hasNext
     currentPage.value = page
-  } catch {
+  }).catch(() => {
     listings.value = []
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 function onFilterUpdate(newFilter: ListingFilter) {

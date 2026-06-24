@@ -106,11 +106,16 @@ const router = createRouter({
       component: () => import('@/views/AdminView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
-    {
-      path: '/api-test',
-      name: 'api-test',
-      component: () => import('@/views/ApiTestView.vue'),
-    },
+    // 개발용 API 테스트 페이지 — 프로덕션 빌드에는 포함되지 않음
+    ...(import.meta.env.DEV
+      ? [
+          {
+            path: '/api-test',
+            name: 'api-test',
+            component: () => import('@/views/ApiTestView.vue'),
+          },
+        ]
+      : []),
     // 에러 페이지
     {
       path: '/error/4xx',

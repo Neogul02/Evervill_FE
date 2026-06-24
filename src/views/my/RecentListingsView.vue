@@ -5,22 +5,20 @@ import { listingsApi } from '@/api'
 import { formatListingPrice, formatArea, formatFloor } from '@/utils/format'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 
 const recentListings = ref<Listing[]>([])
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const error = ref(false)
 
 async function fetchRecentListings() {
-  loading.value = true
   error.value = false
-  try {
+  await run(async () => {
     const res = await listingsApi.getRecent()
     recentListings.value = res.data.data
-  } catch {
+  }).catch(() => {
     error.value = true
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 onMounted(fetchRecentListings)
@@ -53,7 +51,7 @@ onMounted(fetchRecentListings)
         <div v-for="listing in recentListings" :key="listing.id"
           class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-4 flex gap-4 hover:shadow-sm transition-shadow">
           <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-canvas-soft dark:bg-dark-elevated">
-            <img v-if="listing.images?.[0]?.imageUrl" :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
+            <img v-if="listing.images?.[0]?.imageUrl" :src="listing.images[0].imageUrl" :alt="listing.title" loading="lazy" decoding="async" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-[11px] text-ink-faint dark:text-dark-muted">사진없음</div>
           </div>
           <div class="flex-1 min-w-0">

@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import type { MarketFilter, MarketDealType, MarketPropertyType } from '@/types'
 import FilterChip from '@/components/ui/FilterChip.vue'
+import { useDebouncedWatch } from '@/composables/useDebouncedWatch'
 
 const emit = defineEmits<{
   update: [filter: MarketFilter]
@@ -20,7 +21,6 @@ const PRICE_RANGES: { label: string; min?: number; max?: number }[] = [
 ]
 
 const priceRange = ref(PRICE_RANGES[0])
-let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
 const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
@@ -55,10 +55,7 @@ function emitUpdate() {
 }
 
 watch([dealType, propertyType, priceRange, dealYear, dealMonth], emitUpdate)
-watch(keyword, () => {
-  clearTimeout(keywordTimer)
-  keywordTimer = setTimeout(emitUpdate, 400)
-})
+useDebouncedWatch(keyword, emitUpdate)
 </script>
 
 <template>

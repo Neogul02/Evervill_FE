@@ -50,6 +50,8 @@ const convertToK = (value: number | undefined) => {
           <img
             :src="listing.images[0].imageUrl"
             :alt="listing.title"
+            loading="lazy"
+            decoding="async"
             class="w-full h-full object-cover"
           />
         </div>

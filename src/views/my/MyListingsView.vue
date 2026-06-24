@@ -7,22 +7,20 @@ import { STATUS_TONE } from '@/constants/dealTypeColors'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import Badge from '@/components/ui/Badge.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 
 const listings = ref<Listing[]>([])
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const error = ref(false)
 
 async function fetchMyListings() {
-  loading.value = true
   error.value = false
-  try {
+  await run(async () => {
     const res = await listingsApi.getMy()
     listings.value = res.data.data?.content ?? []
-  } catch {
+  }).catch(() => {
     error.value = true
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 onMounted(fetchMyListings)
@@ -67,6 +65,8 @@ onMounted(fetchMyListings)
               v-if="listing.images?.length"
               :src="listing.images[0].imageUrl"
               :alt="listing.title"
+              loading="lazy"
+              decoding="async"
               class="w-full h-full object-cover"
             />
             <div v-else class="w-full h-full flex items-center justify-center text-xl text-ink-faint dark:text-dark-muted">🏠</div>

@@ -5,16 +5,12 @@ import { useRouter, RouterLink } from 'vue-router'
 import {
   ChevronLeft,
   ChevronRight,
-  Lightbulb,
-  Loader2,
   UserRound,
-  ImageOff,
   Share2,
   Check,
 } from 'lucide-vue-next'
 import type { Listing, MarketProperty, PublicProfile } from '@/types'
-import type { AiAnalysis } from '@/types/ai'
-import { listingsApi, aiApi, authApi } from '@/api'
+import { listingsApi, authApi } from '@/api'
 import {
   formatListingPrice,
   formatArea,
@@ -29,7 +25,10 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BookmarkButton from '@/components/ui/BookmarkButton.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
-import type { BadgeTone } from '@/constants/dealTypeColors'
+import { useAsyncAction } from '@/composables/useAsyncAction'
+import ListingImageCarousel from './detail/ListingImageCarousel.vue'
+import ListingAiAnalysisCard from './detail/ListingAiAnalysisCard.vue'
+import ListingReportModal from './detail/ListingReportModal.vue'
 
 const props = defineProps<{
   listingId: number | null
@@ -39,35 +38,7 @@ const authStore = useAuthStore()
 const router = useRouter()
 const detail = ref<Listing | null>(null)
 const sellerProfile = ref<PublicProfile | null>(null)
-const aiResult = ref<AiAnalysis | null>(null)
-const aiLoading = ref(false)
-const aiError = ref('')
 
-const AI_LEVEL_TONE: Record<string, BadgeTone> = {
-  SAFE: 'green',
-  CAUTION: 'amber',
-  DANGER: 'rose',
-}
-const AI_LEVEL_LABEL: Record<string, string> = {
-  SAFE: '안전',
-  CAUTION: '주의',
-  DANGER: '위험',
-}
-
-async function runAiAnalysis() {
-  if (!detail.value || aiLoading.value) return
-  aiLoading.value = true
-  aiError.value = ''
-  aiResult.value = null
-  try {
-    const res = await aiApi.analyzePrice(detail.value.id)
-    aiResult.value = res.data.data
-  } catch {
-    aiError.value = 'AI 분석에 실패했습니다. 잠시 후 다시 시도해주세요.'
-  } finally {
-    aiLoading.value = false
-  }
-}
 const nearbyMarket = ref<MarketProperty[]>([])
 const nearbyMarketPage = ref(0)
 const NEARBY_MARKET_PAGE_SIZE = 10
@@ -78,35 +49,10 @@ const nearbyMarketPaged = computed(() => {
   const start = nearbyMarketPage.value * NEARBY_MARKET_PAGE_SIZE
   return nearbyMarket.value.slice(start, start + NEARBY_MARKET_PAGE_SIZE)
 })
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const bookmarked = ref(false)
 const addressResolved = ref(true)
-const currentImageIndex = ref(0)
-const dragStartX = ref<number | null>(null)
-
-function prevImage() {
-  const len = detail.value?.images?.length ?? 0
-  if (!len) return
-  currentImageIndex.value = (currentImageIndex.value - 1 + len) % len
-}
-function nextImage() {
-  const len = detail.value?.images?.length ?? 0
-  if (!len) return
-  currentImageIndex.value = (currentImageIndex.value + 1) % len
-}
-function onImagePointerDown(e: PointerEvent) {
-  dragStartX.value = e.clientX
-}
-function onImagePointerUp(e: PointerEvent) {
-  if (dragStartX.value === null) return
-  const delta = e.clientX - dragStartX.value
-  dragStartX.value = null
-  if (Math.abs(delta) <= 50) return
-  delta > 0 ? prevImage() : nextImage()
-}
 const showReportModal = ref(false)
-const reportReason = ref('')
-const reportLoading = ref(false)
 const deleteLoading = ref(false)
 const scrollEl = ref<HTMLElement | null>(null)
 const shareCopied = ref(false)
@@ -122,17 +68,12 @@ watch(
     scrollEl.value?.scrollTo({ top: 0 })
     if (!id) {
       detail.value = null
-      aiResult.value = null
       sellerProfile.value = null
       return
     }
-    loading.value = true
     detail.value = null
     sellerProfile.value = null
-    aiResult.value = null
-    aiError.value = ''
-    currentImageIndex.value = 0
-    try {
+    await run(async () => {
       const res = await listingsApi.getById(id)
       detail.value = res.data.data
       bookmarked.value = res.data.data.bookmarked ?? false
@@ -147,11 +88,9 @@ watch(
           })
           .catch(() => {})
       }
-    } catch {
+    }).catch(() => {
       detail.value = null
-    } finally {
-      loading.value = false
-    }
+    })
   },
   { immediate: true },
 )
@@ -203,19 +142,6 @@ function onDetailEnter(el: Element, done: () => void) {
     onComplete: done,
   })
 }
-
-async function submitReport() {
-  if (!detail.value || !reportReason.value.trim()) return
-  reportLoading.value = true
-  try {
-    await listingsApi.report(detail.value.id, reportReason.value)
-    showReportModal.value = false
-    reportReason.value = ''
-    alert('신고가 접수됐습니다.')
-  } finally {
-    reportLoading.value = false
-  }
-}
 </script>
 
 <template>
@@ -252,54 +178,7 @@ async function submitReport() {
     <Transition :css="false" @enter="onDetailEnter">
       <div v-if="detail" :key="detail.id" class="max-w-2xl mx-auto">
         <!-- 이미지 -->
-        <div
-          class="relative h-84 bg-canvas-soft dark:bg-dark-elevated"
-          @pointerdown="onImagePointerDown"
-          @pointerup="onImagePointerUp"
-        >
-          <template v-if="detail.images?.length">
-            <img
-              :src="detail.images[currentImageIndex].imageUrl"
-              :alt="detail.title"
-              class="w-full h-full object-cover cursor-grab active:cursor-grabbing"
-              draggable="false"
-            />
-            <template v-if="detail.images.length > 1">
-              <button
-                type="button"
-                aria-label="이전 사진"
-                @click.stop="prevImage"
-                class="absolute left-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <ChevronLeft class="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="다음 사진"
-                @click.stop="nextImage"
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <ChevronRight class="w-4 h-4" />
-              </button>
-              <div class="absolute bottom-3 right-3 flex gap-1">
-                <button
-                  v-for="(_, i) in detail.images"
-                  :key="i"
-                  @click.stop="currentImageIndex = i"
-                  class="w-2 h-2 rounded-full transition-colors cursor-pointer"
-                  :class="i === currentImageIndex ? 'bg-white' : 'bg-white/40'"
-                />
-              </div>
-            </template>
-          </template>
-          <div
-            v-else
-            class="w-full h-full flex flex-col items-center justify-center gap-1.5 text-ink-faint dark:text-dark-muted"
-          >
-            <ImageOff class="w-7 h-7" />
-            <span class="text-sm">이미지 없음</span>
-          </div>
-        </div>
+        <ListingImageCarousel :images="detail.images" :title="detail.title" />
 
         <!-- 헤더 -->
         <div
@@ -542,6 +421,8 @@ async function submitReport() {
                 <img
                   v-if="sellerProfile?.profileImageUrl"
                   :src="sellerProfile.profileImageUrl"
+                  loading="lazy"
+                  decoding="async"
                   class="w-full h-full object-cover"
                 />
                 <UserRound v-else class="w-4 h-4 text-ink-faint" />
@@ -598,97 +479,16 @@ async function submitReport() {
 
         <!-- AI 가격 분석 -->
         <div v-if="authStore.isAuthenticated" class="px-6 pb-6">
-          <div
-            class="border border-hairline dark:border-dark-border rounded-xl p-4 space-y-3"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Lightbulb class="w-4 h-4 text-accent" />
-                <h3 class="text-sm font-semibold text-ink dark:text-dark-text">
-                  AI 가격 분석
-                </h3>
-              </div>
-              <BaseButton
-                variant="primary"
-                size="sm"
-                :disabled="aiLoading"
-                @click="runAiAnalysis"
-              >
-                <Loader2 v-if="aiLoading" class="w-3 h-3 animate-spin" />
-                {{ aiLoading ? '분석 중...' : '분석 실행' }}
-              </BaseButton>
-            </div>
-
-            <!-- 결과 -->
-            <div v-if="aiResult" class="space-y-2">
-              <div v-if="aiResult.riskLevel" class="flex items-center gap-2">
-                <Badge :tone="AI_LEVEL_TONE[aiResult.riskLevel]">{{
-                  AI_LEVEL_LABEL[aiResult.riskLevel]
-                }}</Badge>
-              </div>
-              <p
-                class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line"
-              >
-                {{ aiResult.resultSummary }}
-              </p>
-            </div>
-
-            <!-- 미실행 상태 -->
-            <p
-              v-else-if="!aiLoading && !aiError"
-              class="text-xs text-ink-faint dark:text-dark-muted"
-            >
-              실거래가 데이터를 기반으로 이 매물의 가격 적정성을 분석합니다.
-            </p>
-
-            <!-- 에러 -->
-            <p v-if="aiError" class="text-xs text-red-500 dark:text-red-400">
-              {{ aiError }}
-            </p>
-          </div>
+          <ListingAiAnalysisCard :listing-id="detail.id" />
         </div>
       </div>
     </Transition>
 
     <!-- 신고 모달 -->
-    <Teleport to="body">
-      <div
-        v-if="showReportModal"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
-        @click.self="showReportModal = false"
-      >
-        <div
-          class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 w-full max-w-sm"
-        >
-          <h3
-            class="text-base font-semibold text-ink dark:text-dark-text mb-4 tracking-tight"
-          >
-            매물 신고
-          </h3>
-          <textarea
-            v-model="reportReason"
-            placeholder="신고 사유를 입력해주세요"
-            rows="4"
-            maxlength="500"
-            class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent resize-none"
-          />
-          <div class="flex gap-3 mt-4">
-            <button
-              @click="showReportModal = false"
-              class="flex-1 py-2 border border-hairline dark:border-dark-border rounded-full text-sm text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated cursor-pointer"
-            >
-              취소
-            </button>
-            <button
-              @click="submitReport"
-              :disabled="reportLoading || !reportReason.trim()"
-              class="flex-1 py-2 bg-accent hover:bg-accent-hover text-white rounded-full text-sm font-semibold disabled:opacity-50 cursor-pointer"
-            >
-              신고하기
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <ListingReportModal
+      v-if="detail"
+      v-model:open="showReportModal"
+      :listing-id="detail.id"
+    />
   </div>
 </template>

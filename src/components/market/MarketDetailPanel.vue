@@ -11,6 +11,7 @@ import NaverMap from '@/components/map/NaverMap.vue'
 import Badge from '@/components/ui/Badge.vue'
 import BookmarkButton from '@/components/ui/BookmarkButton.vue'
 import { DEAL_TYPE_TONE, PROPERTY_TYPE_TONE } from '@/constants/dealTypeColors'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 
 const props = defineProps<{ propertyId: number | null }>()
 
@@ -18,7 +19,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const property = ref<MarketProperty | null>(null)
-const loading = ref(false)
+const { loading, run } = useAsyncAction()
 const bookmarked = ref(false)
 const bookmarkLoading = ref(false)
 const shareCopied = ref(false)
@@ -58,15 +59,12 @@ function formatDealDate(p: MarketProperty): string {
 }
 
 async function fetchDetail(id: number) {
-  loading.value = true
   property.value = null
-  try {
+  await run(async () => {
     const res = await marketApi.getById(id)
     property.value = res.data.data
     bookmarked.value = res.data.data.bookmarked ?? false
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 async function toggleBookmark() {
