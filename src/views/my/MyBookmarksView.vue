@@ -164,7 +164,10 @@ onMounted(fetchListingBookmarks)
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ property.propertyName }}</p>
+                  <RouterLink :to="`/market/${property.id}`"
+                    class="text-sm font-semibold text-ink dark:text-dark-text truncate hover:text-accent transition-colors">
+                    {{ property.propertyName }}
+                  </RouterLink>
                   <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ property.districtName }}</p>
                 </div>
                 <button class="shrink-0 text-xs text-ink-faint dark:text-dark-muted hover:text-red-500 transition-colors cursor-pointer"

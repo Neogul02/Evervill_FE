@@ -5,6 +5,9 @@ export const authApi = {
   login: (data: LoginRequest) =>
     client.post<ApiResponse<TokenResponse>>('/auth/login', data),
 
+  reissue: (refreshToken: string) =>
+    client.post<ApiResponse<TokenResponse>>('/auth/reissue', { refreshToken }),
+
   getMe: () =>
     client.get<ApiResponse<User>>('/auth/me'),
 

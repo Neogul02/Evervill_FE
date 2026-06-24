@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ChevronLeft } from 'lucide-vue-next'
 import type { MarketProperty } from '@/types'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -7,11 +8,24 @@ import MarketListPanel from '@/components/market/MarketListPanel.vue'
 import MarketDetailPanel from '@/components/market/MarketDetailPanel.vue'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 
-const selectedPropertyId = ref<number | null>(null)
+const route = useRoute()
+const router = useRouter()
 const { isDesktop } = useBreakpoint()
 
+// '/market' 또는 '/market/:id' 둘 다 이 컴포넌트가 렌더되므로, 선택 상태는
+// 라우트 파라미터에서 직접 파생한다 — 공유된 '/market/:id' 링크로 바로
+// 들어와도 같은 split 화면이 뜨도록 ListingDetail과 동일한 패턴을 따른다.
+const selectedPropertyId = computed(() => {
+  const id = Number(route.params.id)
+  return route.params.id && !Number.isNaN(id) ? id : null
+})
+
 function onSelect(property: MarketProperty) {
-  selectedPropertyId.value = property.id
+  router.push(`/market/${property.id}`)
+}
+
+function backToList() {
+  router.push('/market')
 }
 </script>
 
@@ -42,7 +56,7 @@ function onSelect(property: MarketProperty) {
             v-if="!isDesktop"
             type="button"
             class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-canvas dark:bg-dark-surface border border-hairline dark:border-dark-border px-3 py-1.5 text-sm text-ink dark:text-dark-text shadow-sm active:scale-95 transition-colors duration-150"
-            @click="selectedPropertyId = null"
+            @click="backToList"
           >
             <ChevronLeft class="w-4 h-4" />
             목록으로

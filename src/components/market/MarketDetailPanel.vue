@@ -4,6 +4,7 @@ import { animate } from 'animejs'
 import { marketApi } from '@/api'
 import { useAuthStore } from '@/stores'
 import { useRouter } from 'vue-router'
+import { Share2, Check } from 'lucide-vue-next'
 import type { MarketProperty } from '@/types'
 import { formatManWon, formatArea, formatFloor } from '@/utils/format'
 import NaverMap from '@/components/map/NaverMap.vue'
@@ -20,6 +21,21 @@ const property = ref<MarketProperty | null>(null)
 const loading = ref(false)
 const bookmarked = ref(false)
 const bookmarkLoading = ref(false)
+const shareCopied = ref(false)
+
+async function shareProperty() {
+  if (!property.value) return
+  const url = `${window.location.origin}/market/${property.value.id}`
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: property.value.propertyName, url })
+    } catch {}
+    return
+  }
+  await navigator.clipboard.writeText(url)
+  shareCopied.value = true
+  setTimeout(() => (shareCopied.value = false), 1500)
+}
 
 const DEAL_LABEL: Record<string, string> = {
   SALE: '매매',
@@ -91,6 +107,16 @@ watch(
   },
   { immediate: true },
 )
+
+const parsedAddress = (fullAddress) => {
+  if (!fullAddress) return "";
+  
+  // 정규식 매칭을 통해 하위 주소 추출
+  const match = fullAddress.match(/([가-힣0-9]+(동|리|가|로|길)\s+.*)/);
+  
+  // 매칭 성공 시 파싱된 하위 주소 반환, 실패 시 원본 반환하여 API의 자체 Fallback 유도
+  return match ? match[0] : fullAddress;
+};
 </script>
 
 <template>
@@ -146,11 +172,27 @@ watch(
                 {{ formatPrice(property) }}
               </p>
             </div>
-            <BookmarkButton
-              :bookmarked="bookmarked"
-              :disabled="bookmarkLoading"
-              @click="toggleBookmark"
-            />
+            <div class="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                aria-label="링크 공유"
+                class="relative shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted hover:border-accent hover:text-accent hover:bg-accent-light dark:hover:bg-accent-dark-muted transition-colors duration-150 cursor-pointer active:scale-95"
+                @click="shareProperty"
+              >
+                <Check v-if="shareCopied" class="w-4 h-4 text-accent" />
+                <Share2 v-else class="w-4 h-4" />
+                <span
+                  v-if="shareCopied"
+                  class="absolute -bottom-7 right-0 text-xs whitespace-nowrap bg-ink dark:bg-dark-elevated text-white dark:text-dark-text px-2 py-1 rounded shadow-sm"
+                  >링크 복사됨</span
+                >
+              </button>
+              <BookmarkButton
+                :bookmarked="bookmarked"
+                :disabled="bookmarkLoading"
+                @click="toggleBookmark"
+              />
+            </div>
           </div>
         </div>
 
@@ -212,7 +254,7 @@ watch(
           <h3 class="text-xs font-semibold text-ink-muted dark:text-dark-muted mb-3 uppercase tracking-wide">위치</h3>
           <NaverMap
             :key="property.id"
-            :address="property.districtName"
+            :address="parsedAddress(property.address)"
             class="w-full h-96 rounded-lg overflow-hidden"
           />
           <p class="text-xs text-ink-faint dark:text-dark-muted mt-2">* 법정동 기준 근사 위치입니다 (정확한 지번 정보 없음)</p>

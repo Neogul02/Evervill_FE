@@ -5,6 +5,7 @@ import { useNavProgress } from '@/composables/useNavProgress'
 // '/'와 '/listings/:id'가 같은 컴포넌트 참조를 공유해야 Vue Router가 인스턴스를
 // 재사용한다(다른 컴포넌트 객체면 라우트 전환 시 매번 리마운트됨).
 const HomeView = () => import('@/views/HomeView.vue')
+const MarketView = () => import('@/views/MarketView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +35,12 @@ const router = createRouter({
     {
       path: '/market',
       name: 'market',
-      component: () => import('@/views/MarketView.vue'),
+      component: MarketView,
+    },
+    {
+      path: '/market/:id',
+      name: 'market-detail',
+      component: MarketView,
     },
     {
       path: '/listings/new',
