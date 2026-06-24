@@ -21,6 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const convertToK = (value: number | undefined) => {
+  if (value === undefined) return ''
   if (value < 1000) return value
   if (value < 10000) return (value / 1000).toFixed(1) + 'K'
   if (value < 1000000) return Math.floor(value / 1000) + 'K'
