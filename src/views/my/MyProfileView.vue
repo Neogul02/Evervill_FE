@@ -5,14 +5,25 @@ import { authApi } from '@/api'
 import { NICKNAME_PATTERN, isReservedNickname, containsUnsafePattern } from '@/utils/validation'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { ChevronRight, Camera, User, Mail, Lock, Check } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 
-const nickname = ref(authStore.user?.nickname ?? '')
-const nicknameLoading = ref(false)
-const nicknameSuccess = ref(false)
-const nicknameError = ref('')
+// ── 현재 열린 편집 필드 ──────────────────────────────────────────
+type Field = 'photo' | 'nickname' | 'password' | null
+const activeField = ref<Field>(null)
 
+function toggleField(field: Field) {
+  activeField.value = activeField.value === field ? null : field
+  // 필드 전환 시 각 에러/성공 초기화
+  nicknameError.value = ''
+  nicknameSuccess.value = false
+  passwordError.value = ''
+  passwordSuccess.value = false
+  imageError.value = ''
+}
+
+// ── 사용자 정보 로드 ─────────────────────────────────────────────
 onMounted(async () => {
   try {
     const res = await authApi.getMe()
@@ -21,6 +32,7 @@ onMounted(async () => {
   } catch {}
 })
 
+// ── 프로필 이미지 ────────────────────────────────────────────────
 const profileImage = ref<File | null>(null)
 const profileImagePreviewUrl = ref('')
 const imageUrlInput = ref('')
@@ -49,6 +61,7 @@ function cancelImageChange() {
   imageUrlInput.value = ''
   imageError.value = ''
   if (imageInputRef.value) imageInputRef.value.value = ''
+  activeField.value = null
 }
 
 async function updateProfileImage() {
@@ -69,18 +82,17 @@ async function updateProfileImage() {
   }
 }
 
-const currentPassword = ref('')
-const newPassword = ref('')
-const newPasswordConfirm = ref('')
-const passwordLoading = ref(false)
-const passwordSuccess = ref(false)
-const passwordError = ref('')
+// ── 닉네임 ──────────────────────────────────────────────────────
+const nickname = ref(authStore.user?.nickname ?? '')
+const nicknameLoading = ref(false)
+const nicknameSuccess = ref(false)
+const nicknameError = ref('')
 
 async function updateNickname() {
   const trimmed = nickname.value.trim()
   if (!trimmed) return
   if (!NICKNAME_PATTERN.test(trimmed)) {
-    nicknameError.value = '닉네임은 한글/영문/숫자/언더스코어 2~20자로 입력해주세요'
+    nicknameError.value = '한글/영문/숫자/언더스코어 2~20자로 입력해주세요'
     return
   }
   if (isReservedNickname(trimmed) || containsUnsafePattern(trimmed)) {
@@ -94,12 +106,21 @@ async function updateNickname() {
     await authApi.updateProfile({ nickname: trimmed })
     if (authStore.user) authStore.user.nickname = trimmed
     nicknameSuccess.value = true
+    setTimeout(() => { activeField.value = null }, 800)
   } catch (e: any) {
     nicknameError.value = e.response?.data?.message ?? '닉네임 변경에 실패했습니다.'
   } finally {
     nicknameLoading.value = false
   }
 }
+
+// ── 비밀번호 ─────────────────────────────────────────────────────
+const currentPassword = ref('')
+const newPassword = ref('')
+const newPasswordConfirm = ref('')
+const passwordLoading = ref(false)
+const passwordSuccess = ref(false)
+const passwordError = ref('')
 
 async function updatePassword() {
   if (!currentPassword.value || !newPassword.value) return
@@ -120,166 +141,296 @@ async function updatePassword() {
     currentPassword.value = ''
     newPassword.value = ''
     newPasswordConfirm.value = ''
+    setTimeout(() => { activeField.value = null }, 800)
   } catch (e: any) {
     passwordError.value = e.response?.data?.message ?? '비밀번호 변경에 실패했습니다.'
   } finally {
     passwordLoading.value = false
   }
 }
+
+function cancelPassword() {
+  currentPassword.value = ''
+  newPassword.value = ''
+  newPasswordConfirm.value = ''
+  passwordError.value = ''
+  passwordSuccess.value = false
+  activeField.value = null
+}
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-10">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base">
     <AppHeader />
-    <main class="pt-14 max-w-lg mx-auto w-full px-4 pb-8 space-y-6">
+    <main class="pt-14 max-w-lg mx-auto w-full px-4 pb-12">
 
-      <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">프로필 설정</h1>
-
-      <!-- 프로필 이미지 (상단 원형 아바타) -->
-      <section class="flex flex-col items-center gap-3 py-2">
-        <button
-          type="button"
-          class="group relative w-24 h-24 rounded-full overflow-hidden bg-canvas-soft dark:bg-dark-elevated border border-hairline dark:border-dark-border cursor-pointer transition-transform active:scale-95"
-          @click="openImagePicker"
-        >
-          <img
-            v-if="profileImagePreviewUrl || authStore.user?.profileImageUrl"
-            :src="profileImagePreviewUrl || authStore.user?.profileImageUrl || ''"
-            class="w-full h-full object-cover transition-opacity duration-300"
-          />
-          <span v-else class="w-full h-full flex items-center justify-center text-xs text-ink-faint dark:text-dark-muted">없음</span>
-
-          <span
-            class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/45 transition-colors duration-200"
+      <!-- ── 프로필 헤더 카드 ── -->
+      <section class="flex flex-col items-center gap-3 py-8">
+        <!-- 아바타 -->
+        <div class="relative">
+          <button
+            type="button"
+            class="group relative w-24 h-24 rounded-full overflow-hidden bg-canvas-soft dark:bg-dark-elevated border-2 border-hairline dark:border-dark-border shadow-md cursor-pointer transition-transform active:scale-95"
+            @click="openImagePicker"
           >
-            <span class="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">변경</span>
+            <img
+              v-if="profileImagePreviewUrl || authStore.user?.profileImageUrl"
+              :src="profileImagePreviewUrl || authStore.user?.profileImageUrl || ''"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="w-full h-full flex items-center justify-center text-2xl text-ink-faint dark:text-dark-muted select-none">
+              {{ authStore.user?.nickname?.[0]?.toUpperCase() ?? '?' }}
+            </span>
+            <!-- 호버 오버레이 -->
+            <span class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/45 transition-colors duration-200">
+              <Camera class="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+            </span>
+            <input ref="imageInputRef" type="file" accept="image/*" class="hidden" @change="handleImageSelect" />
+          </button>
+          <!-- 카메라 뱃지 -->
+          <span class="absolute bottom-0.5 right-0.5 w-6 h-6 rounded-full bg-accent border-2 border-canvas dark:border-dark-base flex items-center justify-center pointer-events-none">
+            <Camera class="w-3 h-3 text-white" />
           </span>
-
-          <input ref="imageInputRef" type="file" accept="image/*" class="hidden" @change="handleImageSelect" />
-        </button>
-
-        <div class="flex items-center gap-2 w-full max-w-xs">
-          <input
-            v-model="imageUrlInput"
-            type="text"
-            placeholder="또는 이미지 URL 직접 입력"
-            class="flex-1 px-3 py-1.5 text-xs border border-hairline dark:border-dark-border rounded-full bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
-            @input="profileImage = null"
-          />
         </div>
 
-        <Transition
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="opacity-0 -translate-y-1"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition duration-150 ease-in"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-1"
-        >
-          <div v-if="profileImage || imageUrlInput.trim()" class="flex items-center gap-2">
-            <button
-              type="button"
-              :disabled="imageLoading"
-              class="px-3 py-1 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-full disabled:opacity-50 cursor-pointer transition-colors"
-              @click="updateProfileImage"
-            >{{ imageLoading ? '적용 중...' : '적용' }}</button>
-            <button
-              type="button"
-              :disabled="imageLoading"
-              class="px-3 py-1 text-xs font-medium border border-hairline dark:border-dark-border text-ink-muted dark:text-dark-muted rounded-full cursor-pointer hover:border-accent transition-colors"
-              @click="cancelImageChange"
-            >취소</button>
-          </div>
-        </Transition>
-
-        <p v-if="imageError" class="text-xs text-red-500 dark:text-red-400">{{ imageError }}</p>
-      </section>
-
-      <!-- 계정 정보 -->
-      <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 space-y-3">
-        <h2 class="text-sm font-semibold text-ink dark:text-dark-text">계정 정보</h2>
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">닉네임</p>
-            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.nickname }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">이메일</p>
-            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.email }}</p>
-          </div>
-          <div>
-            <p class="text-xs text-ink-faint dark:text-dark-muted mb-0.5">가입일</p>
-            <p class="font-semibold text-ink dark:text-dark-text">{{ authStore.user?.createdAt ? new Date(authStore.user.createdAt).toLocaleDateString('ko-KR') : '-' }}</p>
-          </div>
+        <!-- 이름 + 이메일 -->
+        <div class="text-center">
+          <p class="text-lg font-bold text-ink dark:text-dark-text tracking-tight">
+            {{ authStore.user?.nickname ?? '–' }}
+          </p>
+          <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">
+            {{ authStore.user?.email ?? '–' }}
+          </p>
         </div>
       </section>
 
-      <!-- 닉네임 변경 -->
-      <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-ink dark:text-dark-text">닉네임 변경</h2>
+      <!-- ── 항목 리스트 카드 ── -->
+      <div class="bg-canvas dark:bg-dark-surface rounded-2xl border border-hairline dark:border-dark-border overflow-hidden shadow-sm">
 
+        <!-- ① 프로필 사진 -->
         <div>
-          <label class="block text-xs font-medium text-ink-muted dark:text-dark-muted mb-1.5">닉네임</label>
-          <input
-            v-model="nickname"
-            type="text"
-            maxlength="20"
-            placeholder="새 닉네임 입력"
-            class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
-          />
+          <button
+            type="button"
+            class="w-full flex items-center gap-3 px-5 py-4 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors cursor-pointer"
+            :class="activeField === 'photo' ? 'bg-accent-light dark:bg-accent-dark-muted' : ''"
+            @click="toggleField('photo')"
+          >
+            <span class="w-8 h-8 rounded-full bg-accent-light dark:bg-accent-dark-muted flex items-center justify-center shrink-0">
+              <Camera class="w-4 h-4 text-accent" />
+            </span>
+            <span class="flex-1 text-left">
+              <span class="block text-xs text-ink-faint dark:text-dark-muted">프로필 사진</span>
+              <span class="block text-sm font-medium text-ink dark:text-dark-text mt-0.5">
+                {{ authStore.user?.profileImageUrl ? '사진 변경' : '사진 설정' }}
+              </span>
+            </span>
+            <ChevronRight
+              class="w-4 h-4 text-ink-faint dark:text-dark-muted transition-transform duration-200"
+              :class="activeField === 'photo' ? 'rotate-90 text-accent' : ''"
+            />
+          </button>
+
+          <!-- 프로필 사진 편집 영역 -->
+          <Transition
+            enter-active-class="transition-all duration-250 ease-out overflow-hidden"
+            enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-96 opacity-100"
+            leave-active-class="transition-all duration-200 ease-in overflow-hidden"
+            leave-from-class="max-h-96 opacity-100"
+            leave-to-class="max-h-0 opacity-0"
+          >
+            <div v-if="activeField === 'photo'" class="px-5 pb-5 pt-1 bg-accent-light/40 dark:bg-accent-dark-muted/40 space-y-3">
+              <input
+                v-model="imageUrlInput"
+                type="text"
+                placeholder="이미지 URL 직접 입력"
+                class="w-full px-3 py-2 text-sm border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+                @input="profileImage = null"
+              />
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink-muted dark:text-dark-muted hover:border-accent transition-colors cursor-pointer"
+                  @click="openImagePicker"
+                >
+                  <Camera class="w-3.5 h-3.5" /> 파일 선택
+                </button>
+                <button
+                  v-if="profileImage || imageUrlInput.trim()"
+                  type="button"
+                  :disabled="imageLoading"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold bg-accent hover:bg-accent-hover text-white rounded-lg disabled:opacity-50 cursor-pointer transition-colors"
+                  @click="updateProfileImage"
+                >
+                  <Check class="w-3.5 h-3.5" />{{ imageLoading ? '저장 중...' : '저장' }}
+                </button>
+                <button
+                  type="button"
+                  :disabled="imageLoading"
+                  class="px-3 py-2 text-xs font-medium text-ink-faint dark:text-dark-muted hover:text-ink dark:hover:text-dark-text transition-colors cursor-pointer"
+                  @click="cancelImageChange"
+                >
+                  취소
+                </button>
+              </div>
+              <p v-if="imageError" class="text-xs text-red-500 dark:text-red-400">{{ imageError }}</p>
+            </div>
+          </Transition>
+          <div class="h-px bg-hairline dark:bg-dark-border" />
         </div>
 
-        <p v-if="nicknameSuccess" class="text-xs text-green-600 dark:text-green-400">닉네임이 변경됐습니다.</p>
-        <p v-if="nicknameError" class="text-xs text-red-500 dark:text-red-400">{{ nicknameError }}</p>
-
-        <BaseButton :disabled="nicknameLoading || !nickname.trim()" @click="updateNickname">
-          {{ nicknameLoading ? '변경 중...' : '닉네임 변경' }}
-        </BaseButton>
-      </section>
-
-      <!-- 비밀번호 변경 -->
-      <section class="bg-canvas dark:bg-dark-surface rounded-xl border border-hairline dark:border-dark-border p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-ink dark:text-dark-text">비밀번호 변경</h2>
-
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-medium text-ink-muted dark:text-dark-muted mb-1.5">현재 비밀번호</label>
-            <input
-              v-model="currentPassword"
-              type="password"
-              placeholder="현재 비밀번호"
-              class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+        <!-- ② 닉네임 -->
+        <div>
+          <button
+            type="button"
+            class="w-full flex items-center gap-3 px-5 py-4 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors cursor-pointer"
+            :class="activeField === 'nickname' ? 'bg-accent-light dark:bg-accent-dark-muted' : ''"
+            @click="toggleField('nickname')"
+          >
+            <span class="w-8 h-8 rounded-full bg-accent-light dark:bg-accent-dark-muted flex items-center justify-center shrink-0">
+              <User class="w-4 h-4 text-accent" />
+            </span>
+            <span class="flex-1 text-left">
+              <span class="block text-xs text-ink-faint dark:text-dark-muted">닉네임</span>
+              <span class="block text-sm font-medium text-ink dark:text-dark-text mt-0.5">
+                {{ authStore.user?.nickname ?? '–' }}
+              </span>
+            </span>
+            <ChevronRight
+              class="w-4 h-4 text-ink-faint dark:text-dark-muted transition-transform duration-200"
+              :class="activeField === 'nickname' ? 'rotate-90 text-accent' : ''"
             />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-muted dark:text-dark-muted mb-1.5">새 비밀번호</label>
-            <input
-              v-model="newPassword"
-              type="password"
-              placeholder="새 비밀번호 (8자 이상)"
-              class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
-            />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-ink-muted dark:text-dark-muted mb-1.5">새 비밀번호 확인</label>
-            <input
-              v-model="newPasswordConfirm"
-              type="password"
-              placeholder="새 비밀번호 재입력"
-              class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
-            />
-          </div>
+          </button>
+
+          <!-- 닉네임 편집 영역 -->
+          <Transition
+            enter-active-class="transition-all duration-250 ease-out overflow-hidden"
+            enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-64 opacity-100"
+            leave-active-class="transition-all duration-200 ease-in overflow-hidden"
+            leave-from-class="max-h-64 opacity-100"
+            leave-to-class="max-h-0 opacity-0"
+          >
+            <div v-if="activeField === 'nickname'" class="px-5 pb-5 pt-1 bg-accent-light/40 dark:bg-accent-dark-muted/40 space-y-3">
+              <input
+                v-model="nickname"
+                type="text"
+                maxlength="20"
+                placeholder="새 닉네임 입력"
+                class="w-full px-3 py-2 text-sm border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+                @keydown.enter="updateNickname"
+              />
+              <p v-if="nicknameError" class="text-xs text-red-500 dark:text-red-400">{{ nicknameError }}</p>
+              <p v-if="nicknameSuccess" class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <Check class="w-3.5 h-3.5" /> 닉네임이 변경됐습니다.
+              </p>
+              <div class="flex gap-2">
+                <BaseButton
+                  variant="primary"
+                  size="sm"
+                  :disabled="nicknameLoading || !nickname.trim()"
+                  @click="updateNickname"
+                >
+                  {{ nicknameLoading ? '변경 중...' : '저장' }}
+                </BaseButton>
+                <BaseButton variant="utility" size="sm" @click="activeField = null">
+                  취소
+                </BaseButton>
+              </div>
+            </div>
+          </Transition>
+          <div class="h-px bg-hairline dark:bg-dark-border" />
         </div>
 
-        <p v-if="passwordSuccess" class="text-xs text-green-600 dark:text-green-400">비밀번호가 변경됐습니다. 다음 로그인 시 적용됩니다.</p>
-        <p v-if="passwordError" class="text-xs text-red-500 dark:text-red-400">{{ passwordError }}</p>
+        <!-- ③ 이메일 (읽기 전용) -->
+        <div class="flex items-center gap-3 px-5 py-4">
+          <span class="w-8 h-8 rounded-full bg-canvas-soft dark:bg-dark-elevated flex items-center justify-center shrink-0">
+            <Mail class="w-4 h-4 text-ink-faint dark:text-dark-muted" />
+          </span>
+          <span class="flex-1">
+            <span class="block text-xs text-ink-faint dark:text-dark-muted">이메일</span>
+            <span class="block text-sm font-medium text-ink dark:text-dark-text mt-0.5">
+              {{ authStore.user?.email ?? '–' }}
+            </span>
+          </span>
+          <span class="text-xs text-ink-faint dark:text-dark-muted px-2 py-0.5 rounded-full bg-canvas-soft dark:bg-dark-elevated">읽기 전용</span>
+        </div>
+        <div class="h-px bg-hairline dark:bg-dark-border" />
 
-        <BaseButton
-          :disabled="passwordLoading || !currentPassword || !newPassword || !newPasswordConfirm"
-          @click="updatePassword"
-        >{{ passwordLoading ? '변경 중...' : '비밀번호 변경' }}</BaseButton>
-      </section>
+        <!-- ⑤ 비밀번호 -->
+        <div>
+          <button
+            type="button"
+            class="w-full flex items-center gap-3 px-5 py-4 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors cursor-pointer"
+            :class="activeField === 'password' ? 'bg-accent-light dark:bg-accent-dark-muted' : ''"
+            @click="toggleField('password')"
+          >
+            <span class="w-8 h-8 rounded-full bg-accent-light dark:bg-accent-dark-muted flex items-center justify-center shrink-0">
+              <Lock class="w-4 h-4 text-accent" />
+            </span>
+            <span class="flex-1 text-left">
+              <span class="block text-xs text-ink-faint dark:text-dark-muted">비밀번호</span>
+              <span class="block text-sm font-medium text-ink dark:text-dark-text mt-0.5">
+                ••••••••
+              </span>
+            </span>
+            <ChevronRight
+              class="w-4 h-4 text-ink-faint dark:text-dark-muted transition-transform duration-200"
+              :class="activeField === 'password' ? 'rotate-90 text-accent' : ''"
+            />
+          </button>
 
+          <!-- 비밀번호 편집 영역 -->
+          <Transition
+            enter-active-class="transition-all duration-250 ease-out overflow-hidden"
+            enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-[26rem] opacity-100"
+            leave-active-class="transition-all duration-200 ease-in overflow-hidden"
+            leave-from-class="max-h-[26rem] opacity-100"
+            leave-to-class="max-h-0 opacity-0"
+          >
+            <div v-if="activeField === 'password'" class="px-5 pb-5 pt-1 bg-accent-light/40 dark:bg-accent-dark-muted/40 space-y-3">
+              <input
+                v-model="currentPassword"
+                type="password"
+                placeholder="현재 비밀번호"
+                class="w-full px-3 py-2 text-sm border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+              />
+              <input
+                v-model="newPassword"
+                type="password"
+                placeholder="새 비밀번호 (8자 이상)"
+                class="w-full px-3 py-2 text-sm border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+              />
+              <input
+                v-model="newPasswordConfirm"
+                type="password"
+                placeholder="새 비밀번호 확인"
+                class="w-full px-3 py-2 text-sm border border-hairline dark:border-dark-border rounded-lg bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+                @keydown.enter="updatePassword"
+              />
+              <p v-if="passwordError" class="text-xs text-red-500 dark:text-red-400">{{ passwordError }}</p>
+              <p v-if="passwordSuccess" class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <Check class="w-3.5 h-3.5" /> 비밀번호가 변경됐습니다.
+              </p>
+              <div class="flex gap-2">
+                <BaseButton
+                  variant="primary"
+                  size="sm"
+                  :disabled="passwordLoading || !currentPassword || !newPassword || !newPasswordConfirm"
+                  @click="updatePassword"
+                >
+                  {{ passwordLoading ? '변경 중...' : '저장' }}
+                </BaseButton>
+                <BaseButton variant="utility" size="sm" @click="cancelPassword">
+                  취소
+                </BaseButton>
+              </div>
+            </div>
+          </Transition>
+        </div>
+
+      </div>
     </main>
   </div>
 </template>

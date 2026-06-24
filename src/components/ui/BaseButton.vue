@@ -1,6 +1,6 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
-  variant?: 'primary' | 'secondary' | 'utility'
+  variant?: 'primary' | 'secondary' | 'utility' | 'danger'
   size?: 'sm' | 'md'
   disabled?: boolean
   type?: 'button' | 'submit'
@@ -15,6 +15,7 @@ const VARIANT_CLASS: Record<string, string> = {
   primary: 'bg-accent hover:bg-accent-hover text-white border-accent rounded-full shadow-sm',
   secondary: 'border border-accent text-accent hover:bg-accent-light dark:hover:bg-accent-dark-muted rounded-full',
   utility: 'bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text border border-hairline dark:border-dark-border rounded-[8px] hover:border-accent hover:text-accent',
+  danger: 'bg-red-500 hover:bg-red-600 text-white border-red-500 rounded-full shadow-sm',
 }
 
 const SIZE_CLASS: Record<string, string> = {

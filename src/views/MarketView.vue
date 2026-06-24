@@ -41,7 +41,7 @@ function onSelect(property: MarketProperty) {
           <button
             v-if="!isDesktop"
             type="button"
-            class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-canvas dark:bg-dark-surface border border-hairline dark:border-dark-border px-3 py-1.5 text-sm text-ink dark:text-dark-ink shadow-sm active:scale-95 transition-colors duration-150"
+            class="absolute top-3 left-3 z-10 inline-flex items-center gap-1 rounded-full bg-canvas dark:bg-dark-surface border border-hairline dark:border-dark-border px-3 py-1.5 text-sm text-ink dark:text-dark-text shadow-sm active:scale-95 transition-colors duration-150"
             @click="selectedPropertyId = null"
           >
             <ChevronLeft class="w-4 h-4" />

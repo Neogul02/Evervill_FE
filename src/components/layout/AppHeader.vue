@@ -6,6 +6,7 @@ import { useTheme } from '@/composables/useTheme'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
 import { useChat } from '@/composables/useChat'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 import IconButton from '@/components/ui/IconButton.vue'
 import { Sun, Moon, Menu, X } from 'lucide-vue-next'
 import logoImg from '@/assets/evervill_logo.png'
@@ -18,6 +19,7 @@ const { isDesktop } = useBreakpoint()
 const mobileMenuOpen = ref(false)
 const { unreadCount, startPolling, stopPolling } = useUnreadChatCount()
 const { connect, disconnect } = useChat()
+const { open: openModal } = useConfirmModal()
 
 watch(
   () => authStore.isAuthenticated,
@@ -33,10 +35,19 @@ watch(
   { immediate: true },
 )
 
-function logout() {
-  if (!confirm('로그아웃하시겠습니까?')) return
-  authStore.logout()
-  router.push('/login')
+async function logout() {
+  mobileMenuOpen.value = false
+  const ok = await openModal({
+    title: '로그아웃',
+    message: '로그아웃하시겠습니까?',
+    confirmText: '로그아웃',
+    cancelText: '취소',
+    danger: true,
+  })
+  if (ok) {
+    authStore.logout()
+    router.push('/login')
+  }
 }
 
 </script>
@@ -61,19 +72,19 @@ function logout() {
 
         <RouterLink
           to="/"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
+          class="nav-link font-semibold"
           >매물</RouterLink
         >
 
         <RouterLink
           to="/market"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
+          class="nav-link font-semibold"
           >실거래가</RouterLink
         >
 
         <RouterLink
           to="/notices"
-          class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors font-semibold"
+          class="nav-link font-semibold"
           >공지사항</RouterLink
         >
       </div>
@@ -90,25 +101,25 @@ function logout() {
           <template v-if="authStore.isAuthenticated">
             <RouterLink
               to="/my/listings"
-              class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              class="nav-link"
               >내매물</RouterLink
             >
 
             <RouterLink
               to="/my/bookmarks"
-              class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              class="nav-link"
               >북마크</RouterLink
             >
 
             <RouterLink
               to="/my/recent"
-              class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
-              > 최근 본 매물</RouterLink
+              class="nav-link"
+              >최근 본 매물</RouterLink
             >
 
             <RouterLink
               to="/chat"
-              class="relative text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-2.5 py-1 rounded hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+              class="nav-link relative"
               >채팅<span
                 v-if="unreadCount > 0"
                 class="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] rounded-full min-w-[14px] h-3.5 px-0.5 flex items-center justify-center font-medium leading-none"
@@ -118,7 +129,7 @@ function logout() {
             <RouterLink
               v-if="authStore.user?.role === 'ADMIN'"
               to="/admin"
-              class="text-xs text-accent hover:text-accent-hover px-2.5 py-1 rounded hover:bg-accent-light dark:hover:bg-accent-dark-muted transition-colors"
+              class="nav-link nav-link--admin"
               >관리자</RouterLink
             >
 
@@ -126,7 +137,7 @@ function logout() {
 
             <RouterLink
               to="/my/profile"
-              class="text-xs text-ink-faint dark:text-dark-muted px-1.5 hover:text-ink dark:hover:text-dark-text transition-colors max-w-[80px] truncate"
+              class="nav-link max-w-[80px] truncate"
               >내정보</RouterLink
             >
 
@@ -181,28 +192,28 @@ function logout() {
         >
           <RouterLink
             to="/my/listings"
-            class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            class="mobile-nav-link"
             @click="mobileMenuOpen = false"
             >내매물</RouterLink
           >
 
           <RouterLink
             to="/my/bookmarks"
-            class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            class="mobile-nav-link"
             @click="mobileMenuOpen = false"
             >북마크</RouterLink
           >
 
           <RouterLink
             to="/my/recent"
-            class="text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            class="mobile-nav-link"
             @click="mobileMenuOpen = false"
             >최근 본 매물</RouterLink
           >
 
           <RouterLink
             to="/chat"
-            class="flex items-center gap-1.5 text-xs text-ink-muted dark:text-dark-muted hover:text-ink dark:hover:text-dark-text px-3 py-2 hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors"
+            class="mobile-nav-link flex items-center gap-1.5"
             @click="mobileMenuOpen = false"
             >채팅<span
               v-if="unreadCount > 0"
@@ -213,7 +224,7 @@ function logout() {
           <RouterLink
             v-if="authStore.user?.role === 'ADMIN'"
             to="/admin"
-            class="text-xs text-accent hover:text-accent-hover px-3 py-2 hover:bg-accent-light dark:hover:bg-accent-dark-muted transition-colors"
+            class="mobile-nav-link mobile-nav-link--admin"
             @click="mobileMenuOpen = false"
             >관리자</RouterLink
           >
@@ -222,7 +233,7 @@ function logout() {
 
           <RouterLink
             to="/my/profile"
-            class="text-xs text-ink-faint dark:text-dark-muted px-3 py-2 hover:text-ink dark:hover:text-dark-text transition-colors truncate"
+            class="mobile-nav-link truncate"
             @click="mobileMenuOpen = false"
             >내정보</RouterLink
           >

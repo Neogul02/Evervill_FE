@@ -1,7 +1,0 @@
-{
-  "tool_name": "mcp__Claude_Preview__preview_eval",
-  "tool_input_preview": "{\"serverId\":\"94adc0c3-7638-4512-ae1f-5e37f50c7548\",\"expression\":\"await new Promise(r => setTimeout(r, 800)); location.href\"}",
-  "error": "Eval failed: SyntaxError: await is only valid in async functions and the top level bodies of modules",
-  "timestamp": "2026-06-23T13:24:10.629Z",
-  "retry_count": 1
-}

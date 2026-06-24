@@ -62,6 +62,110 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* ── Header Nav Links ── */
+  .nav-link {
+    @apply relative flex items-center text-xs text-ink-muted dark:text-dark-muted
+           px-2.5 rounded
+           hover:text-ink dark:hover:text-dark-text
+           hover:bg-canvas-soft dark:hover:bg-dark-elevated;
+    height: 56px; /* 헤더 h-14와 동일, 블럭이 헤더 높이를 꽉 채움 */
+    transition: color 200ms ease, background-color 200ms ease;
+  }
+
+  /* 블럭 전체 너비 하단 언더라인 (비활성: 투명하게 자리 유지) */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background-color: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+                opacity   200ms ease;
+    opacity: 0;
+  }
+
+  /* 현재 탭 활성 강조 */
+  .nav-link.router-link-exact-active {
+    color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    font-weight: 600;
+  }
+  .nav-link.router-link-exact-active::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  /* 다크모드 active */
+  :where(.dark, .dark *) .nav-link.router-link-exact-active {
+    background-color: var(--color-accent-dark-muted);
+    color: var(--color-accent);
+  }
+
+  /* 관리자 링크 전용 (기본부터 accent 색) */
+  .nav-link--admin {
+    @apply text-accent hover:text-accent-hover
+           hover:bg-accent-light dark:hover:bg-accent-dark-muted;
+  }
+  .nav-link--admin.router-link-exact-active {
+    @apply text-accent-hover bg-accent-light dark:bg-accent-dark-muted;
+  }
+
+  /* ── Mobile Dropdown Nav Links ── */
+  .mobile-nav-link {
+    @apply relative text-xs text-ink-muted dark:text-dark-muted
+           px-3 py-2
+           hover:text-ink dark:hover:text-dark-text
+           hover:bg-canvas-soft dark:hover:bg-dark-elevated;
+    transition: color 200ms ease, background-color 200ms ease,
+                border-color 200ms ease, padding-left 200ms ease;
+  }
+
+  /* 모바일 현재 탭 활성 강조 (왼쪽 바 전체 높이) */
+  .mobile-nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 0 2px 2px 0;
+    background-color: var(--color-accent);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+                opacity   200ms ease;
+    opacity: 0;
+  }
+
+  .mobile-nav-link.router-link-exact-active {
+    color: var(--color-accent);
+    background-color: var(--color-accent-light);
+    font-weight: 600;
+    padding-left: 14px;
+  }
+  .mobile-nav-link.router-link-exact-active::before {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+
+  :where(.dark, .dark *) .mobile-nav-link.router-link-exact-active {
+    background-color: var(--color-accent-dark-muted);
+    color: var(--color-accent);
+  }
+
+  .mobile-nav-link--admin {
+    @apply text-accent hover:text-accent-hover
+           hover:bg-accent-light dark:hover:bg-accent-dark-muted;
+  }
+  .mobile-nav-link--admin.router-link-exact-active {
+    @apply text-accent-hover bg-accent-light dark:bg-accent-dark-muted;
+  }
 }
 
 @layer base {

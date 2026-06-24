@@ -19,6 +19,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   select: [listing: Listing]
 }>()
+
+const convertToK = (value: number | undefined) => {
+  if (value < 1000) return value
+  if (value < 10000) return (value / 1000).toFixed(1) + 'K'
+  if (value < 1000000) return Math.floor(value / 1000) + 'K'
+  if (value < 10000000) return (value / 1000000).toFixed(1) + 'M'
+  if (value < 1000000000) return Math.floor(value / 1000000) + 'M'
+}
 </script>
 
 <template>
@@ -52,11 +60,11 @@ const emit = defineEmits<{
           <span class="text-[10px]">사진없음</span>
         </div>
         <div
-          class="flex justify-center gap-1 text-[11px] text-ink-faint dark:text-dark-muted"
+          class="flex flex-col justify-center gap-1 text-[11px] text-ink-faint dark:text-dark-muted"
         >
           <div class="flex gap-1">
             <UserRound class="w-3.5 h-3.5" />
-            {{ listing.viewCount }}
+            {{ convertToK(listing.viewCount) }}
           </div>
           <div class="flex gap-1">
             <Heart class="w-3.5 h-3.5" />
