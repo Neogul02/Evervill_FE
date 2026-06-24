@@ -43,15 +43,17 @@ client.interceptors.response.use(
     const status = error.response?.status
     const method = error.config?.method?.toLowerCase()
     const isGet = method === 'get'
+    // AI 요청은 컴포넌트 내부에서 직접 에러를 처리하므로 에러 페이지 이동 제외
+    const isAi = error.config?.url?.startsWith('/api/ai/')
 
     if (status === 401) {
       localStorage.removeItem('token')
       router.push({ name: 'login' })
-    } else if (status >= 500 && !isGet) {
+    } else if (status >= 500 && !isGet && !isAi) {
       // GET 실패는 컴포넌트에서 인라인 처리 (빈 목록 등)
       // 사용자 액션(POST/PUT/DELETE) 실패만 에러 페이지로 이동
       router.push({ name: 'error-5xx', query: { code: String(status) } })
-    } else if (!isGet && (status === 403 || status === 400 || status === 429 || status === 408)) {
+    } else if (!isGet && !isAi && (status === 403 || status === 400 || status === 429 || status === 408)) {
       router.push({ name: 'error-4xx', query: { code: String(status) } })
     }
 

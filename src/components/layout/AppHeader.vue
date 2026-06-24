@@ -46,7 +46,7 @@ async function logout() {
   })
   if (ok) {
     authStore.logout()
-    router.push('/login')
+    router.push('/')
   }
 }
 
