@@ -35,7 +35,7 @@ function logout() {
     class="fixed top-0 left-0 right-0 z-50 h-14 bg-canvas dark:bg-dark-surface border-b border-hairline dark:border-dark-border transition-colors duration-150"
   >
     <div
-      class="h-full flex items-center px-0 sm:px-16 md:px-20 md:mx-auto md:max-w-[1600px] select-none"
+      class="h-full flex items-center px-0 sm:px-16 md:px-20 md:mx-auto md:max-w-[1300px] select-none"
     >
       <!-- ── 왼쪽: 로고 + 도메인 링크 ── -->
       <div class="flex items-center gap-0.5 shrink-0">

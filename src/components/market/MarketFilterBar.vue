@@ -23,7 +23,7 @@ const priceRange = ref(PRICE_RANGES[0])
 let keywordTimer: ReturnType<typeof setTimeout> | undefined
 
 const CURRENT_YEAR = new Date().getFullYear()
-const YEARS = Array.from({ length: 11 }, (_, i) => CURRENT_YEAR - i)
+const YEARS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1)
 
 const dealYear = ref<number | undefined>(undefined)

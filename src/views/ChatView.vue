@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { ChevronLeft } from 'lucide-vue-next'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { UserRound } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
@@ -8,6 +9,7 @@ import { chatApi } from '@/api/chat'
 import { listingsApi, authApi } from '@/api'
 import { useChat } from '@/composables/useChat'
 import { useUnreadChatCount } from '@/composables/useUnreadChatCount'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import type { ChatRoom, ChatMessage } from '@/types/chat'
 import type { Listing, PublicProfile } from '@/types'
 import { formatListingPrice } from '@/utils/format'
@@ -15,6 +17,7 @@ import { parseServerDate } from '@/utils/date'
 
 const authStore = useAuthStore()
 const route = useRoute()
+const { isDesktop } = useBreakpoint()
 const { isConnected, connect, subscribeRoom } = useChat()
 const {
   syncUnreadCountFromRooms,
@@ -157,6 +160,10 @@ function formatRoomTime(dateStr?: string) {
     : d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', timeZone: 'Asia/Seoul' })
 }
 
+function backToRooms() {
+  selectedRoom.value = null
+}
+
 async function leaveRoom(room: ChatRoom) {
   if (!confirm('채팅방을 나가시겠습니까?')) return
   try {
@@ -202,16 +209,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen bg-canvas-soft dark:bg-dark-base mt-2">
+  <div class="flex flex-col h-screen overflow-hidden bg-canvas-soft dark:bg-dark-base">
     <AppHeader />
 
     <main
       class="flex-1 overflow-hidden pt-14 flex justify-center px-0 sm:px-16 md:px-20"
     >
-      <div class="flex w-full max-w-[1600px] h-full">
+      <div class="flex w-full max-w-[1300px] h-full">
         <!-- 채팅방 목록 -->
         <aside
-          class="w-72 shrink-0 border-r border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface flex flex-col"
+          v-if="isDesktop || !selectedRoom"
+          class="shrink-0 border-r border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface flex flex-col"
+          :class="isDesktop ? 'w-72' : 'w-full'"
         >
           <div
             class="px-4 py-3 border-b border-hairline dark:border-dark-border shrink-0"
@@ -291,12 +300,21 @@ onMounted(async () => {
         </aside>
 
         <!-- 채팅 영역 -->
-        <section class="flex-1 flex flex-col min-w-0">
+        <section v-if="isDesktop || selectedRoom" class="flex-1 flex flex-col min-w-0">
           <template v-if="selectedRoom">
             <!-- 채팅방 헤더 -->
             <div
               class="h-12 px-4 border-b border-hairline dark:border-dark-border bg-canvas dark:bg-dark-surface flex items-center gap-3 shrink-0"
             >
+              <button
+                v-if="!isDesktop"
+                type="button"
+                aria-label="목록으로"
+                class="shrink-0 -ml-1 inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-muted dark:text-dark-muted hover:bg-canvas-soft dark:hover:bg-dark-elevated transition-colors cursor-pointer"
+                @click="backToRooms"
+              >
+                <ChevronLeft class="w-4 h-4" />
+              </button>
               <h3
                 class="text-sm font-semibold text-ink dark:text-dark-text truncate flex-1"
               >

@@ -29,9 +29,9 @@ onMounted(fetchMyListings)
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-14">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-10">
     <AppHeader />
-    <main class="pt-14 max-w-3xl mx-auto w-full px-4 py-8">
+    <main class="pt-14 max-w-3xl mx-auto w-full px-4 pb-8">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-bold text-ink dark:text-dark-text tracking-tight">내 매물</h1>
         <RouterLink
@@ -74,7 +74,7 @@ onMounted(fetchMyListings)
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between gap-2 mb-1">
               <h3 class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</h3>
-              <Badge class="shrink-0" :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
+              <Badge v-if="STATUS_LABEL[listing.status]" class="shrink-0" :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
             </div>
             <p class="text-sm font-semibold text-accent mb-1">{{ formatListingPrice(listing) }}</p>
             <p class="text-xs text-ink-faint dark:text-dark-muted mb-1 truncate">{{ listing.address }}</p>
