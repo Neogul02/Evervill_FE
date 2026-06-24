@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"C:\\\\Codes\\\\Evervill_FE\\\\src\\\\composables\"}",
+  "error": "EISDIR: illegal operation on a directory, read 'C:\\Codes\\Evervill_FE\\src\\composables'",
+  "timestamp": "2026-06-24T05:36:20.978Z",
+  "retry_count": 1
+}

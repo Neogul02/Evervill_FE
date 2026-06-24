@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import type { Listing } from '@/types'
-import { formatListingPrice, formatArea, formatFloor, DEAL_TYPE_LABEL, STATUS_LABEL } from '@/utils/format'
+import {
+  formatListingPrice,
+  formatArea,
+  formatFloor,
+  DEAL_TYPE_LABEL,
+  STATUS_LABEL,
+} from '@/utils/format'
 import Badge from '@/components/ui/Badge.vue'
 import { DEAL_TYPE_TONE, STATUS_TONE } from '@/constants/dealTypeColors'
-import { ImageOff } from 'lucide-vue-next'
+import { ImageOff, Heart, UserRound } from 'lucide-vue-next'
 
 const props = defineProps<{
   listing: Listing
@@ -32,7 +38,11 @@ const emit = defineEmits<{
           v-if="listing.images[0]?.imageUrl"
           class="w-16 h-16 rounded-lg bg-canvas-soft dark:bg-dark-elevated overflow-hidden"
         >
-          <img :src="listing.images[0].imageUrl" :alt="listing.title" class="w-full h-full object-cover" />
+          <img
+            :src="listing.images[0].imageUrl"
+            :alt="listing.title"
+            class="w-full h-full object-cover"
+          />
         </div>
         <div
           v-else
@@ -41,21 +51,41 @@ const emit = defineEmits<{
           <ImageOff class="w-4 h-4" />
           <span class="text-[10px]">사진없음</span>
         </div>
-        <div class="flex-col items-center justify-center gap-2 text-[10px] text-ink-faint dark:text-dark-muted">
-          <div>view {{ listing.viewCount }}</div>
-          <div>♥️ {{ listing.bookmarkCount }}</div>
+        <div
+          class="flex justify-center gap-1 text-[11px] text-ink-faint dark:text-dark-muted"
+        >
+          <div class="flex gap-1">
+            <UserRound class="w-3.5 h-3.5" />
+            {{ listing.viewCount }}
+          </div>
+          <div class="flex gap-1">
+            <Heart class="w-3.5 h-3.5" />
+            {{ listing.bookmarkCount }}
+          </div>
         </div>
       </div>
 
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 mb-1">
-          <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{ DEAL_TYPE_LABEL[listing.dealType] }}</Badge>
-          <Badge v-if="STATUS_LABEL[listing.status]" :tone="STATUS_TONE[listing.status]">{{ STATUS_LABEL[listing.status] }}</Badge>
+          <Badge :tone="DEAL_TYPE_TONE[listing.dealType]">{{
+            DEAL_TYPE_LABEL[listing.dealType]
+          }}</Badge>
+          <Badge
+            v-if="STATUS_LABEL[listing.status]"
+            :tone="STATUS_TONE[listing.status]"
+            >{{ STATUS_LABEL[listing.status] }}</Badge
+          >
         </div>
 
-        <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">{{ listing.title }}</p>
-        <p class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ listing.address }}</p>
-        <p class="text-sm font-bold text-ink dark:text-dark-text">{{ formatListingPrice(listing) }}</p>
+        <p class="text-sm font-semibold text-ink dark:text-dark-text truncate">
+          {{ listing.title }}
+        </p>
+        <p class="text-xs text-ink-faint dark:text-dark-muted truncate">
+          {{ listing.address }}
+        </p>
+        <p class="text-sm font-bold text-ink dark:text-dark-text">
+          {{ formatListingPrice(listing) }}
+        </p>
         <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">
           {{ formatArea(listing.area) }} · {{ formatFloor(listing.floor) }}
         </p>
