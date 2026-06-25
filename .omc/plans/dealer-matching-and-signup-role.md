@@ -1,20 +1,25 @@
 # 공인중개사 매칭 + 회원가입 역할(Role) 확장 계획
 
-> 상태: **FE 구현 완료, 백엔드 API 대기 중** — 백엔드는 추후 별도 제공 예정. FE는 1.1~1.5 계약을 가정하고 미리 구현해뒀고, 백엔드 연동 시 API 응답 스키마가 본 문서와 다르면 FE 타입/매핑만 조정하면 된다.
+> 상태: **회원가입/관리자 승인 흐름은 실제 백엔드 스펙으로 연동 완료. 채팅 매칭(1.3~1.4)은 여전히 미구현.**
+> 아래 1.2/1.5는 실제 Swagger 스펙 기준으로 다시 작성됨 — 원래 계획(사업자등록증+자격증 파일 2종, `/api/admin/dealers`)과 다르다.
 
 ## 진행 상황
 
 | 구분 | 상태 |
 |---|---|
-| 1.1~1.5 백엔드 API | **미구현 — 추후 제공 예정** |
-| 2.1 타입 확장 | ✅ 완료 — [src/types/auth.ts](../../src/types/auth.ts), [src/types/dealer.ts](../../src/types/dealer.ts) |
-| 2.2 API 모듈 | ✅ 완료 — [src/api/auth.ts](../../src/api/auth.ts), [src/api/dealer.ts](../../src/api/dealer.ts), [src/api/chat.ts](../../src/api/chat.ts), [src/api/admin.ts](../../src/api/admin.ts) |
-| 2.3 회원가입 폼 | ✅ 완료 — [src/views/RegisterView.vue](../../src/views/RegisterView.vue), 가입 후 안내는 [src/views/LoginView.vue](../../src/views/LoginView.vue) |
-| 2.4 매칭하기 버튼 + 모달 | ✅ 완료 — [src/views/ChatView.vue](../../src/views/ChatView.vue), [src/components/chat/DealerMatchModal.vue](../../src/components/chat/DealerMatchModal.vue) |
-| 2.5 관리자 중개사 승인 탭 | ✅ 완료 — [src/views/AdminView.vue](../../src/views/AdminView.vue) |
-| 2.6 라우팅/가드 | 변경 불필요 (기존 계획대로) |
+| 1.1 Role 확장 | 미확인 — `GET /auth/me` 응답에 `role: 'DEALER'`가 실제로 오는지 미확인 (User.dealerProfile 타입은 구버전 가정 그대로 남아있음) |
+| 1.2 공인중개사 가입 (`POST /auth/signup/realtor`) | ✅ 연동 완료 — 파일 업로드 없음, `businessName`/`businessNumber`/`officeAddress` 텍스트 필드만 |
+| 1.3 공인중개사 목록 (`GET /dealers`) | **미구현 — 추후 제공 예정** |
+| 1.4 채팅방 딜러 참가 | **미구현 — 추후 제공 예정** |
+| 1.5 관리자 승인/거부/목록 (`/auth/admin/realtor-applications`) | ✅ 연동 완료 |
+| 2.1 타입 확장 | ✅ 완료 — [src/types/auth.ts](../../src/types/auth.ts) `RealtorRegisterRequest`, [src/types/dealer.ts](../../src/types/dealer.ts) `RealtorApplication` |
+| 2.2 API 모듈 | ✅ 완료 — [src/api/auth.ts](../../src/api/auth.ts) `registerRealtor`, [src/api/admin.ts](../../src/api/admin.ts) `getRealtorApplications/approveDealer/rejectDealer` |
+| 2.3 회원가입 폼 | ✅ 완료 — [src/views/RegisterView.vue](../../src/views/RegisterView.vue) (파일 업로드 UI 제거, 상호명/사업자등록번호/사업장주소 입력으로 교체) |
+| 2.4 매칭하기 버튼 + 모달 | 미구현 — [src/components/chat/DealerMatchModal.vue](../../src/components/chat/DealerMatchModal.vue), [src/api/dealer.ts](../../src/api/dealer.ts)는 여전히 1.3 가정(`/api/dealers`) 그대로, 백엔드 확정 전까지 보류 |
+| 2.5 관리자 중개사 승인 탭 | ✅ 완료 — [src/views/AdminView.vue](../../src/views/AdminView.vue), 신청자 닉네임/이메일은 `authApi.getPublicProfile(userId)`로 별도 조회 (목록 응답에 userId만 있음) |
+| 2.6 라우팅/가드 | 변경 불필요 |
 
-**FE는 백엔드 없이 빌드/타입체크만 통과한 상태**이며, 실제 API 응답이 오기 전까지는 화면에서 빈 목록/네트워크 에러로 보일 수 있다 (정상 동작). 백엔드가 1.1~1.5를 구현하면 추가 FE 작업 없이 바로 연동된다 — 단, 아래 "미해결 결정 사항"은 백엔드 구현 전에 확정 필요.
+**1.3(매칭 목록)/1.4(채팅방 참가)는 아직 실제 스펙을 받지 못해 기존 가정대로 남아있다** — 백엔드 확정 시 `src/api/dealer.ts`, `src/types/dealer.ts`의 `Dealer` 타입, `DealerMatchModal.vue`를 재확인해야 한다.
 
 ## 배경
 

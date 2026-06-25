@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { UserRound } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores'
@@ -10,7 +10,7 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Badge from '@/components/ui/Badge.vue'
 import type { BadgeTone } from '@/constants/dealTypeColors'
-import type { DealerApplication, DealerStatus, PublicProfile } from '@/types'
+import type { RealtorApplication, RealtorApplicationStatus, PublicProfile } from '@/types'
 
 type Tab = 'notices' | 'reports' | 'dealers' | 'batch'
 
@@ -31,9 +31,14 @@ const reportLoading = ref(false)
 const reportStatusFilter = ref('')
 const userProfiles = ref<Record<number, PublicProfile>>({})
 
-const dealerApplications = ref<DealerApplication[]>([])
+const allDealerApplications = ref<RealtorApplication[]>([])
 const dealerLoading = ref(false)
-const dealerStatusFilter = ref<DealerStatus | ''>('PENDING')
+const dealerStatusFilter = ref<RealtorApplicationStatus | ''>('PENDING')
+const dealerApplications = computed(() =>
+  dealerStatusFilter.value
+    ? allDealerApplications.value.filter((a) => a.status === dealerStatusFilter.value)
+    : allDealerApplications.value,
+)
 
 const batchYearMonth = ref('')
 const batchLoading = ref(false)
@@ -132,8 +137,9 @@ async function updateReportStatus(id: number, status: 'PROCESSED' | 'DISMISSED')
 async function fetchDealerApplications() {
   dealerLoading.value = true
   try {
-    const res = await adminApi.getDealerApplications(dealerStatusFilter.value || undefined)
-    dealerApplications.value = res.data.data
+    const res = await adminApi.getRealtorApplications()
+    allDealerApplications.value = res.data.data
+    loadUserProfiles(allDealerApplications.value.map((a) => a.userId))
   } finally {
     dealerLoading.value = false
   }
@@ -142,7 +148,7 @@ async function fetchDealerApplications() {
 async function approveDealer(id: number) {
   try {
     await adminApi.approveDealer(id)
-    dealerApplications.value = dealerApplications.value.filter(d => d.id !== id)
+    allDealerApplications.value = allDealerApplications.value.filter(d => d.id !== id)
   } catch {
     alert('승인에 실패했습니다.')
   }
@@ -152,22 +158,21 @@ async function rejectDealer(id: number) {
   if (!confirm('가입 신청을 거부하시겠습니까?')) return
   try {
     await adminApi.rejectDealer(id)
-    dealerApplications.value = dealerApplications.value.filter(d => d.id !== id)
+    allDealerApplications.value = allDealerApplications.value.filter(d => d.id !== id)
   } catch {
     alert('거부 처리에 실패했습니다.')
   }
 }
 
-function dealerStatusLabel(status: DealerStatus) {
-  const map: Record<DealerStatus, string> = { NONE: '-', PENDING: '대기', APPROVED: '승인', REJECTED: '거부' }
+function dealerStatusLabel(status: RealtorApplicationStatus) {
+  const map: Record<RealtorApplicationStatus, string> = { PENDING: '대기', APPROVED: '승인', REJECTED: '거부' }
   return map[status]
 }
 
-function dealerStatusTone(status: DealerStatus): BadgeTone {
+function dealerStatusTone(status: RealtorApplicationStatus): BadgeTone {
   if (status === 'PENDING') return 'amber'
   if (status === 'APPROVED') return 'green'
-  if (status === 'REJECTED') return 'rose'
-  return 'neutral'
+  return 'rose'
 }
 
 async function triggerBatch() {
@@ -210,7 +215,7 @@ async function switchTab(tab: Tab) {
   activeTab.value = tab
   if (tab === 'notices' && notices.value.length === 0) await fetchNotices()
   if (tab === 'reports' && reports.value.length === 0) await fetchReports()
-  if (tab === 'dealers' && dealerApplications.value.length === 0) await fetchDealerApplications()
+  if (tab === 'dealers' && allDealerApplications.value.length === 0) await fetchDealerApplications()
 }
 
 onMounted(async () => {
@@ -379,7 +384,6 @@ onMounted(async () => {
         <div class="flex items-center gap-3 mb-4">
           <select
             v-model="dealerStatusFilter"
-            @change="fetchDealerApplications"
             class="px-3 py-1.5 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text focus:outline-none focus:border-accent cursor-pointer"
           >
             <option value="">전체</option>
@@ -397,18 +401,25 @@ onMounted(async () => {
           <div v-for="application in dealerApplications" :key="application.id" class="p-4">
             <div class="flex items-start justify-between gap-4 mb-2">
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ application.nickname }}</p>
-                <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ application.email }}</p>
-                <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ application.realEstateLocation }} · 등록번호 {{ application.brokerRegistrationNumber }}</p>
-                <p class="text-xs text-ink-faint dark:text-dark-muted">{{ formatDate(application.createdAt) }}</p>
-                <div class="flex gap-3 mt-1.5">
-                  <a :href="application.businessRegistrationFileUrl" target="_blank" rel="noopener" class="text-xs text-accent hover:underline">사업자 등록증 보기</a>
-                  <a :href="application.brokerLicenseFileUrl" target="_blank" rel="noopener" class="text-xs text-accent hover:underline">중개업 자격증 보기</a>
+                <div class="flex items-center gap-1.5 mb-1">
+                  <div class="w-5 h-5 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+                    <img
+                      v-if="userProfiles[application.userId]?.profileImageUrl"
+                      :src="userProfiles[application.userId].profileImageUrl!"
+                      class="w-full h-full object-cover"
+                    />
+                    <UserRound v-else class="w-3 h-3 text-ink-faint" />
+                  </div>
+                  <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ userProfiles[application.userId]?.nickname ?? `#${application.userId}` }}</p>
                 </div>
+                <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ userProfiles[application.userId]?.email }}</p>
+                <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">{{ application.businessName }} · {{ application.officeAddress }} · 등록번호 {{ application.businessNumber }}</p>
+                <p class="text-xs text-ink-faint dark:text-dark-muted">{{ formatDate(application.createdAt) }}</p>
+                <a :href="application.licenseImageUrl" target="_blank" rel="noopener" class="text-xs text-accent hover:underline mt-1.5 inline-block">중개업 자격증 보기</a>
               </div>
-              <Badge class="shrink-0" :tone="dealerStatusTone(application.dealerStatus)">{{ dealerStatusLabel(application.dealerStatus) }}</Badge>
+              <Badge class="shrink-0" :tone="dealerStatusTone(application.status)">{{ dealerStatusLabel(application.status) }}</Badge>
             </div>
-            <div v-if="application.dealerStatus === 'PENDING'" class="flex gap-2 justify-end">
+            <div v-if="application.status === 'PENDING'" class="flex gap-2 justify-end">
               <BaseButton size="sm" @click="approveDealer(application.id)">승인</BaseButton>
               <BaseButton variant="secondary" size="sm" @click="rejectDealer(application.id)">거부</BaseButton>
             </div>

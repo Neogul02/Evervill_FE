@@ -32,23 +32,19 @@ function removeImage() {
 
 // ── 가입 유형 (공인중개사) ──────────────────────────────────────
 const accountType = ref<'USER' | 'DEALER'>('USER')
-const realEstateLocation = ref('')
-const brokerRegistrationNumber = ref('')
-const businessRegistrationFile = ref<File | null>(null)
-const brokerLicenseFile = ref<File | null>(null)
-
-function handleDealerFileSelect(e: Event, target: 'business' | 'license') {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  if (target === 'business') businessRegistrationFile.value = file
-  else brokerLicenseFile.value = file
-}
+const businessName = ref('')
+const businessNumber = ref('')
+const officeAddress = ref('')
 
 async function onRegister() {
   if (!email.value || !password.value || !passwordConfirm.value) return
   if (password.value.length < 8) { error.value = '비밀번호는 8자 이상이어야 합니다'; return }
   if (password.value !== passwordConfirm.value) { error.value = '비밀번호가 일치하지 않습니다'; return }
   const trimmedNickname = nickname.value.trim()
+  if (accountType.value === 'DEALER' && !trimmedNickname) {
+    error.value = '공인중개사 가입은 닉네임이 필수입니다'
+    return
+  }
   if (trimmedNickname) {
     if (!NICKNAME_PATTERN.test(trimmedNickname)) {
       error.value = '닉네임은 한글/영문/숫자/언더스코어 2~20자로 입력해주세요'
@@ -59,31 +55,31 @@ async function onRegister() {
       return
     }
   }
-  if (accountType.value === 'DEALER') {
-    if (!realEstateLocation.value.trim() || !brokerRegistrationNumber.value.trim()) {
-      error.value = '부동산 위치와 중개업 등록번호를 입력해주세요'
-      return
-    }
-    if (!businessRegistrationFile.value || !brokerLicenseFile.value) {
-      error.value = '사업자 등록증과 중개업 자격증을 모두 첨부해주세요'
-      return
-    }
+  if (accountType.value === 'DEALER' && (!businessName.value.trim() || !businessNumber.value.trim() || !officeAddress.value.trim())) {
+    error.value = '상호명, 사업자 등록번호, 사업장 주소를 모두 입력해주세요'
+    return
   }
 
   loading.value = true
   error.value = ''
   try {
-    await authApi.register({
-      email: email.value,
-      password: password.value,
-      nickname: nickname.value.trim() || undefined,
-      profileImage: profileImage.value ?? undefined,
-      accountType: accountType.value,
-      realEstateLocation: accountType.value === 'DEALER' ? realEstateLocation.value.trim() : undefined,
-      brokerRegistrationNumber: accountType.value === 'DEALER' ? brokerRegistrationNumber.value.trim() : undefined,
-      businessRegistrationFile: accountType.value === 'DEALER' ? businessRegistrationFile.value ?? undefined : undefined,
-      brokerLicenseFile: accountType.value === 'DEALER' ? brokerLicenseFile.value ?? undefined : undefined,
-    })
+    if (accountType.value === 'DEALER') {
+      await authApi.registerRealtor({
+        email: email.value,
+        password: password.value,
+        nickname: trimmedNickname,
+        businessName: businessName.value.trim(),
+        businessNumber: businessNumber.value.trim(),
+        officeAddress: officeAddress.value.trim(),
+      })
+    } else {
+      await authApi.register({
+        email: email.value,
+        password: password.value,
+        nickname: trimmedNickname || undefined,
+        profileImage: profileImage.value ?? undefined,
+      })
+    }
     router.push({
       path: '/login',
       query: accountType.value === 'DEALER' ? { registered: '1', pendingReview: '1' } : { registered: '1' },
@@ -129,11 +125,11 @@ async function onRegister() {
               class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">닉네임</label>
-            <input v-model="nickname" type="text" maxlength="20" placeholder="미입력 시 이메일 앞부분으로 자동 설정"
+            <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">닉네임{{ accountType === 'DEALER' ? '' : ' (선택)' }}</label>
+            <input v-model="nickname" type="text" maxlength="20" :placeholder="accountType === 'DEALER' ? '닉네임을 입력해주세요' : '미입력 시 이메일 앞부분으로 자동 설정'"
               class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
           </div>
-          <div>
+          <div v-if="accountType === 'USER'">
             <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">프로필 이미지 (선택)</label>
             <div class="flex items-center gap-3">
               <div class="w-14 h-14 rounded-full overflow-hidden bg-canvas-soft dark:bg-dark-elevated border border-hairline dark:border-dark-border flex items-center justify-center shrink-0">
@@ -169,34 +165,19 @@ async function onRegister() {
           >
             <div v-if="accountType === 'DEALER'" class="space-y-4 p-4 -mx-1 rounded-lg bg-accent-light/40 dark:bg-accent-dark-muted/40">
               <div>
-                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">부동산 위치</label>
-                <input v-model="realEstateLocation" type="text" placeholder="예: 서울시 강남구 테헤란로 123"
+                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">상호명</label>
+                <input v-model="businessName" type="text" placeholder="예: 강남부동산"
                   class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">중개업 등록번호</label>
-                <input v-model="brokerRegistrationNumber" type="text" placeholder="예: 12345-2024-00001"
+                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">사업자 등록번호</label>
+                <input v-model="businessNumber" type="text" placeholder="예: 123-45-67890"
                   class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">사업자 등록증</label>
-                <div class="flex items-center gap-3">
-                  <label class="px-3 py-1.5 text-xs font-medium border border-hairline dark:border-dark-border rounded-full cursor-pointer hover:border-accent transition-colors">
-                    파일 선택
-                    <input type="file" accept="image/*,.pdf" class="hidden" @change="handleDealerFileSelect($event, 'business')" />
-                  </label>
-                  <span class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ businessRegistrationFile?.name ?? '선택된 파일 없음' }}</span>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">부동산 중개업 자격증</label>
-                <div class="flex items-center gap-3">
-                  <label class="px-3 py-1.5 text-xs font-medium border border-hairline dark:border-dark-border rounded-full cursor-pointer hover:border-accent transition-colors">
-                    파일 선택
-                    <input type="file" accept="image/*,.pdf" class="hidden" @change="handleDealerFileSelect($event, 'license')" />
-                  </label>
-                  <span class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ brokerLicenseFile?.name ?? '선택된 파일 없음' }}</span>
-                </div>
+                <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">사업장 주소</label>
+                <input v-model="officeAddress" type="text" placeholder="예: 서울시 강남구 테헤란로 123"
+                  class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors" />
               </div>
             </div>
           </Transition>

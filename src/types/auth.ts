@@ -41,12 +41,16 @@ export interface RegisterRequest {
   nickname?: string
   /** 선택 — 회원가입 시 프로필 이미지 (요청 예정 — 현재 백엔드 미구현) */
   profileImage?: File
-  /** 기본값 USER. DEALER 선택 시 아래 4개 필드 필수 (요청 예정 — 현재 백엔드 미구현) */
-  accountType?: 'USER' | 'DEALER'
-  realEstateLocation?: string
-  brokerRegistrationNumber?: string
-  businessRegistrationFile?: File
-  brokerLicenseFile?: File
+}
+
+/** POST /auth/signup/realtor — 공인중개사 가입 신청 (파일 업로드 없음) */
+export interface RealtorRegisterRequest {
+  email: string
+  password: string
+  nickname: string
+  businessName: string
+  businessNumber: string
+  officeAddress: string
 }
 
 export interface UpdateProfileRequest {

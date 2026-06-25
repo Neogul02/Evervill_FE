@@ -80,6 +80,9 @@ client.interceptors.response.use(
     // AI 요청은 컴포넌트 내부에서 직접 에러를 처리하므로 에러 페이지 이동 제외
     const isAi = config?.url?.startsWith('/api/ai/')
     const isReissue = config?.url?.startsWith('/auth/reissue')
+    // 회원가입 실패 시 에러 페이지로 이동하면 입력하던 폼이 모두 날아가므로,
+    // RegisterView가 직접 에러 메시지를 보여주도록 페이지 이동에서 제외
+    const isSignup = config?.url?.startsWith('/auth/signup')
 
     if (status === 401 && !isReissue && !config?._retry) {
       const newToken = await reissueAccessToken()
@@ -89,11 +92,11 @@ client.interceptors.response.use(
         return client(config)
       }
       clearAuthAndRedirect()
-    } else if (status >= 500 && !isGet && !isAi) {
+    } else if (status >= 500 && !isGet && !isAi && !isSignup) {
       // GET 실패는 컴포넌트에서 인라인 처리 (빈 목록 등)
       // 사용자 액션(POST/PUT/DELETE) 실패만 에러 페이지로 이동
       router.push({ name: 'error-5xx', query: { code: String(status) } })
-    } else if (!isGet && !isAi && (status === 403 || status === 400 || status === 429 || status === 408)) {
+    } else if (!isGet && !isAi && !isSignup && (status === 403 || status === 400 || status === 429 || status === 408)) {
       router.push({ name: 'error-4xx', query: { code: String(status) } })
     }
 
