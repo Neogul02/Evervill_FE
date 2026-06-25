@@ -31,12 +31,12 @@ export interface AdminNoticeResponse {
 
 export interface AdminReportResponse {
   id: number
-  listingId: number
-  listingTitle: string
   reporterId: number
+  targetId: number
   reason: string
   status: 'PENDING' | 'PROCESSED' | 'DISMISSED'
   createdAt: string
+  processedAt: string | null
 }
 
 export const adminApi = {

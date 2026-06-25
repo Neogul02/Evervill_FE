@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { UserRound } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores'
 import { adminApi } from '@/api/admin'
+import { authApi } from '@/api/auth'
 import type { AdminNoticeResponse, AdminNoticeRequest, AdminReportResponse } from '@/api/admin'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Badge from '@/components/ui/Badge.vue'
 import type { BadgeTone } from '@/constants/dealTypeColors'
-import type { DealerApplication, DealerStatus } from '@/types'
+import type { DealerApplication, DealerStatus, PublicProfile } from '@/types'
 
 type Tab = 'notices' | 'reports' | 'dealers' | 'batch'
 
@@ -27,6 +29,7 @@ const noticeSubmitting = ref(false)
 const reports = ref<AdminReportResponse[]>([])
 const reportLoading = ref(false)
 const reportStatusFilter = ref('')
+const userProfiles = ref<Record<number, PublicProfile>>({})
 
 const dealerApplications = ref<DealerApplication[]>([])
 const dealerLoading = ref(false)
@@ -51,9 +54,19 @@ async function fetchReports() {
   try {
     const res = await adminApi.getReports(reportStatusFilter.value || undefined)
     reports.value = res.data.data
+    loadUserProfiles(reports.value.flatMap((r) => [r.reporterId, r.targetId]))
   } finally {
     reportLoading.value = false
   }
+}
+
+function loadUserProfiles(userIds: number[]) {
+  const uniqueIds = [...new Set(userIds)].filter((id) => !userProfiles.value[id])
+  uniqueIds.forEach((id) => {
+    authApi.getPublicProfile(id)
+      .then((res) => { userProfiles.value[id] = res.data.data })
+      .catch(() => {})
+  })
 }
 
 function openCreateForm() {
@@ -210,7 +223,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base">
+  <div class="flex flex-col min-h-screen bg-canvas-soft dark:bg-dark-base mt-10">
     <AppHeader />
     <main class="pt-14 max-w-4xl mx-auto w-full px-4 pb-8">
       <h1 class="text-xl font-bold text-ink dark:text-dark-text mb-6 tracking-tight">관리자</h1>
@@ -321,7 +334,32 @@ onMounted(async () => {
           <div v-for="report in reports" :key="report.id" class="p-4">
             <div class="flex items-start justify-between gap-4 mb-2">
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ report.listingTitle }}</p>
+                <div class="flex items-center gap-4 mb-1 flex-wrap">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] text-ink-faint dark:text-dark-muted">신고자</span>
+                    <div class="w-5 h-5 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+                      <img
+                        v-if="userProfiles[report.reporterId]?.profileImageUrl"
+                        :src="userProfiles[report.reporterId].profileImageUrl!"
+                        class="w-full h-full object-cover"
+                      />
+                      <UserRound v-else class="w-3 h-3 text-ink-faint" />
+                    </div>
+                    <span class="text-xs font-medium text-ink dark:text-dark-text">{{ userProfiles[report.reporterId]?.nickname ?? `#${report.reporterId}` }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] text-ink-faint dark:text-dark-muted">대상</span>
+                    <div class="w-5 h-5 rounded-full overflow-hidden shrink-0 bg-white border border-hairline dark:border-dark-border flex items-center justify-center">
+                      <img
+                        v-if="userProfiles[report.targetId]?.profileImageUrl"
+                        :src="userProfiles[report.targetId].profileImageUrl!"
+                        class="w-full h-full object-cover"
+                      />
+                      <UserRound v-else class="w-3 h-3 text-ink-faint" />
+                    </div>
+                    <span class="text-xs font-medium text-ink dark:text-dark-text">{{ userProfiles[report.targetId]?.nickname ?? `#${report.targetId}` }}</span>
+                  </div>
+                </div>
                 <p class="text-xs text-ink-faint dark:text-dark-muted mt-0.5">신고 사유: {{ report.reason }}</p>
                 <p class="text-xs text-ink-faint dark:text-dark-muted">{{ formatDate(report.createdAt) }}</p>
               </div>
