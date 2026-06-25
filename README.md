@@ -6,6 +6,7 @@
 > - [`docs/requirements-specification.md`](./docs/requirements-specification.md) — 요구사항 정의서
 > - [`docs/class-diagram.md`](./docs/class-diagram.md) — 클래스(도메인 모델) 다이어그램
 > - [`docs/er-diagram.md`](./docs/er-diagram.md) — ER 다이어그램 (`ERD.ts` 베이스라인 + 변경분)
+> - [`docs/frontend-ui-ux-techniques.md`](./docs/frontend-ui-ux-techniques.md) — UI/UX 관점에서 적용한 프론트엔드 기술 정리
 
 ## 기술 스택
 
