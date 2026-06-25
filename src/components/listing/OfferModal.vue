@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { listingsApi } from '@/api'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
@@ -17,6 +17,7 @@ const emit = defineEmits<{
 const price = ref(props.initialPrice ? String(props.initialPrice) : '')
 const submitting = ref(false)
 const error = ref('')
+const priceInput = ref<HTMLInputElement | null>(null)
 
 async function onSubmit() {
   const parsed = Number(price.value)
@@ -45,6 +46,7 @@ onMounted(() => {
   document.addEventListener('keydown', onKeydown)
   document.body.style.overflow = 'hidden'
   setTimeout(() => { backdropReady.value = true }, 150)
+  nextTick(() => priceInput.value?.focus())
 })
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydown)
@@ -78,12 +80,13 @@ function onBackdropClick() {
 
           <label class="block text-sm font-medium text-ink-secondary dark:text-dark-text mb-1.5">복비 (만원)</label>
           <input
+            ref="priceInput"
             v-model="price"
             type="number"
             min="1"
             step="1"
             placeholder="예: 500"
-            class="w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
+            class="no-spinner w-full px-3 py-2 border border-hairline dark:border-dark-border rounded text-sm bg-canvas dark:bg-dark-elevated text-ink dark:text-dark-text placeholder-ink-faint dark:placeholder-dark-muted focus:outline-none focus:border-accent transition-colors"
           />
 
           <p v-if="error" class="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded mt-3">
@@ -103,6 +106,15 @@ function onBackdropClick() {
 </template>
 
 <style scoped>
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
 .modal-panel {
   animation: modal-pop 220ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
