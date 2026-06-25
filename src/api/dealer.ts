@@ -1,8 +1,8 @@
-import client, { userIdHeader } from './client'
+import client from './client'
 import type { ApiResponse, Dealer } from '@/types'
 
-// 요청 예정 — 현재 백엔드 미구현 (dealer-matching-and-signup-role.md 참고)
 export const dealerApi = {
+  // 공인중개사 목록 — 비로그인 허용
   getApprovedDealers: () =>
-    client.get<ApiResponse<Dealer[]>>('/api/dealers', { headers: userIdHeader() }),
+    client.get<ApiResponse<Dealer[]>>('/auth/dealers'),
 }

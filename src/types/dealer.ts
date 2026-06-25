@@ -1,9 +1,10 @@
-/** 매칭 모달에 노출되는 승인된 공인중개사 (요청 예정 — 현재 백엔드 미구현) */
+/** GET /auth/dealers — 매칭 모달에 노출되는 공인중개사 (비로그인 허용) */
 export interface Dealer {
   id: number
   nickname: string
   profileImageUrl?: string | null
-  realEstateLocation: string
+  businessName: string
+  officeAddress: string
 }
 
 export type RealtorApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED'

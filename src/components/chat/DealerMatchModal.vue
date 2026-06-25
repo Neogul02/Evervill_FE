@@ -137,8 +137,8 @@ function onBackdropClick() {
                     <UserRound v-else class="w-4 h-4 text-ink-faint" />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ dealer.nickname }}</p>
-                    <p class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ dealer.realEstateLocation }}</p>
+                    <p class="text-sm font-medium text-ink dark:text-dark-text truncate">{{ dealer.nickname }} · {{ dealer.businessName }}</p>
+                    <p class="text-xs text-ink-faint dark:text-dark-muted truncate">{{ dealer.officeAddress }}</p>
                   </div>
                 </button>
               </li>
