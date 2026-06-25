@@ -11,7 +11,7 @@ export function formatManWon(value: number | null | undefined): string {
   return `${value.toLocaleString()}만`
 }
 
-export function formatListingPrice(listing: Listing): string {
+export function formatListingPrice(listing: Pick<Listing, 'dealType' | 'price' | 'monthlyRent'>): string {
   switch (listing.dealType) {
     case 'SALE':
       return `매매 ${formatManWon(listing.price)}`

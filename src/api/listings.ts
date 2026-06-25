@@ -1,6 +1,5 @@
-import client, { userIdHeader } from './client'
-import type { Listing, CreateListingRequest, UpdateListingRequest, ListingFilter, ListingPageResponse } from '@/types'
-import type { ApiResponse } from '@/types'
+import client, { userIdHeader, dealerHeaders } from './client'
+import type { Listing, CreateListingRequest, UpdateListingRequest, ListingFilter, ListingPageResponse, MyOfferedListing, ApiResponse, ListingOffer } from '@/types'
 
 export const listingsApi = {
   getList: (params?: ListingFilter) =>
@@ -48,4 +47,16 @@ export const listingsApi = {
 
   report: (id: number, reason: string) =>
     client.post<ApiResponse<void>>(`/api/listings/${id}/report`, { reason }, { headers: userIdHeader() }),
+
+  // 딜러 역경매 — 복비 가격 제안 (DEALER, 재제안 시 덮어씀)
+  submitOffer: (listingId: number, price: number) =>
+    client.post<ApiResponse<string>>(`/api/listings/${listingId}/offers`, { price }, { headers: dealerHeaders() }),
+
+  // 매물에 제안된 중개사 목록 (채팅방 매칭하기용)
+  getOffers: (listingId: number) =>
+    client.get<ApiResponse<ListingOffer[]>>(`/api/listings/${listingId}/offers`, { headers: userIdHeader() }),
+
+  // 내가 제안한 매물 목록 (DEALER)
+  getMyOfferedListings: () =>
+    client.get<ApiResponse<MyOfferedListing[]>>('/api/listings/my-offers', { headers: dealerHeaders() }),
 }

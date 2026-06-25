@@ -6,6 +6,12 @@ export function userIdHeader() {
   return { 'X-User-Id': useAuthStore().user?.id }
 }
 
+// DEALER 권한이 필요한 엔드포인트는 게이트웨이가 역할을 자동 채워주지 않아 X-User-Role도 직접 보내야 함
+export function dealerHeaders() {
+  const user = useAuthStore().user
+  return { 'X-User-Id': user?.id, 'X-User-Role': user?.role }
+}
+
 const client = axios.create({
   baseURL: '/',
   timeout: 10000,

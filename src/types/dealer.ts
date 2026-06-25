@@ -1,10 +1,10 @@
-/** GET /auth/dealers — 매칭 모달에 노출되는 공인중개사 (비로그인 허용) */
-export interface Dealer {
+/** GET /api/listings/{listingId}/offers — 매물에 제안된 중개사 가격 제안 (딜러 역경매) */
+export interface ListingOffer {
   id: number
-  nickname: string
-  profileImageUrl?: string | null
-  businessName: string
-  officeAddress: string
+  dealerId: number
+  price: number
+  status: 'PENDING' | 'ACCEPTED' | 'CANCELLED'
+  createdAt: string
 }
 
 export type RealtorApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED'

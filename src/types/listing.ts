@@ -33,6 +33,24 @@ export interface Listing {
   createdAt: string
 }
 
+/** GET /api/listings/my-offers — 딜러가 제안한 매물 (조회수/북마크 수 등은 응답에 없음) */
+export interface MyOfferedListing {
+  id: number
+  sellerId: number
+  title: string
+  dealType: DealType
+  price: number
+  monthlyRent: number
+  area: number | null
+  floor: number | null
+  address: string
+  addressDetail: string | null
+  status: ListingStatus
+  images: ListingImage[]
+  createdAt: string
+  myOfferPrice: number
+}
+
 // BE 응답의 페이지네이션 형식 (hasNext 방식)
 export interface ListingPageResponse<T> {
   content: T[]

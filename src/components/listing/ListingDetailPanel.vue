@@ -29,6 +29,7 @@ import { useAsyncAction } from '@/composables/useAsyncAction'
 import ListingImageCarousel from './detail/ListingImageCarousel.vue'
 import ListingAiAnalysisCard from './detail/ListingAiAnalysisCard.vue'
 import ListingReportModal from './detail/ListingReportModal.vue'
+import OfferModal from './OfferModal.vue'
 
 const props = defineProps<{
   listingId: number | null
@@ -56,11 +57,28 @@ const showReportModal = ref(false)
 const deleteLoading = ref(false)
 const scrollEl = ref<HTMLElement | null>(null)
 const shareCopied = ref(false)
+const showOfferModal = ref(false)
+const myOfferPrice = ref<number | null>(null)
 
 const isOwner = () =>
   !!detail.value &&
   !!authStore.user &&
   detail.value.sellerId === authStore.user.id
+
+function fetchMyOffer(listingId: number) {
+  if (authStore.user?.role !== 'DEALER') return
+  listingsApi
+    .getOffers(listingId)
+    .then((res) => {
+      const mine = res.data.data.find((o) => o.dealerId === authStore.user!.id && o.status === 'PENDING')
+      myOfferPrice.value = mine?.price ?? null
+    })
+    .catch(() => {})
+}
+
+function handleOfferSubmitted(price: number) {
+  myOfferPrice.value = price
+}
 
 watch(
   () => props.listingId,
@@ -73,6 +91,7 @@ watch(
     }
     detail.value = null
     sellerProfile.value = null
+    myOfferPrice.value = null
     await run(async () => {
       const res = await listingsApi.getById(id)
       detail.value = res.data.data
@@ -88,6 +107,7 @@ watch(
           })
           .catch(() => {})
       }
+      fetchMyOffer(detail.value.id)
     }).catch(() => {
       detail.value = null
     })
@@ -450,6 +470,13 @@ function onDetailEnter(el: Element, done: () => void) {
               </button>
             </div>
             <div v-else class="flex items-center gap-2">
+              <button
+                v-if="authStore.user?.role === 'DEALER'"
+                @click="showOfferModal = true"
+                class="inline-flex items-center justify-center gap-1.5 font-medium transition-colors duration-150 cursor-pointer active:scale-95 text-sm px-4 py-1.5 border border-accent text-accent rounded-full hover:bg-accent-light dark:hover:bg-accent-dark-muted"
+              >
+                {{ myOfferPrice ? `제안 수정하기 (${formatManWon(myOfferPrice)})` : '가격 제안하기' }}
+              </button>
               <RouterLink
                 v-if="authStore.isAuthenticated"
                 :to="`/chat?listingId=${detail.id}`"
@@ -489,6 +516,15 @@ function onDetailEnter(el: Element, done: () => void) {
       v-if="detail"
       v-model:open="showReportModal"
       :listing-id="detail.id"
+    />
+
+    <!-- 딜러 가격 제안 모달 -->
+    <OfferModal
+      v-if="detail && showOfferModal"
+      v-model:open="showOfferModal"
+      :listing-id="detail.id"
+      :initial-price="myOfferPrice"
+      @submitted="handleOfferSubmitted"
     />
   </div>
 </template>

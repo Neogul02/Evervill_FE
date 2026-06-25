@@ -494,6 +494,7 @@ onUnmounted(() => {
       v-if="showMatchModal && selectedRoom"
       v-model:open="showMatchModal"
       :room-id="selectedRoom.id"
+      :listing-id="selectedRoom.listingId"
       :matched-dealer-name="matchedDealerName"
       @matched="handleDealerMatched"
     />

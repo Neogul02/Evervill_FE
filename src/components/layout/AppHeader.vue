@@ -139,6 +139,13 @@ async function logout() {
               >관리자</RouterLink
             >
 
+            <RouterLink
+              v-if="authStore.user?.role === 'DEALER'"
+              to="/dealer/offers"
+              class="nav-link nav-link--admin"
+              >내 제안</RouterLink
+            >
+
             <div class="w-px h-3.5 bg-hairline dark:bg-dark-border mx-1" />
 
             <RouterLink
@@ -233,6 +240,14 @@ async function logout() {
             class="mobile-nav-link mobile-nav-link--admin"
             @click="mobileMenuOpen = false"
             >관리자</RouterLink
+          >
+
+          <RouterLink
+            v-if="authStore.user?.role === 'DEALER'"
+            to="/dealer/offers"
+            class="mobile-nav-link mobile-nav-link--admin"
+            @click="mobileMenuOpen = false"
+            >내 제안</RouterLink
           >
 
           <div class="h-px bg-hairline dark:bg-dark-border my-1" />

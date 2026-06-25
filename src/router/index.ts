@@ -106,6 +106,12 @@ const router = createRouter({
       component: () => import('@/views/AdminView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    {
+      path: '/dealer/offers',
+      name: 'dealer-offers',
+      component: () => import('@/views/DealerOffersView.vue'),
+      meta: { requiresAuth: true, requiresDealer: true },
+    },
     // 개발용 API 테스트 페이지 — 프로덕션 빌드에는 포함되지 않음
     ...(import.meta.env.DEV
       ? [
@@ -145,6 +151,9 @@ router.beforeEach((to, from) => {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
   if (to.meta.requiresAdmin && authStore.user?.role !== 'ADMIN') {
+    return { name: 'home' }
+  }
+  if (to.meta.requiresDealer && authStore.user?.role !== 'DEALER') {
     return { name: 'home' }
   }
   if (to.meta.guestOnly && authStore.isAuthenticated) {
