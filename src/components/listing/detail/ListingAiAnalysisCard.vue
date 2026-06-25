@@ -5,7 +5,7 @@ import type { AiAnalysis } from '@/types/ai'
 import { aiApi } from '@/api'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Badge from '@/components/ui/Badge.vue'
-import type { BadgeTone } from '@/constants/dealTypeColors'
+import { RISK_LEVEL_LABEL, RISK_LEVEL_TONE } from '@/constants/aiRisk'
 
 const props = defineProps<{
   listingId: number
@@ -14,17 +14,6 @@ const props = defineProps<{
 const aiResult = ref<AiAnalysis | null>(null)
 const aiLoading = ref(false)
 const aiError = ref('')
-
-const AI_LEVEL_TONE: Record<string, BadgeTone> = {
-  SAFE: 'green',
-  CAUTION: 'amber',
-  DANGER: 'rose',
-}
-const AI_LEVEL_LABEL: Record<string, string> = {
-  SAFE: '안전',
-  CAUTION: '주의',
-  DANGER: '위험',
-}
 
 async function runAiAnalysis() {
   if (aiLoading.value) return
@@ -58,7 +47,7 @@ async function runAiAnalysis() {
     <!-- 결과 -->
     <div v-if="aiResult" class="space-y-2">
       <div v-if="aiResult.riskLevel" class="flex items-center gap-2">
-        <Badge :tone="AI_LEVEL_TONE[aiResult.riskLevel]">{{ AI_LEVEL_LABEL[aiResult.riskLevel] }}</Badge>
+        <Badge :tone="RISK_LEVEL_TONE[aiResult.riskLevel]">{{ RISK_LEVEL_LABEL[aiResult.riskLevel] }}</Badge>
       </div>
       <p class="text-xs text-ink-muted dark:text-dark-muted leading-relaxed whitespace-pre-line">
         {{ aiResult.resultSummary }}

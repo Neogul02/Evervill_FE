@@ -87,6 +87,12 @@ async function logout() {
           class="nav-link font-semibold"
           >공지사항</RouterLink
         >
+
+        <RouterLink
+          to="/ai/registry"
+          class="nav-link font-semibold"
+          >AI 분석</RouterLink
+        >
       </div>
 
       <!-- ── 검색 ── -->
