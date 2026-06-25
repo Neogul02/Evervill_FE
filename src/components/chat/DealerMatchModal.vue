@@ -23,6 +23,7 @@ const offers = ref<ListingOffer[]>([])
 const dealerProfiles = ref<Record<number, PublicProfile>>({})
 const loading = ref(false)
 const error = ref(false)
+const actionError = ref('')
 const processingId = ref<number | null>(null)
 
 async function fetchOffers() {
@@ -61,6 +62,7 @@ async function acceptOffer(offer: ListingOffer) {
   if (!ok) return
 
   processingId.value = offer.id
+  actionError.value = ''
   try {
     await chatApi.acceptOffer(props.roomId, offer.id)
     // accept 응답엔 갱신된 참가자 정보가 없어 방 목록을 다시 조회해 채팅방 상태를 갱신한다
@@ -68,8 +70,8 @@ async function acceptOffer(offer: ListingOffer) {
     const room = roomsRes.data.data.find((r) => r.id === props.roomId)
     if (room) emit('matched', room)
     open.value = false
-  } catch {
-    error.value = true
+  } catch (e: any) {
+    actionError.value = e.response?.data?.message ?? '수락에 실패했습니다. 잠시 후 다시 시도해주세요.'
   } finally {
     processingId.value = null
   }
@@ -85,11 +87,12 @@ async function cancelOffer(offer: ListingOffer) {
   if (!ok) return
 
   processingId.value = offer.id
+  actionError.value = ''
   try {
     await chatApi.cancelOffer(props.roomId, offer.id)
     offers.value = offers.value.filter((o) => o.id !== offer.id)
-  } catch {
-    error.value = true
+  } catch (e: any) {
+    actionError.value = e.response?.data?.message ?? '취소에 실패했습니다. 잠시 후 다시 시도해주세요.'
   } finally {
     processingId.value = null
   }
@@ -144,6 +147,9 @@ function onBackdropClick() {
 
         <!-- 목록 -->
         <template v-else>
+          <p v-if="actionError" class="mx-3 mb-2 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded">
+            {{ actionError }}
+          </p>
           <div class="flex-1 overflow-y-auto px-3 pb-3">
             <div v-if="loading" class="flex items-center justify-center py-10">
               <div class="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />

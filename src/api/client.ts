@@ -89,6 +89,8 @@ client.interceptors.response.use(
     // 회원가입 실패 시 에러 페이지로 이동하면 입력하던 폼이 모두 날아가므로,
     // RegisterView가 직접 에러 메시지를 보여주도록 페이지 이동에서 제외
     const isSignup = config?.url?.startsWith('/auth/signup')
+    // 딜러 가격 제안/수락/취소 실패는 매물 상세/채팅방에서 바로 에러 메시지를 보여주므로 페이지 이동 제외
+    const isOffer = config?.url?.includes('/offers')
 
     if (status === 401 && !isReissue && !config?._retry) {
       const newToken = await reissueAccessToken()
@@ -98,11 +100,11 @@ client.interceptors.response.use(
         return client(config)
       }
       clearAuthAndRedirect()
-    } else if (status >= 500 && !isGet && !isAi && !isSignup) {
+    } else if (status >= 500 && !isGet && !isAi && !isSignup && !isOffer) {
       // GET 실패는 컴포넌트에서 인라인 처리 (빈 목록 등)
       // 사용자 액션(POST/PUT/DELETE) 실패만 에러 페이지로 이동
       router.push({ name: 'error-5xx', query: { code: String(status) } })
-    } else if (!isGet && !isAi && !isSignup && (status === 403 || status === 400 || status === 429 || status === 408)) {
+    } else if (!isGet && !isAi && !isSignup && !isOffer && (status === 403 || status === 400 || status === 429 || status === 408)) {
       router.push({ name: 'error-4xx', query: { code: String(status) } })
     }
 
